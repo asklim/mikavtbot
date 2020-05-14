@@ -1,0 +1,38 @@
+{
+    "name": "mikavbot",
+    "version": "0.0.1",
+    "description": "Telegram bot for usage in rsis",
+    "main": "server/www.js",
+    "private": true,
+    "scripts": {
+        "production": "NODE_ENV=production npm run start",
+        "start": "node server/www.js",
+        "debug": "DEBUG=tbot*,lib:*,telegraf:core npm run start",
+        "debug:all": "DEBUG=* npm run start",
+        "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install",
+        "test": "npm run test"
+    },
+    "repository": {
+        "type": "git",
+        "url": "mikavbot@asklim.github.com"
+    },
+    "author": "AsKlim",
+    "license": "ISC",
+    "dependencies": {
+        "axios": "^0.19.2",
+        "bent": "^7.3.0",
+        "colors": "^1.4.0",
+        "cookie-parser": "^1.4.5",
+        "debug": "*",
+        "dotenv": "^8.2.0",
+        "dotenv-expand": "^5.1.0",
+        "ejs": "^3.1.2",
+        "express": "^5.0.0-alpha.8",
+        "form-data": "^3.0.0",
+        "http-errors": "^1.7.3",
+        "jsonwebtoken": "^8.5.1",
+        "mongoose": "^5.9.14",
+        "morgan": "^1.10.0",
+        "telegraf": "^3.38.0"
+    }
+}
