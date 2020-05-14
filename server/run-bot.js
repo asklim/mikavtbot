@@ -1,23 +1,18 @@
 
-
 const { bot:mikavbot } = require( './telegram-bot.js' );
 
 
-mikavbot.launch().then(
-    () => {
+mikavbot.launch()
+.then( async () => {
 
-        mikavbot.telegram.getWebhookInfo()
-        .then(
+    let info;
+    info = await mikavbot.telegram.getWebhookInfo();
+    
+    console.log( 'webhook Info: ', info );
 
-            info => console.log( 'webhook Info: ', info )
-        
-        );
+    info = await mikavbot.telegram.getMe();
 
-        mikavbot.telegram.getMe()
-        .then(
+    console.log( 'Me: ', info )
 
-            info => console.log( 'Me: ', info )
-
-        );
 });
 

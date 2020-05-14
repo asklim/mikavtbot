@@ -223,8 +223,7 @@ function serverAppOutput( outputMode, appVersion, httpServer ) {
         addr: () => {
                 console.log( 'app version ', appVersion.cyan );
                 console.log(
-                'Express server = "' + address.cyan + '" Family= "' + family.cyan +'"\n',
-                'listening on ' + bind.cyan );
+                'Express server = "' + address.cyan + '" Family= "' + family.cyan +'" listening on ' + bind.cyan );
             },
         default: () => console.log( '\n' )
     };  
