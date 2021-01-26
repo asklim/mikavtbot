@@ -1,10 +1,10 @@
-const debug = require( 'debug' )('lib:helpers:upload-photo');
+//const debug = require( 'debug' )('lib:helpers:upload-photo');
 
-const FormData = require('form-data');
+const FormData = require( 'form-data' );
 
 const { 
     //createWriteStream,
-    createReadStream } = require('fs')
+    createReadStream } = require( 'fs' )
 ;
 
 const {
@@ -15,18 +15,15 @@ const {
 
 
 
-
-async function uploadTestPhoto( { token, apiRoot, chat_id } ) {
-
-
-    /** 
-     *  @param  token     - токен для доступа к Telegram-боту
-     *  @param  apiRoot   - путь к Telegram API
-     *  @param  chat_id   - id чата/пользователя куда загрузить фото
-     *  @return 
-     *   'test photo' is /server/image/test-informer.png
-    */
-
+/** 
+ *  @param {string} token   - токен для доступа к Telegram-боту
+ *  @param {string} apiRoot - путь к Telegram API
+ *  @param {number} chat_id - id чата/пользователя куда загрузить фото
+ *  @return {Promise}
+ *  Загружает тестовое фото,
+ *  'test photo' is /server/image/test-informer.png
+*/
+async function uploadTestPhoto ({ token, apiRoot, chat_id }) {
 
     let fromfile;
 
@@ -46,18 +43,14 @@ async function uploadTestPhoto( { token, apiRoot, chat_id } ) {
 }
 
 
-
-
-async function uploadPhoto( { token, apiRoot, chat_id }, photoURL ) {
-
-
-    /** 
-     *  @param  {} token     - токен для доступа к Telegram-боту
-     *  @param  {} apiRoot   - путь к Telegram API
-     *  @param  {} chat_id   - id чата/пользователя куда загрузить фото
-     *  @param  {} photoURL  - полный адрес для скачивания изображения
-     *  @return {?}
-    */
+/** 
+ *  @param {string} token     - токен для доступа к Telegram-боту
+ *  @param {string} apiRoot   - путь к Telegram API
+ *  @param {number} chat_id   - id чата/пользователя куда загрузить фото
+ *  @param {string} photoURL  - полный адрес для скачивания изображения
+ *  @return {Promise}
+*/
+async function uploadPhoto ({ token, apiRoot, chat_id }, photoURL) {
 
     let imageReadable;
 
@@ -87,19 +80,16 @@ module.exports = {
 
 
 
+/** 
+ *  @param {string} token     - токен для доступа к Telegram-боту
+ *  @param {string} apiRoot   - путь к Telegram API
+ *  @param {number} chat_id   - id чата/пользователя куда загрузить фото
+ *  @param {Readable} stream  - поток изображения
+ *  @return {}
+*/
+function uploadImageStream ({ token, apiRoot, chat_id }, stream) {
 
-function uploadImageStream( { token, apiRoot, chat_id }, stream ) {
-
-
-    /** 
-     *  @param  token     - токен для доступа к Telegram-боту
-     *  @param  apiRoot   - путь к Telegram API
-     *  @param  chat_id   - id чата/пользователя куда загрузить фото
-     *  @param  {Readable} Stream  - поток изображения
-     *  @return {}
-    */
     // Telegram требует POST with form-data(multipart)
-
     
     let apiSendPhotoUrl = `${apiRoot}/bot${token}/sendPhoto`;
     console.log( `uploadPhoto: try to '${apiSendPhotoUrl}'` );

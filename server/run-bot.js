@@ -12,7 +12,7 @@ mikavbot.launch()
 
     info = await mikavbot.telegram.getMe();
 
-    console.log( 'Me: ', info )
+    console.log( 'Me: ', info );
 
 });
 

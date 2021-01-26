@@ -1,6 +1,6 @@
 const debug = require( 'debug' )('tbot');
 
-const Telegraf = require( 'telegraf' );
+const { Telegraf } = require( 'telegraf' );
 const bot = new Telegraf( process.env.MIKAVBOT_TOKEN );
 
 const {
@@ -12,7 +12,7 @@ const {
 
 
 
-bot.start( ctx => {
+bot.start( (ctx) => {
 
     debug( 'start command' );
     ctx.replyWithHTML( '<b>Hello</b>' );
@@ -21,7 +21,7 @@ bot.start( ctx => {
 
 
 
-bot.help( ctx => { 
+bot.help( (ctx) => { 
 
     debug( 'help command' );
     ctx.replyWithHTML( '<b>Help Text</b>' );
@@ -30,7 +30,7 @@ bot.help( ctx => {
 
 
 
-bot.command( '/geteco', ctx => { 
+bot.command( '/geteco', (ctx) => { 
 
 
     debug( '/geteco command' );
@@ -49,7 +49,7 @@ bot.command( '/geteco', ctx => {
 
 
 
-bot.command( '/test', ctx => { 
+bot.command( '/test', (ctx) => { 
 
 
     debug( '/test command' );
@@ -64,7 +64,7 @@ bot.command( '/test', ctx => {
 
 
 
-bot.on( 'text', ctx => {
+bot.on( 'text', (ctx) => {
 
 
     let { reply, message } = ctx;
@@ -86,7 +86,7 @@ bot.on( 'text', ctx => {
 
 
 
-bot.on( 'message', ctx => {  // sticker or smilik
+bot.on( 'message', (ctx) => {  // sticker or smilik
 
 
     debug( `onMessage event` );
@@ -113,8 +113,4 @@ bot.use( ({ reply, message }, next) => {
 //debug('telegraf bot: ', bot);
 
 
-module.exports = { 
-    bot
-};
-
-
+module.exports = { bot };

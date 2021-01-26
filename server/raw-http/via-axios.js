@@ -7,15 +7,12 @@ const axios = require( 'axios' ).default;
 class NetworkError extends Error {}
 
 
-
-async function getStreamImageFrom( url ) {
-
-
-    /***  
-     *  @param  {string} url - полный адрес для скачивания изображения
-     *  @return {IncomingMessage} -  readable Stream
-     *  see 'data-samples/IncomingMessage.log'
-    */
+/***  
+ *  @param  {string} url - полный адрес для скачивания изображения
+ *  @return {IncomingMessage} -  readable Stream,
+ *  see 'data-samples/IncomingMessage.log'
+*/
+async function getStreamImageFrom (url) {
 
     let getOptions = {
     
@@ -40,13 +37,14 @@ async function getStreamImageFrom( url ) {
     
         let readable = axiosResponse.data;
 
-     return readable
-        .on( 'error', (err) => {
+        return readable
+            // eslint-disable-next-line no-unused-vars
+            .on( 'error', (_err) => {
 
-            debug( `E: readable.on: ERROR image reading from '${url}'` );
-        });
+                debug( `E: readable.on: ERROR image reading from '${url}'` );
+            });
     } 
-    catch (error) {
+    catch( error ) {
 
         debug( `E: catch block in 'getStreamImageFrom'\n`, error );
     }
@@ -54,18 +52,17 @@ async function getStreamImageFrom( url ) {
 
 
 
-function postImageTo( options ) {
+function postImageTo (options) {
 
 
-  return axios( options )
+    return axios( options )
 
     .then( checkStatus )    
     .then( axiosResponse => axiosResponse.data )
     .then( response2console )
     .then( telegramResponse =>      // from Telegram Server
     {
-        if( telegramResponse.ok ) 
-        {
+        if( telegramResponse.ok ) {
             
             let dt = Date( telegramResponse.result.date );
             let isoDate = (new Date( dt )).toISOString();
@@ -76,7 +73,7 @@ function postImageTo( options ) {
 
             let { file_id } = telegramResponse.result.photo[0];
 
-            console.log( `SUCCESS: image uploaded at ${isoDate}, ${dt}`);
+            console.log( `SUCCESS: image uploaded at ${isoDate}, ${dt}` );
             console.log( `file_id: ${file_id}` );
         } 
         else {
@@ -85,13 +82,10 @@ function postImageTo( options ) {
         return telegramResponse.ok;
         
     })
-    .catch( error => 
-    {
+    .catch( error => {
         debug( `catch: ERROR in 'uploadPhoto'\n`, error );                  
     });
 }
-
-
 
 
 module.exports = {
@@ -107,8 +101,7 @@ module.exports = {
 
 function response2console( response ) {
 
-    console.log('response:');
-    console.log( response );
+    console.log('response:\n', response );
     return response;
 }
 
@@ -120,14 +113,14 @@ function checkStatus( response ) {
     debug('check Status running ...');
     //console.log( response );
 
-    if( response.status > 199 && response.status < 300 )
-    {     
-        debug('check Status is Ok.');                
+    if( response.status > 199 && response.status < 300 ) {
+
+        debug( 'check Status is Ok.' );                
     } 
     else {        
 
         let { status, statusText } = response;
-        debug( `ERROR: uploading status = ${status}, ${statusText}`);
+        debug( `ERROR: uploading status = ${status}, ${statusText}` );
     }
 
     return response;

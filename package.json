@@ -1,6 +1,6 @@
 {
     "name": "mikavbot",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Telegram bot for usage in rsis",
     "main": "server/www.js",
     "private": true,
@@ -19,7 +19,7 @@
     "author": "AsKlim",
     "license": "ISC",
     "dependencies": {
-        "axios": "^0.19.2",
+        "axios": "^0.21.1",
         "bent": "^7.3.0",
         "colors": "^1.4.0",
         "cookie-parser": "^1.4.5",
@@ -33,6 +33,12 @@
         "jsonwebtoken": "^8.5.1",
         "mongoose": "^5.9.14",
         "morgan": "^1.10.0",
-        "telegraf": "^3.38.0"
+        "telegraf": "^4.0.1"
+    },
+    "devDependencies": {
+        "@babel/eslint-parser": "^7.12.1",
+        "@babel/preset-env": "^7.12.11",
+        "eslint": "^7.18.0",
+        "jest": "^26.6.3"
     }
 }

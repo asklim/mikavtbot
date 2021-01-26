@@ -1,10 +1,11 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require( 'http-errors' );
+const express = require( 'express' );
+const path = require( 'path' );
+const cookieParser = require( 'cookie-parser' );
+const morgan = require( 'morgan' );
 
-const icwd = require( 'fs' ).realpathSync( process.cwd());
+const { icwd } = require( './helpers/serverconfig' );
+//const icwd = require( 'fs' ).realpathSync( process.cwd());
 
 
 require( './run-bot.js' );
@@ -17,16 +18,21 @@ const {
 createConns();
 
 
-var indexRouter = require( './routes/index' );
-var usersRouter = require( './routes/users' );
+const indexRouter = require( './routes/index' );
+const usersRouter = require( './routes/users' );
 
-var app = express();
+const app = express();
 
 // view engine setup
 app.set( 'views', path.join(__dirname, 'views' ));
 app.set( 'view engine', 'ejs' );
 
-app.use( logger( 'dev' ));
+let morganTemplate = [
+    '[:date[web]]', ':status',  
+    //':remote-addr', ':remote-user',
+    ':method :url :response-time[0] ms - :res[content-length]'
+].join(' ');
+app.use( morgan( morganTemplate ));
 
 app.use( express.json());
 app.use( express.urlencoded({ extended: false }));
@@ -44,15 +50,16 @@ app.use( function(req, res, next ) {
 });
 
 // error handler
-app.use( function( err, req, res, next ) {
+// eslint-disable-next-line no-unused-vars
+app.use( function( err, req, res, _next ) {
 
-	// set locals, only providing error in development
-	res.locals.message = err.message;
-	res.locals.error = req.app.get('env') === 'development' ? err : {};
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-	// render the error page
-	res.status(err.status || 500);
-	res.render('error');
+    // render the error page
+    res.status(err.status || 500);
+    res.render('error');
 });
 
 
