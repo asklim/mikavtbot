@@ -1,36 +1,33 @@
+const log = require( '../helpers/logger' )('DB:');
 
-module.exports.log = function( aDb ) {
-
-
-    /**
-     * @name log
-     * aDb - mongoose.connection to MongoDB
-    */
+/**
+ * Выводит адрес/имя_db, массив имен моделей 
+ * и количество документов в их коллекциях
+ * ----
+ * @param {} aDb - mongoose.connection to MongoDB
+*/
+module.exports = function( aDb ) {
  
     //console.log('dbinfo: Mongoose version %s', mongoose.version);
 
-    var title = `dbinfo: ${aDb.host}:${aDb.port}/${aDb.db.databaseName}`;
-    
-    /*  console.log(`${title}: collection's count = %d`, 
-                    Object.keys(iDb.collections).length);
-    console.log(`${title}: model's count = ${iDb.modelNames().length}`);  
-    console.log(`${title}: `, iDb.modelNames());
-    */
+    const title = `${aDb.host}:${aDb.port}/${aDb.db.databaseName}`;
 
-    var callArr = [];
-    let models = aDb.modelNames(); //массив имен моделей
+    let callFunctionArray = [];
+    const models = aDb.modelNames(); //массив имен моделей
 
     models
     .forEach( modelName => {   
         let theModel = aDb.model( modelName );
-        callArr.push( 
+        callFunctionArray.push( 
             theModel.countDocuments( {}, (err, count) => count )
         );  
     });
 
-    Promise.all( callArr )
+    Promise.all( 
+        callFunctionArray 
+    )
     .then( docsCounts => {  
-            console.log( `${title}: `, models, docsCounts );
+        log.info( `${title}: `, models, docsCounts );
     })
     .catch( error => console.log( error.message ));
 

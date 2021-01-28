@@ -1,9 +1,10 @@
-//import { mongoose } from 'mongoose';
+const log = require( '../helpers/logger' )('DB:');
+
 const mongoose = require( 'mongoose' );
-const infoOfDB = require( './info-of-db' );
+const infoOfDBtoConsole = require( './info-of-db' );
 
 
-module.exports.createConn = function( uri, title ) {
+module.exports.createConn = function (uri, title) {
 
     const connection = mongoose.createConnection( uri, {
         useNewUrlParser: true,
@@ -14,29 +15,29 @@ module.exports.createConn = function( uri, title ) {
 
     // CONNECTION EVENTS
     connection.on( 'connected', () => {
-        console.log( `${title}: connected to ${host}:${port}` );
-        infoOfDB.log( connection );
+        log.info( `${title} - connected to ${host}:${port}` );
+        infoOfDBtoConsole( connection );
     });
 
     connection.on( 'error', (err) => {
-        console.log( title, ': connection error: ', err );
+        log.error( `${title} - connection error:\n`, err );
     });
 
     connection.on( 'disconnecting', () => {
-        console.log( `${title} connection closing ...` );
+        log.info( `${title} connection closing ...` );
     });  
 
     connection.on( 'disconnected', () => {
-        console.log( `${title} disconnected from MongoDB.` );
+        log.info( `${title} disconnected from MongoDB.` );
     });
 
     connection.on( 'close', () => {
-        console.log( `${title} connection closed.` );
+        log.info( `${title} connection closed.` );
     });
 
     connection.closeConn = () => {
         return new Promise( (resolve) => 
-        connection.close( () => resolve( title ))
+            connection.close( () => resolve( title ))
         );
     };
 

@@ -3,24 +3,21 @@ const http = require( 'http' );
 
 const { 
     //createWriteStream,
-    createReadStream } = require('fs')
+    createReadStream } = require( 'fs' )
 ;
 
 const FormData = require( 'form-data' );
 
 
+/** 
+ *  Скачивает изображение по адресу url
+ *  ------------------------------------
+ *  @param  url  - полный адрес для скачивания изображения
+ *  @return {Readable stream} - Incoming Message
+ *   see 'data-samples/Request.log'
+*/
+function getStreamImageFrom (url) {
 
-function getStreamImageFrom( url ) {
-
-    /** 
-     *  Скачивает изображение, по адресу url
-     *  ------------------------------------
-     *  @param  url  - полный адрес для скачивания изображения
-     *  @return {Readable stream} - Incoming Message
-     *   see 'data-samples/Request.log'
-    */
-
-        
     let getOptions = {
         encoding: null,
         headers: {
@@ -28,42 +25,45 @@ function getStreamImageFrom( url ) {
         },
     };
 
- return new Promise( (resolve, reject) => {
+    return new Promise( (resolve, reject) => {
 
-    http
-    .get( url, getOptions, res => {
+        http
+        .get( url, getOptions, res => {
 
-        const { statusCode } = res;
-        let error;
+            const { statusCode } = res;
+            let error;
 
-        if( statusCode !== 200 ) {
+            if( statusCode !== 200 ) {
 
-            error = new Error('Request Failed.\n' +
-                              `Status Code: ${statusCode}`);
-        }
+                error = new Error('Request Failed.\n' +
+                                `Status Code: ${statusCode}`);
+            }
 
-        if( error ) {
+            if( error ) {
 
-            debug( `E: error image downloading from '${url}':\n`, error  );
-            res.resume();
-            reject( error );
-            return;
-        }
+                debug( `E: error image downloading from '${url}':\n`, error  );
+                res.resume();
+                reject( error );
+                return;
+            }
 
-        // res {: Incoming Message}
-        debug( `I: image downloaded from '${res.request.href}'` );
-        debug( `I: image downloaded: res.statusCode= ${statusCode}` );
-        resolve( res );
-        
+            // res {: Incoming Message}
+            debug( `I: image downloaded from '${res.request.href}'` );
+            debug( `I: image downloaded: res.statusCode= ${statusCode}` );
+            resolve( res );            
+        });
     });
-
- });
-
 }
 
 
-
-async function uploadPhoto( { token, apiRoot, chat_id }, photoUrl ) {
+/** 
+ *  @param {string} token     - токен для доступа к Telegram-боту
+ *  @param {string} apiRoot   - путь к Telegram API
+ *  @param {} chat_id   - id чата/пользователя куда загрузить фото
+ *  @param {string} photoUrl - откуда брать фото
+ *  @return 
+ **/
+async function uploadPhoto ({ token, apiRoot, chat_id }, photoUrl) {
 
 
 
@@ -104,18 +104,16 @@ async function uploadPhoto( { token, apiRoot, chat_id }, photoUrl ) {
 
 
 
+/** 
+ *  @param  token     - токен для доступа к Telegram-боту
+ *  @param  apiRoot   - путь к Telegram API
+ *  @param  chat_id   - id чата/пользователя куда загрузить фото
+ *  @return 
+ *   see 'data-samples/Request.log'
+ *   'test photo' is /server/image/test-informer.png
+ */
+async function uploadTestPhoto ({ token, apiRoot, chat_id }) {
 
-async function uploadTestPhoto( { token, apiRoot, chat_id } ) {
-
-
-    /** 
-     *  @param  token     - токен для доступа к Telegram-боту
-     *  @param  apiRoot   - путь к Telegram API
-     *  @param  chat_id   - id чата/пользователя куда загрузить фото
-     *  @return 
-     *   see 'data-samples/Request.log'
-     *   'test photo' is /server/image/test-informer.png
-     */
     // Telegram требует POST with multipart/form-data
 
     let fromfile;
@@ -147,8 +145,7 @@ async function uploadTestPhoto( { token, apiRoot, chat_id } ) {
         body: form,
     };
 
- return postingPhoto( postOptions );
-
+    return postingPhoto( postOptions );
 }
 
 
@@ -162,7 +159,7 @@ module.exports =
 
 
 
-function postingPhoto( options ) {
+function postingPhoto (options) {
 
     const { body, ...rest } = options;
     debug( 'http.request options:\n', rest );
@@ -170,30 +167,30 @@ function postingPhoto( options ) {
     const req = http.request( rest );
     
     // Write data to request body
-    body.pipe( req );
-    
+    body.pipe( req );    
 
-    req.on('error', error => {
+    req.on( 'error', error => {
     
-        console.log( `E: error image uploading `,
-        `to '${req.href}'\n`, error  );
-    
+        console.log( 
+            `E: error image uploading to '${req.href}'\n`,
+            error 
+        );    
     });
       
-    req.on('response', async res => {
-
+    req.on( 'response', async (res) => {
         
         if( res.statusCode !== 200 ) {
 
-            console.log( `E: uploading error: `,
-                         `res.statusCode = ${res.statusCode}\n`);
-                        //`body (tg-data): `, telegramRes );  
+            console.log( 
+                `E: uploading error: res.statusCode = ${res.statusCode}\n`
+                //+`body (tg-data): `, telegramRes 
+            );  
             return;
         }
 
         //debug('http.request POST-response:\n', res); //IncomingMessage
         //debug( `typeof 'res.body': ${typeof res.body}` ); //undefined
-        debug(`STATUS: ${res.statusCode}`);
+        debug( `STATUS: ${res.statusCode}` );
 
         let response = await res.read();
         debug( 'http.request POST-response.read():\n', response );
@@ -209,10 +206,6 @@ function postingPhoto( options ) {
             let { file_id } = telegramRes.result.photo[0];
             console.log( `SUCCESS: image uploaded at ${isoDate}, ${dt}`);
             console.log( `file_id: ${file_id}` );
-
-        }     
-        
-    
+        }        
     });
-
 }

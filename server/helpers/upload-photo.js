@@ -1,5 +1,7 @@
 //const debug = require( 'debug' )('lib:helpers:upload-photo');
 
+const log = require( '../helpers/logger' )('Photo:');
+
 const FormData = require( 'form-data' );
 
 const { 
@@ -10,89 +12,101 @@ const {
 const {
     //NetworkError,
     getStreamImageFrom,
-    postImageTo, } = require( '../raw-http/via-axios.js' )
-;
-
+    postImageTo, 
+} = require( '../raw-http/via-axios.js' );
 
 
 /** 
+ *  Загружает тестовое фото (формат .png?)
+ *  в Telegram chat by [chat_id]
+ *  ----
+ *  from /server/image/test-informer.png
  *  @param {string} token   - токен для доступа к Telegram-боту
  *  @param {string} apiRoot - путь к Telegram API
  *  @param {number} chat_id - id чата/пользователя куда загрузить фото
- *  @return {Promise}
- *  Загружает тестовое фото,
- *  'test photo' is /server/image/test-informer.png
+ *  @return undefined | false | true
+ *  ----
+ *  true - если отправка прошла успешно.
 */
 async function uploadTestPhoto ({ token, apiRoot, chat_id }) {
 
-    let fromfile;
-
     try {        
+        let fromfile;
         let fname = `./server/images/test-informer.png`;
         fromfile = await createReadStream( fname );
         //debug( 'read streamImage from test file:\n', fromfile );
+
+        return uploadImageStream( 
+            { token, apiRoot, chat_id }, 
+            fromfile 
+        );
     }
     catch (ex) {
 
-        console.log( `E: read from file: no image test file.` );  
+        log.error( `upload: read from file - no image test file.` );  
         return;
     }
-
-    return uploadImageStream( { token, apiRoot, chat_id }, fromfile );
-
 }
 
 
 /** 
+ *  Скачивает фото from photoURL и Загружает 
+ *  в Telegram chat by [chat_id]
+ *  ---- 
  *  @param {string} token     - токен для доступа к Telegram-боту
  *  @param {string} apiRoot   - путь к Telegram API
  *  @param {number} chat_id   - id чата/пользователя куда загрузить фото
  *  @param {string} photoURL  - полный адрес для скачивания изображения
- *  @return {Promise}
+ *  @return undefined | false | true
+ *  ----
+ *  true - если отправка прошла успешно. 
 */
 async function uploadPhoto ({ token, apiRoot, chat_id }, photoURL) {
 
-    let imageReadable;
-
     try {
-
+        let imageReadable;
         imageReadable = await getStreamImageFrom( photoURL );
         //console.log('image stream ', imageReadable);  //IncomingMessage
+
+        return uploadImageStream( 
+            { token, apiRoot, chat_id }, 
+            imageReadable 
+        );
     }
     catch (ex) {
 
-        console.log( `E: image downloading: no image data.` );  
+        log.error( `upload: image downloading - no image data.` );  
         return;
     }
-
-    return uploadImageStream( { token, apiRoot, chat_id }, imageReadable );
-
 }
-
 
 
 module.exports = {
 
     uploadPhoto,
     uploadTestPhoto,
-
 };
 
 
 
 /** 
+ *  Загружает stream for photo (формат .png?)
+ *  в Telegram chat by [chat_id]
+ *  ----
  *  @param {string} token     - токен для доступа к Telegram-боту
  *  @param {string} apiRoot   - путь к Telegram API
  *  @param {number} chat_id   - id чата/пользователя куда загрузить фото
  *  @param {Readable} stream  - поток изображения
- *  @return {}
+ *  @return undefined | false | true
+ *  -----
+ *  true - если отправка прошла успешно.  
 */
 function uploadImageStream ({ token, apiRoot, chat_id }, stream) {
 
     // Telegram требует POST with form-data(multipart)
     
     let apiSendPhotoUrl = `${apiRoot}/bot${token}/sendPhoto`;
-    console.log( `uploadPhoto: try to '${apiSendPhotoUrl}'` );
+    log.info( `try upload to '${apiSendPhotoUrl}'` );
 
     //console.log('image stream ', stream);  //IncomingMessage || ReadStream
 
@@ -110,5 +124,4 @@ function uploadImageStream ({ token, apiRoot, chat_id }, stream) {
     //debug( `POST headers '${JSON.stringify( postOptions.headers )}'` );
 
     return postImageTo( postOptions );
-
 }
