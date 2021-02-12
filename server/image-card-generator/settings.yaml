@@ -1,0 +1,56 @@
+##################################################
+# Конфигурация для создания картинок.
+# Если что-то пошло не так, то удали этот файл и он пересоздастся 
+# с настройками по умолчанию.
+# multiplicator - множитель для увеличения картинки в самом начале,
+#                 а потом уменьшения. Нужен, чтобы делать сглаживание.
+#                 При увеличении - увеличивается время генерации
+# width - ширина картинки
+# height - высота картинки
+# maxTextWidth - максимальная ширина текста
+# marginTopMultiplicator - множитель для отступа сверху. Считает отступ сбоку
+#                          ((width - maxWidth) / 2) и умножает его на эту цифру
+# font - настройки текста
+# name - название шрифта
+# style - стиль шрифта(bold, italic или пусто).
+#         Шрифт должен уметь поддерживать этот стиль.
+#
+# lineHeightMultiplicator - множитель для высоты строки текста.
+#                           На эту цифру умножается размер шрифта.
+# size - начальный размер в пикселях,
+#        отталкиваясь от этого значения идёт изменение размера
+# shadow - тень под текстом
+# strokeStyle, lineWidth - обводка текста
+# glow - свечение под текстом
+
+%YAML 1.2
+---
+multiplicator: 1
+width: 1000
+height: 1200
+maxTextWidth: 900
+jpegQuality: 60
+marginTopMultiplicator: 1.5
+font:
+  name: serif
+  style: bold
+  lineHeightMultiplicator: 1.5
+  size: 80
+  fillStyle: "OrangeRed"
+    #"DarkViolet" #"#00FF7FDF" #rgba(25, 25, 112, 0.9) #MidnightBlue
+  textBaseline: middle
+  textAlign: center
+  shadow:
+    offsetX: 1
+    offsetY: 1
+    color: "Yellow" #rgba(255, 255, 255, 1)
+    #color: rgba(0, 255, 127, 1)   # SpringGreen #00FF7F
+    #color: rgba(123, 104, 238, 1) #MediumSlateBlue
+    blur: 15
+  stroke:
+    style: "White" #rgba(15, 15, 15, 0.9)
+    lineWidth: 10
+  glow:
+    offsetX: 1
+    offsetY: 1
+    color: rgba(255, 255, 255, 1)

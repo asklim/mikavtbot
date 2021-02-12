@@ -1,4 +1,7 @@
-const log = require( '../helpers/logger' )('DB:');
+const { 
+    consoleLogger,
+} = require( '../helpers' );
+const log = consoleLogger( 'DB:' );
 
 /**
  * Выводит адрес/имя_db, массив имен моделей 

@@ -1,64 +1,67 @@
-const debug = require( 'debug' )('lib:helpers:request');
+
+const debug = require( 'debug' )('lib:raw:request');
 const request = require( 'request' );
 
 const { 
     //createWriteStream,
-    createReadStream } = require('fs')
-;
+    createReadStream 
+} = require('fs');
+
+const TEST_PHOTO_FNAME = `./server/images/test-informer.png`;
 
 
 
-function getStreamImageFrom(url) {
+/** 
+ *  @param  url  - полный адрес для скачивания изображения
+ *  @return Request {}
+ *   see 'data-samples/Request.log'
+*/
+function getStreamImageFrom (url) {
 
-    /** 
-     *  @param  url  - полный адрес для скачивания изображения
-     *  @return Request {}
-     *   see 'data-samples/Request.log'
-    */
-
-        
-    let getOptions = {
+    
+    const getOptions = {
         url,
         encoding: null,
         headers: {
-        "Cache-Control": "no-cache",
+            "Cache-Control": "no-cache",
         },
     };
 
- return request
-        .get( getOptions )
-        .on( 'error', (err) => 
-        { 
-            debug( `error image downloading from '${url}':\n`, err  );
-        })
-        .on( 'response', (res) => 
-        {
-            //debug( 'request GET-response:\n', res );
-            // Incoming Message
-            debug( `image downloaded from '${res.request.href}'` );
-            debug( `image downloaded: res.statusCode= ${res.statusCode}` );
-            
-            if( res.statusCode !== 200 ) 
+    return request
+            .get( getOptions )
+            .on( 'error', (err) => 
+            { 
+                debug( `error image downloading from '${url}':\n`, err  );
+            })
+            .on( 'response', (res) => 
             {
-                debug( `image downloading: no image data.` );  
-            }
-        });
-      //debug( `image downloading: Length= ${buffer.length}. Is buffer= ${(buffer instanceof Buffer)}` );
-      //debug( `image downloading: buffer=\n`, buffer ); 
-      //<Buffer 89 50 4e 47 0d 0a 1a 0a 00  ... 6014 more bytes>
+                //debug( 'request GET-response:\n', res );
+                // Incoming Message
+                debug( `image downloaded from '${res.request.href}'` );
+                debug( `image downloaded: res.statusCode= ${res.statusCode}` );
+                
+                if( res.statusCode !== 200 ) 
+                {
+                    debug( `image downloading: no image data.` );  
+                }
+            });
+    //debug( 
+    //    `image downloading: Length= ${buffer.length}. ` +
+    //    `Is buffer= ${(buffer instanceof Buffer)}` );
+    //debug( `image downloading: buffer=\n`, buffer ); 
+    //<Buffer 89 50 4e 47 0d 0a 1a 0a 00  ... 6014 more bytes>
 }
 
 
 
-async function uploadPhoto( { token, apiRoot, chat_id }, photoUrl ) {
+async function uploadPhoto ({ token, apiRoot, chat_id }, photoUrl) {
 
 
-
-    let readable = await getStreamImageFrom( photoUrl );
-    //debug( 'request streamImage GET-response:\n', readable );
+    const readable = await getStreamImageFrom( photoUrl );
+    // debug( 'request streamImage GET-response:\n', readable );
     // Request Object
     
-    let postOptions = {
+    const postOptions = {
         url: `${apiRoot}/bot${token}/sendPhoto`,
         headers: {
             "Content-Type": 'multipart/form-data',
@@ -73,22 +76,17 @@ async function uploadPhoto( { token, apiRoot, chat_id }, photoUrl ) {
     //debug( `upload image: post Options :\n${JSON.stringify( postOptions )}` );
 
     return postingPhoto( postOptions );
-
 }
 
 
+async function uploadTestPhoto ({ token, apiRoot, chat_id }) {
 
 
-async function uploadTestPhoto( { token, apiRoot, chat_id } ) {
-
-
-
-    let fname = `./server/images/test-informer.png`;
-    let fromfile = await createReadStream( fname );
-    //debug( 'request streamImage GET-response:\n', fromfile );
+    const fromfile = await createReadStream( TEST_PHOTO_FNAME );
+    // debug( 'request streamImage GET-response:\n', fromfile );
     // Request Object
     
-    let postOptions = {
+    const postOptions = {
         url: `${apiRoot}/bot${token}/sendPhoto`,
         headers: {
             "Content-Type": 'multipart/form-data',
@@ -103,29 +101,27 @@ async function uploadTestPhoto( { token, apiRoot, chat_id } ) {
     //debug( `upload image: post Options :\n${JSON.stringify( postOptions )}` );
 
     return postingPhoto( postOptions );
-
 }
 
 
-module.exports = 
-{
+module.exports = {
+
     //getStreamImageFrom,
     uploadPhoto,
     uploadTestPhoto,
-
 };
 
 
 
-function postingPhoto( options) {
+function postingPhoto (options) {
 
 
- return request.post( options,
-
+    return request.post( 
+        options,
         (error, response, responseBody) => {
             
-            if( error ) 
-            {
+            if( error ) {
+
                 debug( `E: error image uploading `,
                     `to '${response.request.href}'\n`, error  );
                 return;   
@@ -147,10 +143,13 @@ function postingPhoto( options) {
 
             } 
             else {
-                console.log( `E: uploading error: `,
-                            `res.statusCode = ${response.statusCode}\n`,
-                            `body (tg-data): `, telegramRes );        
+                console.log( 
+                    `E: uploading error: ` +
+                    `res.statusCode = ${response.statusCode}\n` +
+                    `body (tg-data): `, telegramRes 
+                );
             }      
-    });
-
+        }
+    );
 }
+

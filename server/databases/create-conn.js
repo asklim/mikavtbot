@@ -1,4 +1,7 @@
-const log = require( '../helpers/logger' )('DB:');
+const { 
+    consoleLogger,
+} = require( '../helpers' );
+const log = consoleLogger( 'DB:' );
 
 const mongoose = require( 'mongoose' );
 const infoOfDBtoConsole = require( './info-of-db' );

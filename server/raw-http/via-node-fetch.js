@@ -1,9 +1,10 @@
-const debug = require( 'debug' )('lib:helpers:node-fetch');
+const debug = require( 'debug' )('lib:raw:node-fetch');
 
 const { Readable } = require( 'stream' );
 const { 
-    createWriteStream,
-    createReadStream } = require('fs');
+    //createWriteStream,
+    createReadStream 
+} = require('fs');
 
 const nodeFetch = require( 'node-fetch' );
 const FormData = require( 'form-data' );
@@ -34,12 +35,12 @@ async function uploadTestPhoto( { token, apiRoot, chat_id } ) {
     const form = new FormData();
     form.append( 'chat_id', chat_id );   
 
-        let fname = `./server/images/test-informer.png`;
-        let fromfile = await createReadStream( fname );
+    let fname = `./server/images/test-informer.png`;
+    let fromfile = await createReadStream( fname );
 
     form.append( 'photo', fromfile );
 
- return postingPhoto( apiSendPhotoUrl, {
+    return postingPhoto( apiSendPhotoUrl, {
         method: 'POST',
         body: form,  
     });
@@ -62,7 +63,7 @@ function getStreamImageFrom( url ) {
     };
     //debug( `streamImage: try get image-stream from ${url}`);
 
-return nodeFetch( url, getOptions )
+    return nodeFetch( url, getOptions )
     
     //.then( response2console )
     .then( async response => {
@@ -76,7 +77,7 @@ return nodeFetch( url, getOptions )
         if( response.status !== 200 ) {
 
             debug( `image download status = ${response.status}\n`,
-                   `W: streamImage: no image data.` );  
+                `W: streamImage: no image data.` );  
         }
         else {            
 
@@ -112,17 +113,17 @@ async function uploadPhoto( { token, apiRoot, chat_id }, url ) {
     const form = new FormData();
     form.append( 'chat_id', chat_id );   
 
-        let readable = await getStreamImageFrom( url );
-        // readable is stream Object of type <PassThrough>
+    let readable = await getStreamImageFrom( url );
+    // readable is stream Object of type <PassThrough>
 
-        //debug( 'stream is ', typeof readable, ', contents ', readable );
-        //debug( `stringify : \n${JSON.stringify( readable )}`);
-        //let isoDate = (new Date).toISOString().split( 'T' )[0]; 
-        //let fname = `./server/images/${isoDate}-nfetch.png`;
-        //let dest = createWriteStream( fname );
-        //readable.pipe( dest );
+    //debug( 'stream is ', typeof readable, ', contents ', readable );
+    //debug( `stringify : \n${JSON.stringify( readable )}`);
+    //let isoDate = (new Date).toISOString().split( 'T' )[0]; 
+    //let fname = `./server/images/${isoDate}-nfetch.png`;
+    //let dest = createWriteStream( fname );
+    //readable.pipe( dest );
 
-        //let readable = await createReadStream( fname );
+    //let readable = await createReadStream( fname );
 
 
     form.append( 'photo', readable );
@@ -135,7 +136,7 @@ async function uploadPhoto( { token, apiRoot, chat_id }, url ) {
 
     //debug( `POST headers '${JSON.stringify( postOptions.headers )}'` );
 
- return postingPhoto( apiSendPhotoUrl, postOptions );
+    return postingPhoto( apiSendPhotoUrl, postOptions );
 
 }
 
@@ -154,7 +155,7 @@ module.exports = {
 function postingPhoto( urlTo, options) {
 
  
- return nodeFetch( urlTo, options )
+    return nodeFetch( urlTo, options )
     
     .then( checkStatus )
     .then( response => response.json())

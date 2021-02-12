@@ -1,30 +1,20 @@
 #!/usr/bin/env node
-
 require( 'dotenv' ).config();
 
-const {
-    app: expressBot,
-    databasesShutdown, 
-} = require( './app.js' );
-
-const debug = require( 'debug' )('rsis:www');
+const debug = require( 'debug' )( 'rsis:www' );
 const http = require( 'http' );
 const os = require( 'os' );
 const util = require( 'util' );
 const colors = require( 'colors' );
 
-const { icwd } = require( './helpers/serverconfig' );
-//const icwd = require( 'fs' ).realpathSync( process.cwd() );
-
+const { icwd } = require( './helpers' );
 const version = require( `${icwd}/package.json` ).version;
-
-const { bot:mikavbot } = require( './telegram-bot.js' );
 
 //console.log( process.env );
 
-let { PWD, USER, NAME, } = process.env;
+const { PWD, USER, NAME, } = process.env;
 
-let userInfo = util.format( '%O', os.userInfo() );
+const userInfo = util.format( '%O', os.userInfo() );
 
 console.log( `package.json dir is ${icwd}`.red ); // = '/app'
 console.log( `PWD (${__filename}) is ${PWD}`.red );
@@ -32,6 +22,12 @@ console.log( `USER @ NAME is ${USER} @ ${NAME}`.red );
 console.log( `platform is ${os.platform()}, hostname is ${os.hostname()}`.cyan );
 console.log( colors.yellow( 'User Info : ', userInfo ));
 
+
+const { bot: mikavbot } = require( './telegram-bot.js' );
+const {
+    app: expressBot,
+    databasesShutdown, 
+} = require( './app.js' );
 
 
 /*******************************************************
@@ -62,7 +58,6 @@ const shutdownTheServer = async () =>
  * 
  */
 const handleOnError = (error) => {
-        
 
 
     if( error.syscall !== 'listen' ) {
@@ -93,14 +88,13 @@ const handleOnError = (error) => {
 };
 
 
+/**
+ * Event listener for HTTP server "listening" event.
+ */
 const handleOnListening = () => {
 
-    /**
-     * Event listener for HTTP server "listening" event.
-     */
-
-    let addr = server.address();
-    let bind = typeof addr === 'string' 
+    const addr = server.address();
+    const bind = typeof addr === 'string' 
         ? 'pipe ' + addr
         : 'port ' + addr.port;
         
@@ -128,7 +122,6 @@ server.on( 'close', () => {
  * Listen on provided port, on all network interfaces.
  */
 server.listen( port,  () => {
-
     serverAppOutput( 'addr'/*'full'*/, version, server );
 });
 
@@ -148,6 +141,7 @@ process.once( 'SIGUSR2', () => {
         });
 });
 
+
 // For app termination
 process.on( 'SIGINT', () => {
 
@@ -156,11 +150,17 @@ process.on( 'SIGINT', () => {
     databasesShutdown( 'app termination', () => {
 
         shutdownTheServer()
-        .then( () => { 
-            process.exit(0); 
-        });
+        .then( 
+            function () {
+                setTimeout(
+                    () => { process.exit(0); },
+                    1000
+                );
+            }
+        );
     });
 });
+
 
 // For Heroku app termination
 process.on( 'SIGTERM', () => {
@@ -170,9 +170,14 @@ process.on( 'SIGTERM', () => {
     databasesShutdown( 'Heroku app termination', () => {
 
         shutdownTheServer()
-        .then( () => { 
-            process.exit(0); 
-        });
+        .then( 
+            function () {
+                setTimeout(
+                    () => { process.exit(0); },
+                    1000
+                );
+            }
+        );
     });
 });
 
@@ -191,24 +196,18 @@ function normalizePort (val) {
             ? port  // port number
             : false
     ;
-    /*if( isNaN( port ) ) {  // named pipe     
-        return val;
-    }
-    if( port >= 0 ) {     // port number        
-        return port;
-    }
-    return false;*/
 }
 
 
 /**
- * 
- * @param {*} outputMode 
- * @param {*} appVersion 
- * @param {*} httpServer 
+ * Выводит информацию о сервере и 
+ * его окружении в консоль
+ * ---
+ * @param {string} outputMode - 'full' | 'addr' | ''
+ * @param {string} appVersion 
+ * @param {http.Server} httpServer 
  */
 function serverAppOutput (outputMode, appVersion, httpServer) {  
-    
 
     const serverAddress = httpServer.address();
     const { 
@@ -225,8 +224,9 @@ function serverAppOutput (outputMode, appVersion, httpServer) {
         full: () => console.log( 'Express server = ',  httpServer ),
         addr: () => {
             const { NODE_ENV } = process.env;
-            console.log( 'app version ', appVersion.cyan );
-            console.log( 'NODE Environment is ', NODE_ENV );
+            const node_env = NODE_ENV ? NODE_ENV : 'undefined';
+            console.log( 'app version', appVersion.cyan );
+            console.log( 'NODE Environment is', node_env.cyan );
             console.log(
                 'Express server = "' + address.cyan 
                 + '" Family= "' + family.cyan 
@@ -234,7 +234,6 @@ function serverAppOutput (outputMode, appVersion, httpServer) {
             );
         },
         default: () => console.log( '\n' )
-    };  
-
+    };
     (outputs[ outputMode.toLowerCase() ] || outputs[ 'default' ])();
 }

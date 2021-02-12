@@ -1,10 +1,10 @@
-const debug = require( 'debug' )('lib:helpers:HTTP');
+const debug = require( 'debug' )('lib:raw:http');
 const http = require( 'http' );
 
 const { 
     //createWriteStream,
-    createReadStream } = require( 'fs' )
-;
+    createReadStream 
+} = require( 'fs' );
 
 const FormData = require( 'form-data' );
 

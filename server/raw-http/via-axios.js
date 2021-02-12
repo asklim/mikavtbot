@@ -1,9 +1,14 @@
-const debug = require( 'debug' )('lib:raw:via-axios');
+
+const debug = require( 'debug' )( 'raw:via-axios' );
+const {     
+    consoleLogger,
+} = require( '../helpers' );
+//const consoleLogger = require( '../helpers/logger' );
+
+const log = consoleLogger( 'raw:axios' );
 
 const axios = require( 'axios' ).default;
 
-
-//class ZeroSizeError extends Error {}
 class NetworkError extends Error {}
 
 
@@ -14,18 +19,15 @@ class NetworkError extends Error {}
 */
 async function getStreamImageFrom (url) {
 
-    let getOptions = {
-    
-        method: 'GET',
-        url,
-        responseType: 'stream',
-        headers: {
-            "Cache-Control": 'no-cache',
-        },
-    };
-
     try {    
-        let axiosResponse = await axios( getOptions );
+        const axiosResponse = await axios({    
+            method: 'GET',
+            url,
+            responseType: 'stream',
+            headers: {
+                "Cache-Control": 'no-cache',
+            },
+        });
 
         //debug(`axios 'GET' Response:`)
         //console.log( axiosResponse );
@@ -35,55 +37,54 @@ async function getStreamImageFrom (url) {
 
         //*****INFO: axiosResponse.data is IncomingMessage Object
     
-        let readable = axiosResponse.data;
+        const readable = axiosResponse.data;
 
         return readable
             // eslint-disable-next-line no-unused-vars
-            .on( 'error', (_err) => {
-
-                debug( `E: readable.on: ERROR image reading from '${url}'` );
+            .on( 'error', (_err) => {                
+                log
+                .error( `readable.on: ERROR image reading from '${url}'` );
             });
     } 
     catch( error ) {
-
-        debug( `E: catch block in 'getStreamImageFrom'\n`, error );
+        log.error( `CATCH: in 'getStreamImageFrom'\n`, error );
     }
 }
 
 
+function postImageTo ({ url, data, headers }) {
 
-function postImageTo (options) {
-
-
-    return axios( options )
-
-    .then( checkStatus )    
-    .then( axiosResponse => axiosResponse.data )
-    .then( response2console )
-    .then( telegramResponse =>      // from Telegram Server
-    {
+    return axios({ 
+        method: 'POST',
+        url, data, headers 
+    })
+    .then( _checkStatus )    
+    .then( (axiosResponse) => axiosResponse.data )
+    .then( _response2console )
+    .then( (telegramResponse) => {     // from Telegram Server
+    
         if( telegramResponse.ok ) {
             
-            let dt = Date( telegramResponse.result.date );
-            let isoDate = (new Date( dt )).toISOString();
-            //isoDate = isoDate.toISOString();
-            //Если сразу сделать dt = new Date( ... ), то получается 
-            //at 1970-01-19T09:08:08.067Z, Mon Jan 19 1970 12:08:08 GMT+0300 //(Moscow Standard Time)
             // data.result.date = 1588088067
+            const dt = telegramResponse.result.date * 1000; // to millisec
+            const isoDate = (new Date( dt )).toISOString();
 
-            let { file_id } = telegramResponse.result.photo[0];
+            //Если сразу сделать dt = new Date( ... ), то получается 
+            //at 1970-01-19T09:08:08.067Z, Mon Jan 19 1970 12:08:08 GMT+0300 
+            //(Moscow Standard Time)            
 
-            console.log( `SUCCESS: image uploaded at ${isoDate}, ${dt}` );
-            console.log( `file_id: ${file_id}` );
+            const { file_id } = telegramResponse.result.photo[0];
+
+            log.info( `SUCCESS: image uploaded at ${isoDate}, ${dt}` );
+            log.info( `file_id: ${file_id}` );
         } 
         else {
             debug( `uploading error, data:\n`, telegramResponse );        
         }
-        return telegramResponse.ok;
-        
+        return telegramResponse.ok;        
     })
-    .catch( error => {
-        debug( `catch: ERROR in 'uploadPhoto'\n`, error );                  
+    .catch( (error) => {
+        log.error( `CATCH: in 'postImageTo'\n`, error );                  
     });
 }
 
@@ -97,32 +98,21 @@ module.exports = {
 };
 
 
-
-
-function response2console( response ) {
-
-    console.log('response:\n', response );
+function _response2console( response ) {
+    debug('response:\n', response );
     return response;
 }
 
 
-
-function checkStatus( response ) {
-
+function _checkStatus( response ) {
 
     debug('check Status running ...');
-    //console.log( response );
+    let { status, statusText } = response;
 
-    if( response.status > 199 && response.status < 300 ) {
-
-        debug( 'check Status is Ok.' );                
-    } 
-    else {        
-
-        let { status, statusText } = response;
-        debug( `ERROR: uploading status = ${status}, ${statusText}` );
-    }
-
+    (( status > 199 && status < 300 )
+        ? debug( 'check Status is Ok.' )
+        : debug( `ERROR: uploading status = ${status}, ${statusText}` )
+    );
     return response;
 }
 

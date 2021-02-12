@@ -1,18 +1,20 @@
-const debug = require( 'debug' )('lib:helpers:via-bent');
+const debug = require( 'debug' )('lib:raw:via-bent');
 
 const bent = require( 'bent' );
 const FormData = require('form-data');
-const axios = require( 'axios' ).default;
 
 const { Readable } = require( 'stream' );
 
 const { 
-    createWriteStream,
+    //createWriteStream,
     createReadStream 
 } = require('fs');
 
-
-
+const { 
+    //icwd, 
+    consoleLogger 
+} = require( './helpers' );
+const log = consoleLogger( 'lib-via-bent:' );
 
 async function uploadTestPhoto( { token, apiRoot, chat_id } ) {
 
@@ -34,9 +36,9 @@ async function uploadTestPhoto( { token, apiRoot, chat_id } ) {
     const form = new FormData();
     form.append( 'chat_id', chat_id );
         
-        let fname = `./server/images/test-informer.png`;
-        let fromfile = await createReadStream( fname );
-        console.log( 'fromfile stream ', fromfile );
+    let fname = `./server/images/test-informer.png`;
+    let fromfile = await createReadStream( fname );
+    console.log( 'fromfile stream ', fromfile );
 
     form.append( 'photo', fromfile );
 
@@ -126,14 +128,14 @@ async function uploadPhoto( { token, apiRoot, chat_id }, photoURL ) {
 
     const imageStream = await getStreamImageFrom( photoURL );
     
-        console.log( 'image stream ', imageStream ); 
+    console.log( 'image stream ', imageStream ); 
 
-        //let buffer = await imageStream.read();
-        //debug( 'buffer from uploadPhoto: ', buffer ); //<Buffer ...>
-        //let buffer2 = await imageStream.read();
-        //debug( 'buffer2 from uploadPhoto: ', buffer2 ); // null
+    //let buffer = await imageStream.read();
+    //debug( 'buffer from uploadPhoto: ', buffer ); //<Buffer ...>
+    //let buffer2 = await imageStream.read();
+    //debug( 'buffer2 from uploadPhoto: ', buffer2 ); // null
         
-        /*let isoDate = (new Date).toISOString().split( 'T' )[0]; 
+    /*let isoDate = (new Date).toISOString().split( 'T' )[0]; 
         let fname = `./server/images/${isoDate}-bent.png`;
         let dest = createWriteStream( fname );
         imageStream.pipe( dest );*/
@@ -152,7 +154,7 @@ async function uploadPhoto( { token, apiRoot, chat_id }, photoURL ) {
 
     //debug( `POST headers '${JSON.stringify( postOptions.headers )}'` );
 
- return postingPhoto(  postOptions );
+    return postingPhoto(  postOptions );
 
 }
 
@@ -184,8 +186,9 @@ async function postingPhoto( options ) {
         
         //debug(`bent-response after 'POST' to TeleGram:`)
         //console.log( response );
+        let { status, statusMessage } = response;
 
-        if( response.status > 199 && response.status < 300 ) {
+        if( status > 199 && status < 300 ) {
             
             let telegramRes = await response.json();  // from Telegram Server
         
@@ -195,46 +198,35 @@ async function postingPhoto( options ) {
                 let isoDate = new Date( dt );            
                 isoDate = isoDate.toISOString();
                 //Если сразу сделать dt = new Date( ... ), то получается 
-                //at 1970-01-19T09:08:08.067Z, Mon Jan 19 1970 12:08:08 GMT+0300 //(Moscow Standard Time)
+                //at 1970-01-19T09:08:08.067Z, Mon Jan 19 1970 12:08:08 GMT+0300 
+                //(Moscow Standard Time)
                 // data.result.date = 1588088067
 
                 let { file_id } = telegramRes.result.photo[0];
-
-                console.log( `SUCCESS: image uploaded at ${isoDate}, ${dt}`);
-                console.log( `file_id: ${file_id}` );
+                log.info( 
+                    `SUCCESS: image uploaded at ${isoDate}, ${dt}`,
+                    `\nfile_id: ${file_id}` 
+                );
             } 
             else {
-
                 debug( `uploading error, data:\n`, telegramRes );        
             }
             return telegramRes.ok;
         }
-        else {        
-
-            console.log( `Network Error: ${error.message}` );
-
-        }
-           
+        else {            
+            log.error( `postingPhoto: status ${status} ${statusMessage}` );
+        }           
     }
-    catch ( error ) {
-
-        debug( `catch: ERROR in 'postingPhoto'\n`, error );                  
+    catch (error) {
+        debug( `CATCH: ERROR in 'postingPhoto'\n`, error );                  
     }
 
 }
 
 
+/*function response2console( response ) {
 
-
-
-
-function response2console( response ) {
-
-    console.log('response:');
-    console.log( response );
-
- return response;
-
-}
-
+    console.log('response:\n', response );
+    return response;
+}*/
 

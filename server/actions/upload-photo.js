@@ -1,19 +1,20 @@
-//const debug = require( 'debug' )('lib:helpers:upload-photo');
-
-const log = require( '../helpers/logger' )('Photo:');
+const debug = require( 'debug' )( 'actions:upload-photo' );
+const path = require( 'path' );
+const { consoleLogger } = require( '../helpers' );
+const log = consoleLogger( 'Photo:' );
 
 const FormData = require( 'form-data' );
 
 const { 
     //createWriteStream,
-    createReadStream } = require( 'fs' )
-;
+    createReadStream 
+} = require( 'fs' );
 
 const {
     //NetworkError,
     getStreamImageFrom,
     postImageTo, 
-} = require( '../raw-http/via-axios.js' );
+} = require( '../raw-http/via-axios' );
 
 
 /** 
@@ -28,23 +29,26 @@ const {
  *  ----
  *  true - если отправка прошла успешно.
 */
-async function uploadTestPhoto ({ token, apiRoot, chat_id }) {
-
+function uploadTestPhoto ({ token, apiRoot, chat_id }) {
+    
+    const options = { token, apiRoot, chat_id };
+    const fname = path.resolve( `server/helpers/test-informer.png` );
     try {        
-        let fromfile;
-        let fname = `./server/images/test-informer.png`;
-        fromfile = await createReadStream( fname );
-        //debug( 'read streamImage from test file:\n', fromfile );
+        const streamFromFile = createReadStream( fname );
+        debug( 
+            `read streamImage from test file ${fname},`,
+            'readable Length:', streamFromFile.readableLength 
+        );
 
-        return uploadImageStream( 
-            { token, apiRoot, chat_id }, 
-            fromfile 
+        return _uploadImageStream( 
+            options, 
+            streamFromFile 
         );
     }
-    catch (ex) {
-
-        log.error( `upload: read from file - no image test file.` );  
-        return;
+    catch (e) {
+        return log.error( 
+            `uploadTestPhoto: error reading from file ${fname}.` 
+        );        
     }
 }
 
@@ -64,19 +68,25 @@ async function uploadTestPhoto ({ token, apiRoot, chat_id }) {
 async function uploadPhoto ({ token, apiRoot, chat_id }, photoURL) {
 
     try {
-        let imageReadable;
-        imageReadable = await getStreamImageFrom( photoURL );
+        const options = { token, apiRoot, chat_id };
+        const imageReadable = await getStreamImageFrom( photoURL );
         //console.log('image stream ', imageReadable);  //IncomingMessage
 
-        return uploadImageStream( 
-            { token, apiRoot, chat_id }, 
+        if( !imageReadable ) { 
+            throw new Error( 'no image data.' ); 
+        }
+        debug( 'uploadPhoto options:\n', options );
+
+        return _uploadImageStream( 
+            options, 
             imageReadable 
         );
     }
-    catch (ex) {
-
-        log.error( `upload: image downloading - no image data.` );  
-        return;
+    catch (error) {
+        return log.error( 
+            `uploadPhoto: error image downloading.\n`, 
+            error 
+        );
     }
 }
 
@@ -101,13 +111,16 @@ module.exports = {
  *  -----
  *  true - если отправка прошла успешно.  
 */
-function uploadImageStream ({ token, apiRoot, chat_id }, stream) {
+function _uploadImageStream ({ token, apiRoot, chat_id }, stream) {
 
     // Telegram требует POST with form-data(multipart)
     
-    let apiSendPhotoUrl = `${apiRoot}/bot${token}/sendPhoto`;
-    log.info( `try upload to '${apiSendPhotoUrl}'` );
+    //debug( '_uploadStream: typeof token ', typeof token );
+    const shortToken = token.slice(0,12) + '***' + token.substring( token.length-3 );
+    log.info( `try upload to '${apiRoot}/bot${shortToken}/sendPhoto'` );
 
+    const apiSendPhotoUrl = `${apiRoot}/bot${token}/sendPhoto`;
+    
     //console.log('image stream ', stream);  //IncomingMessage || ReadStream
 
     const form = new FormData();

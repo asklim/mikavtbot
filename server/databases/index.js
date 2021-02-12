@@ -40,7 +40,7 @@ const databasesShutdown = ( msg, next ) => {
 };
 
 module.exports = {
-  getDB,
-  createConns,
-  databasesShutdown
+    getDB,
+    createConns,
+    databasesShutdown
 };
