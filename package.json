@@ -1,14 +1,14 @@
 {
     "name": "mikavbot",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "description": "Telegram bot for usage in rsis",
     "main": "server/www.js",
     "private": true,
     "scripts": {
         "production": "NODE_ENV=production npm run start",
         "start": "node --trace-warnings server/www.js",
-        "debug": "DEBUG=tbot*,helpers:*,raw:*,telegraf:main npm run start",
-        "debug:tbot": "DEBUG=$DEBUG,telegraf:main npm run debug",
+        "debug": "DEBUG=$DEBUG,helpers:*,raw:* npm run debug:tbot",
+        "debug:tbot": "DEBUG=tbot*,actions:*,telegraf:main npm run start",
         "debug:all": "DEBUG=* npm run start",
         "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install",
         "test": "npm run test"

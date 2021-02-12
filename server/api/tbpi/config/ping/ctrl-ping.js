@@ -16,6 +16,10 @@ const User = dbTBot.model( 'User' );
 const { bot: mikavbot } = require( `${icwd}/server/telegram-bot` );
 
 const chats = require( `${icwd}/server/helpers/chats-list` );
+const {
+    uploadTestPhoto,
+} = require( `${icwd}/server/actions` );
+
 
 /** 
  * Read a env variable from process.env by name
@@ -61,6 +65,7 @@ module.exports.readOne = async (req, res) => {
             apiRoot: mikavbot.telegram.options.apiRoot,
             chat_id: chats.mikafamily.id
         };
+        uploadTestPhoto( ctx );
         return sendJSONresponse( 
             res,
             200,

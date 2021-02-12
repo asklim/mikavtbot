@@ -32,12 +32,14 @@ const {
 function uploadTestPhoto ({ token, apiRoot, chat_id }) {
     
     const options = { token, apiRoot, chat_id };
-    const fname = path.resolve( `server/helpers/test-informer.png` );
+    const fname = path.resolve( __dirname, 
+        'test-greeting-hi.jpg' //'test-informer.png' 
+    );
     try {        
         const streamFromFile = createReadStream( fname );
         debug( 
             `read streamImage from test file ${fname},`,
-            'readable Length:', streamFromFile.readableLength 
+            'readableHighWaterMark:', streamFromFile.readableHighWaterMark
         );
 
         return _uploadImageStream( 
