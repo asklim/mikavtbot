@@ -5,12 +5,46 @@ const {
 } = require( './actions' );
 const {
     consoleLogger,
+    securetizeToken,
 } = require( './helpers' );
 
 const log = consoleLogger( 'mikaV:' );
 
+const END_POINTS = require( './telegram-endpoints' );
+
 const { Telegraf } = require( 'telegraf' );
-const bot = new Telegraf( process.env.MIKAVBOT_TOKEN );
+
+
+Telegraf.prototype.getEndpointURL = function (endPoint) {
+
+    let token, apiRoot, action;
+    try {
+        token = this.token;
+        apiRoot = this.telegram.options.apiRoot;
+        action = END_POINTS[ endPoint.toLowerCase() ];
+
+        return ( token && apiRoot && action
+            ? `${apiRoot}/bot${token}${action}`
+            : void 0
+        );
+    }
+    catch (e) {
+        debug( 'typeof this', typeof this,
+            '\napiRoot', apiRoot,
+            '\ntoken', securetizeToken( token ),
+            '\naction', action
+        );
+    }
+};
+
+const AUTH_TOKEN = process.env.NODE_ENV === 'development'
+    ? process.env.MIKAHOMEBOT_TOKEN
+    : process.env.MIKAVBOT_TOKEN;
+if( !AUTH_TOKEN ) {
+    throw new Error( 'No auth token for Telegram.');
+}
+const bot = new Telegraf( AUTH_TOKEN );
+
 
 
 bot.start( (ctx) => {
@@ -57,6 +91,7 @@ bot.command( '/geteco', (ctx) => {
 bot.command( '/test', (ctx) => { 
     try {
         debug( '/test command' );
+        //debug( 'url:', bot.getEndpointURL( 'sendPhoto' ));
 
         const { token } = ctx.telegram;
         const { apiRoot } = ctx.tg.options;

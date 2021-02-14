@@ -8,6 +8,15 @@ module.exports = {
         can_read_all_group_messages: false,
         supports_inline_queries: false
     },
+    mikahomebot: {
+        id: 1634516933,
+        is_bot: true,
+        first_name: 'MIKA Home Bot',
+        username: 'mikahomebot',
+        can_join_groups: true,
+        can_read_all_group_messages: false,
+        supports_inline_queries: false
+    },    
     andreiklim: {
         id: 381573348,
         is_bot: false,
