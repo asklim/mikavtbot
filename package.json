@@ -1,15 +1,16 @@
 {
-    "name": "mikavbot",
-    "version": "0.0.5",
+    "name": "mikavtbot",
+    "version": "0.0.6",
     "description": "Telegram bot for usage in rsis",
-    "main": "server/www.js",
+    "main": "server/index.js",
     "private": true,
     "scripts": {
         "production": "NODE_ENV=production npm run start",
-        "start": "node --trace-warnings server/www.js",
+        "start": "node --trace-warnings server/",
         "debug": "DEBUG=$DEBUG,helpers:*,raw:* npm run debug:tbot",
-        "debug:tbot": "DEBUG=tbot*,actions:*,telegraf:main npm run start",
+        "debug:tbot": "DEBUG=$DEBUG,tbot*,actions:*,telegraf:main npm run start",
         "debug:all": "DEBUG=* npm run start",
+        "dev": "NODE_ENV=development npm run debug",
         "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install",
         "test": "npm run test"
     },
@@ -20,26 +21,26 @@
     "author": "AsKlim",
     "license": "ISC",
     "dependencies": {
-        "axios": "^0.21.1",
+        "axios": "^0.24.0",
         "bent": "^7.3.0",
         "colors": "^1.4.0",
         "cookie-parser": "^1.4.5",
         "debug": "*",
-        "dotenv": "^8.2.0",
+        "dotenv": "^10.0.0",
         "dotenv-expand": "^5.1.0",
-        "ejs": "^3.1.2",
+        "ejs": "^3.1.6",
         "express": "^5.0.0-alpha.8",
-        "form-data": "^3.0.0",
-        "http-errors": "^1.7.3",
+        "form-data": "^4.0.0",
+        "http-errors": "^1.8.1",
         "jsonwebtoken": "^8.5.1",
-        "mongoose": "^5.11.13",
+        "mongoose": "^6.0.14",
         "morgan": "^1.10.0",
-        "telegraf": "^4.0.1"
+        "telegraf": "^4.4.2"
     },
     "devDependencies": {
-        "@babel/eslint-parser": "^7.12.1",
-        "@babel/preset-env": "^7.12.11",
-        "eslint": "^7.18.0",
-        "jest": "^26.6.3"
+        "@babel/eslint-parser": "^7.16.3",
+        "@babel/preset-env": "^7.16.4",
+        "eslint": "^8.3.0",
+        "jest": "^27.4.3"
     }
 }

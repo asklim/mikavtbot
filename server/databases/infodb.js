@@ -1,19 +1,13 @@
+const debug = require( 'debug' )( '-dbs:info' );
 const { formatWithOptions } = require( 'util' );
-const {
-    consoleLogger,
-} = require( '../helpers' );
-const log = consoleLogger( 'DB:' );
+const { consoleLogger, } = require( '../helpers' );
 
-/**
- * Выводит адрес/имя_db, массив имен моделей
- * и количество документов в их коллекциях
-*/
-module.exports = async function (mongooseConnection) {
+module.exports.log = async function (mongooseConnection) {
 
     //debug( `Mongoose version ${mongooseConnection.base.version}` );
 
     const { host, port, db, id } = mongooseConnection;
-    //debug( `Mongoose connection id: ${id}` );
+    debug( `Mongoose connection id: ${id}` );
 
     const title = `dbinfo: ${host}:${port}/${db.databaseName}`;
     const log = consoleLogger( `${title}:` );
@@ -36,7 +30,7 @@ module.exports = async function (mongooseConnection) {
         );
     }
     catch (error) {
-        console.log( 'info-of-db.js - catch block');
+        console.log( 'infodb.js - catch block');
         log.error( error );
     }
 

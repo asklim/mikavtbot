@@ -44,7 +44,7 @@ module.exports = Object.freeze({
     //UNPROCESSABLE_ENTITY: 422,
     //LOCKED: 423,
     //FAILED_DEPENDENCY: 424,
-    //NO_CODE: 425,
+    //TOO_EARLY: 425,
     //UPGRADE_REQUIRED: 426,
     //PRECONDITION_REQUIRED: 428,
     //TOO_MANY_REQUESTS: 429,

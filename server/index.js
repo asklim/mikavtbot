@@ -6,27 +6,20 @@ const http = require( 'http' );
 const os = require( 'os' );
 const util = require( 'util' );
 const colors = require( 'colors' );
+const {
+    icwd,
+    securetizeToken,
+} = require( './helpers' );
 
-const { icwd } = require( './helpers' );
 const version = require( `${icwd}/package.json` ).version;
 
-//console.log( process.env );
 
-const { PWD, USER, NAME, } = process.env;
-
-const userInfo = util.format( '%O', os.userInfo() );
-
-console.log( `package.json dir is ${icwd}`.red ); // = '/app'
-console.log( `PWD (${__filename}) is ${PWD}`.red );
-console.log( `USER @ NAME is ${USER} @ ${NAME}`.red );
-console.log( `platform is ${os.platform()}, hostname is ${os.hostname()}`.cyan );
-console.log( colors.yellow( 'User Info : ', userInfo ));
-
+outputStartServerInfo();
 
 const { bot: mikavbot } = require( './telegram-bot.js' );
 const {
     app: expressBot,
-    databasesShutdown, 
+    databasesShutdown,
 } = require( './app.js' );
 
 
@@ -37,35 +30,31 @@ const port = normalizePort( process.env.PORT || '3569' );
 expressBot.set( 'port', port );
 
 
-
 /**
  * Create HTTP server.
  */
 const server = http.createServer( expressBot );
 
 
-const shutdownTheServer = async () => 
-{ 
+const shutdownTheServer = async () => {
+
     return await server.close( () => {
-            
-        console.log( 'http-server closed now.' );                
-    });        
+        console.log( 'http-server closed now.' );
+    });
 };
 
 
 /**
  * Event listener for HTTP server "error" event.
- * 
+ *
  */
 const handleOnError = (error) => {
 
-
     if( error.syscall !== 'listen' ) {
-
         throw error;
     }
 
-    let bind = typeof port === 'string' 
+    let bind = typeof port === 'string'
         ? 'Pipe ' + port
         : 'Port ' + port;
 
@@ -94,10 +83,10 @@ const handleOnError = (error) => {
 const handleOnListening = () => {
 
     const addr = server.address();
-    const bind = typeof addr === 'string' 
+    const bind = typeof addr === 'string'
         ? 'pipe ' + addr
         : 'port ' + addr.port;
-        
+
     debug( 'Listening on ' + bind );
 };
 
@@ -113,7 +102,7 @@ server.on( 'clientError', (err, socket) => {
 
 server.on( 'close', () => {
 
-    console.log( 'http-server closing ....' );
+    console.log( 'http-server closing ...' );
 });
 
 
@@ -122,7 +111,7 @@ server.on( 'close', () => {
  * Listen on provided port, on all network interfaces.
  */
 server.listen( port,  () => {
-    serverAppOutput( 'addr'/*'full'*/, version, server );
+    outputServerAppInfo( 'addr'/*'full'*/, version, server );
 });
 
 
@@ -132,11 +121,13 @@ server.listen( port,  () => {
 // For nodemon restarts
 process.once( 'SIGUSR2', () => {
 
-    databasesShutdown( 'nodemon restart', 
-        () => { 
+    mikavbot.stop( 'SIGUSR2' );
+
+    databasesShutdown( 'SIGUSR2 - nodemon restart',
+        () => {
             shutdownTheServer()
             .then( () => {
-                process.kill( process.pid, 'SIGUSR2' ); 
+                process.kill( process.pid, 'SIGUSR2' );
             });
         });
 });
@@ -147,10 +138,10 @@ process.on( 'SIGINT', () => {
 
     mikavbot.stop( 'SIGINT' );
 
-    databasesShutdown( 'app termination', () => {
+    databasesShutdown( 'SIGINT app termination', () => {
 
         shutdownTheServer()
-        .then( 
+        .then(
             function () {
                 setTimeout(
                     () => { process.exit(0); },
@@ -167,10 +158,10 @@ process.on( 'SIGTERM', () => {
 
     mikavbot.stop( 'SIGTERM' );
 
-    databasesShutdown( 'Heroku app termination', () => {
+    databasesShutdown( 'SIGTERM app termination', () => {
 
         shutdownTheServer()
-        .then( 
+        .then(
             function () {
                 setTimeout(
                     () => { process.exit(0); },
@@ -200,40 +191,96 @@ function normalizePort (val) {
 
 
 /**
- * Выводит информацию о сервере и 
+ * Выводит информацию о сервере и
  * его окружении в консоль
  * ---
  * @param {string} outputMode - 'full' | 'addr' | ''
- * @param {string} appVersion 
- * @param {http.Server} httpServer 
+ * @param {string} appVersion
+ * @param {http.Server} httpServer
  */
-function serverAppOutput (outputMode, appVersion, httpServer) {  
+function outputServerAppInfo (outputMode, appVersion, httpServer) {
 
     const serverAddress = httpServer.address();
-    const { 
-        address, 
-        family, 
-        port 
+    const {
+        address,
+        family,
+        port
     } = serverAddress;
 
-    const bind = typeof serverAddress === 'string' 
+    const bind = typeof serverAddress === 'string'
         ? 'pipe ' + serverAddress
-        : 'port ' + port;    
+        : 'port ' + port;
 
     const outputs = {
-        full: () => console.log( 'Express server = ',  httpServer ),
+        full: () => console.log( 'Express server = ',  httpServer, '\n' ),
         addr: () => {
             const { NODE_ENV } = process.env;
             const node_env = NODE_ENV ? NODE_ENV : 'undefined';
-            console.log( 'app version', appVersion.cyan );
+            console.log( '\napp version', appVersion.cyan );
             console.log( 'NODE Environment is', node_env.cyan );
             console.log(
-                'Express server = "' + address.cyan 
-                + '" Family= "' + family.cyan 
-                + '" listening on ' + bind.cyan 
+                'Express server = "' + address.cyan
+                + '" Family= "' + family.cyan
+                + '" listening on ' + bind.cyan,
+                '\n'
             );
         },
         default: () => console.log( '\n' )
     };
     (outputs[ outputMode.toLowerCase() ] || outputs[ 'default' ])();
+}
+
+
+async function outputStartServerInfo() {
+
+    getProcessEnvWithoutNpm().
+    then( (envList) => {
+        console.log( envList );
+
+        const { PWD, USER, NAME, } = process.env;
+        const userInfo = util.format( '%O', os.userInfo() );
+
+        console.log( `stdout.isTTY is ${process.stdout.isTTY}`.yellow );
+        console.log( `package.json dir is ${icwd}`.red ); // = '/app'
+        console.log( `PWD (${__filename}) is ${PWD}`.red );
+        console.log( `USER @ NAME is ${USER} @ ${NAME}`.red );
+        console.log( `platform is ${os.platform()}, hostname is ${os.hostname()}`.cyan );
+        console.log( colors.yellow( 'User Info : ', userInfo ), '\n' );
+    });
+}
+
+
+/**
+ * Выводит переменные окружения process.env.*,
+ * но без npm_* переменых, которых очень много
+ *
+**/
+function getProcessEnvWithoutNpm() {
+
+    function isSecretEnvVar( varName ) {
+
+        const secretKeys = [
+            'JWT_SECRET', 'ATLAS_CREDENTIALS',
+            'GOOGLE_MAP_API_KEY', 'RSIS_GOOGLE_API_KEY',
+            'NGROK_AUTH_TOKEN', 'VIBER_CHAT_TOKEN',
+            'AVANGARD_V_VIBER_CHAT_TOKEN',
+            'MIKAVBOT_TOKEN', 'MIKAHOMEBOT_TOKEN',
+            'PATH', 'LS_COLORS'
+        ];
+        return secretKeys.includes( varName );
+    }
+
+    const envWithoutNpm = {};
+
+    Object.keys( process.env ).
+    forEach( (key) => {
+        if( isSecretEnvVar( key )) {
+            envWithoutNpm[ key ] = securetizeToken( process.env[ key ] );
+        }
+        else if( !key.startsWith('npm_') ) {
+            envWithoutNpm[ key ] = process.env[ key ];
+        }
+    });
+
+    return Promise.resolve( envWithoutNpm );
 }

@@ -1,4 +1,4 @@
-const { 
+const {
     consoleLogger,
 } = require( '../helpers' );
 const log = consoleLogger( 'DB:' );
@@ -9,15 +9,11 @@ const infoOfDBtoConsole = require( './info-of-db' );
 
 module.exports.createConn = function (uri, title) {
 
-    const connection = mongoose.createConnection( uri, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        useCreateIndex: true, 
-    });
-    const { host, port } = connection;
+    const connection = mongoose.createConnection( uri, {});
 
     // CONNECTION EVENTS
     connection.on( 'connected', () => {
+        const { host, port } = connection;
         log.info( `${title} - connected to ${host}:${port}` );
         infoOfDBtoConsole( connection );
     });
@@ -28,7 +24,7 @@ module.exports.createConn = function (uri, title) {
 
     connection.on( 'disconnecting', () => {
         log.info( `${title} connection closing ...` );
-    });  
+    });
 
     connection.on( 'disconnected', () => {
         log.info( `${title} disconnected from MongoDB.` );
@@ -39,7 +35,7 @@ module.exports.createConn = function (uri, title) {
     });
 
     connection.closeConn = () => {
-        return new Promise( (resolve) => 
+        return new Promise( (resolve) =>
             connection.close( () => resolve( title ))
         );
     };

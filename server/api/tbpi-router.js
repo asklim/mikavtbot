@@ -1,15 +1,15 @@
 
 const router = require( 'express' ).Router();
 
-require( '../api/tbpi/config/ping/rout-ping' )( router );
+require( './tbpi/health/health-router' )( router );
 
 
-router.get('/*', 
+router.get('/*',
     (_req, res) => {
-        res.status( 400 );
-        res.json({ message: "Bad request in tbpi-router." });
+        res.
+        status( 400 ).
+        json({ message: "Bad request in tbpi-router." });
     }
 );
-
 
 module.exports = router;

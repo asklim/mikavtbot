@@ -1,26 +1,29 @@
-
-const { isHeroku } = require( './serverconfig' );
+let { PWD, DYNO } = process.env;
+const isHeroku = DYNO && (PWD === '/app');
 
 
 module.exports = function (ticker = '') {
 
-    const prefix = isHeroku
-        ? ''
-        : `[${(new Date()).toUTCString()}] `
-    ;
+    // Замыкаем suffix, но не prefix, иначе
+    // будет одно и то же время на момент вызова create::logger
     const suffix = ticker == ''
         ? ''
         : ' ' + ticker
     ;
 
-    function log (type, ...args) { // Все аргументы = массив аргументов    
+    function log (type, ...args) { // Все аргументы = массив аргументов
 
-        console.log( 
+        const prefix = isHeroku
+            ? ''
+            : `[${(new Date()).toUTCString()}] `
+        ;
+        console.log(
             `${prefix}${type}${suffix}`,
-            ...args // Распаковка массива в значения
-        );  // После `suffix` есть пробел. `,` вставляет пробел. 
+            ...args
+            // Распаковка массива в значения
+        );  // После `suffix` есть пробел. `,` вставляет пробел.
     }
-    
+
     const info = (...args) => log( 'I:', ...args );
 
     const warn = (...args) => log( 'W:', ...args );

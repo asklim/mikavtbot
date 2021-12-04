@@ -1,9 +1,8 @@
 
 const debug = require( 'debug' )( 'raw:via-axios' );
-const {     
+const {
     consoleLogger,
 } = require( '../helpers' );
-//const consoleLogger = require( '../helpers/logger' );
 
 const log = consoleLogger( 'raw:axios' );
 
@@ -12,15 +11,15 @@ const axios = require( 'axios' ).default;
 class NetworkError extends Error {}
 
 
-/***  
+/***
  *  @param  {string} url - полный адрес для скачивания изображения
  *  @return {IncomingMessage} -  readable Stream,
  *  see 'data-samples/IncomingMessage.log'
 */
 async function getStreamImageFrom (url) {
 
-    try {    
-        const axiosResponse = await axios({    
+    try {
+        const axiosResponse = await axios({
             method: 'GET',
             url,
             responseType: 'stream',
@@ -32,20 +31,20 @@ async function getStreamImageFrom (url) {
         //debug(`axios 'GET' Response:`)
         //console.log( axiosResponse );
 
-        //*****INFO: response is Axios Response Object 
+        //*****INFO: response is Axios Response Object
         //http://zetcode.com/javascript/axios/
 
         //*****INFO: axiosResponse.data is IncomingMessage Object
-    
+
         const readable = axiosResponse.data;
 
         return readable
             // eslint-disable-next-line no-unused-vars
-            .on( 'error', (_err) => {                
+            .on( 'error', (_err) => {
                 log
                 .error( `readable.on: ERROR image reading from '${url}'` );
             });
-    } 
+    }
     catch( error ) {
         log.error( `CATCH: in 'getStreamImageFrom'\n`, error );
     }
@@ -54,37 +53,37 @@ async function getStreamImageFrom (url) {
 
 function postImageTo ({ url, data, headers }) {
 
-    return axios({ 
+    return axios({
         method: 'POST',
-        url, data, headers 
+        url, data, headers
     })
-    .then( _checkStatus )    
+    .then( _checkStatus )
     .then( (axiosResponse) => axiosResponse.data )
     .then( _response2console )
     .then( (telegramResponse) => {     // from Telegram Server
-    
+
         if( telegramResponse.ok ) {
-            
+
             // data.result.date = 1588088067
             const dt = telegramResponse.result.date * 1000; // to millisec
             const isoDate = (new Date( dt )).toISOString();
 
-            //Если сразу сделать dt = new Date( ... ), то получается 
-            //at 1970-01-19T09:08:08.067Z, Mon Jan 19 1970 12:08:08 GMT+0300 
-            //(Moscow Standard Time)            
+            //Если сразу сделать dt = new Date( ... ), то получается
+            //at 1970-01-19T09:08:08.067Z, Mon Jan 19 1970 12:08:08 GMT+0300
+            //(Moscow Standard Time)
 
             const { file_id } = telegramResponse.result.photo[0];
 
             log.info( `SUCCESS: image uploaded at ${isoDate}, ${dt}` );
             log.info( `file_id: ${file_id}` );
-        } 
-        else {
-            debug( `uploading error, data:\n`, telegramResponse );        
         }
-        return telegramResponse.ok;        
+        else {
+            debug( `uploading error, data:\n`, telegramResponse );
+        }
+        return telegramResponse.ok;
     })
     .catch( (error) => {
-        log.error( `CATCH: in 'postImageTo'\n`, error );                  
+        log.error( `CATCH: in 'postImageTo'\n`, error );
     });
 }
 
@@ -94,7 +93,7 @@ module.exports = {
     NetworkError,
     getStreamImageFrom,
     postImageTo,
-    
+
 };
 
 

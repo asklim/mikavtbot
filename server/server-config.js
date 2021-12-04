@@ -11,18 +11,11 @@ const mongoURIs = {
 
 const RSIS_API_SERVER_LOCAL = "http://192.168.0.240:3067";
 
-let { PWD, DYNO } = process.env;
-const isHeroku = DYNO && (PWD === '/app');
-
-const icwd = require( 'fs' ).realpathSync( process.cwd() );
-
 
 module.exports = {
 
     dbNames,
     mongoURIs,
     RSIS_API_SERVER_LOCAL,
-    isHeroku,
-    icwd,
 
 };

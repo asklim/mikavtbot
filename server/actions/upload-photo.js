@@ -1,23 +1,27 @@
 const debug = require( 'debug' )( 'actions:upload-photo' );
 const path = require( 'path' );
-const { consoleLogger } = require( '../helpers' );
-const log = consoleLogger( 'Photo:' );
+const {
+    consoleLogger,
+    securefy,
+    securetizeToken,
+} = require( '../helpers' );
+const log = consoleLogger( 'upload-photo:' );
 
 const FormData = require( 'form-data' );
 
-const { 
+const {
     //createWriteStream,
-    createReadStream 
+    createReadStream
 } = require( 'fs' );
 
 const {
     //NetworkError,
     getStreamImageFrom,
-    postImageTo, 
+    postImageTo,
 } = require( '../raw-http/via-axios' );
 
 
-/** 
+/**
  *  Загружает тестовое фото (формат .png?)
  *  в Telegram chat by [chat_id]
  *  ----
@@ -30,42 +34,42 @@ const {
  *  true - если отправка прошла успешно.
 */
 function uploadTestPhoto ({ token, apiRoot, chat_id }) {
-    
+
     const options = { token, apiRoot, chat_id };
-    const fname = path.resolve( __dirname, 
-        'test-greeting-hi.jpg' //'test-informer.png' 
+    const fname = path.resolve( __dirname,
+        'test-greeting-hi.jpg' //'test-informer.png'
     );
-    try {        
+    try {
         const streamFromFile = createReadStream( fname );
-        debug( 
-            `read streamImage from test file ${fname},`,
+        debug(
+            `read streamImage from test file ${fname},\n`,
             'readableHighWaterMark:', streamFromFile.readableHighWaterMark
         );
 
-        return _uploadImageStream( 
-            options, 
-            streamFromFile 
+        return _uploadImageStream(
+            options,
+            streamFromFile
         );
     }
     catch (e) {
-        return log.error( 
-            `uploadTestPhoto: error reading from file ${fname}.` 
-        );        
+        return log.error(
+            `uploadTestPhoto: error reading from file ${fname}.`
+        );
     }
 }
 
 
-/** 
- *  Скачивает фото from photoURL и Загружает 
+/**
+ *  Скачивает фото from photoURL и Загружает
  *  в Telegram chat by [chat_id]
- *  ---- 
+ *  ----
  *  @param {string} token     - токен для доступа к Telegram-боту
  *  @param {string} apiRoot   - путь к Telegram API
  *  @param {number} chat_id   - id чата/пользователя куда загрузить фото
  *  @param {string} photoURL  - полный адрес для скачивания изображения
  *  @return undefined | false | true
  *  ----
- *  true - если отправка прошла успешно. 
+ *  true - если отправка прошла успешно.
 */
 async function uploadPhoto ({ token, apiRoot, chat_id }, photoURL) {
 
@@ -74,20 +78,20 @@ async function uploadPhoto ({ token, apiRoot, chat_id }, photoURL) {
         const imageReadable = await getStreamImageFrom( photoURL );
         //console.log('image stream ', imageReadable);  //IncomingMessage
 
-        if( !imageReadable ) { 
-            throw new Error( 'no image data.' ); 
+        if( !imageReadable ) {
+            throw new Error( 'no image data.' );
         }
-        debug( 'uploadPhoto options:\n', options );
+        debug( 'uploadPhoto options:', securefy( options ));
 
-        return _uploadImageStream( 
-            options, 
-            imageReadable 
+        return _uploadImageStream(
+            options,
+            imageReadable
         );
     }
     catch (error) {
-        return log.error( 
-            `uploadPhoto: error image downloading.\n`, 
-            error 
+        return log.error(
+            `uploadPhoto: error image downloading.\n`,
+            error
         );
     }
 }
@@ -101,7 +105,7 @@ module.exports = {
 
 
 
-/** 
+/**
  *  Загружает stream for photo (формат .png?)
  *  в Telegram chat by [chat_id]
  *  ----
@@ -111,18 +115,17 @@ module.exports = {
  *  @param {Readable} stream  - поток изображения
  *  @return undefined | false | true
  *  -----
- *  true - если отправка прошла успешно.  
+ *  true - если отправка прошла успешно.
 */
 function _uploadImageStream ({ token, apiRoot, chat_id }, stream) {
 
     // Telegram требует POST with form-data(multipart)
-    
-    //debug( '_uploadStream: typeof token ', typeof token );
-    const shortToken = token.slice(0,12) + '***' + token.substring( token.length-3 );
+
+    const shortToken = securetizeToken( token );
     log.info( `try upload to '${apiRoot}/bot${shortToken}/sendPhoto'` );
 
     const apiSendPhotoUrl = `${apiRoot}/bot${token}/sendPhoto`;
-    
+
     //console.log('image stream ', stream);  //IncomingMessage || ReadStream
 
     const form = new FormData();
@@ -130,7 +133,6 @@ function _uploadImageStream ({ token, apiRoot, chat_id }, stream) {
     form.append( 'photo', stream );
 
     let postOptions = {
-        method: 'POST',
         url: apiSendPhotoUrl,
         data: form,
         headers: form.getHeaders(),

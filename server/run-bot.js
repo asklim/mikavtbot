@@ -9,7 +9,7 @@ mikavbot.launch()
 
     let info;
     info = await mikavbot.telegram.getWebhookInfo();
-    
+
     log.info( 'webhook Info: ', info );
 
     info = await mikavbot.telegram.getMe();
@@ -19,6 +19,6 @@ mikavbot.launch()
 })
 .catch( (error) => {
 
-    log.error( 'mikavbot error:\n', error );
+    log.error( 'mikavbot.launch error:\n', error );
 });
 

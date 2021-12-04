@@ -1,14 +1,16 @@
-const serverConfig = require( './serverconfig' );
-const httpResponses = require( './http-responses' ); 
-const consoleLogger = require( './logger' );
-const { securetizeToken } = require( './securetizeToken' );
 
-console.log( 'typeof serverConfig', typeof serverConfig );
-console.log( 'typeof consoleLogger', typeof consoleLogger );
+const httpResponses = require( './http-responses' );
+const consoleLogger = require( './logger' );
+const securetize = require( './securetize' );
+
+//console.log( 'typeof consoleLogger', typeof consoleLogger );
+
+const icwd = require( 'fs' ).realpathSync( process.cwd() );
+
 
 module.exports = {
-    ... serverConfig,
-    ... httpResponses,
+    icwd,
     consoleLogger,
-    securetizeToken,
+    ... httpResponses,
+    ... securetize,
 };
