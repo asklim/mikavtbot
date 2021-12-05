@@ -1,46 +1,55 @@
 module.exports = {
-    "env": {
-        "browser": true,
-        "commonjs": true,
-        "es6": true,
-        "node": true,
-        "mocha" : true,
+    env: {
+        "shared-node-browser": true,
+        browser: true,
+        commonjs: true,
+        es6: true,
+        node: true,
+        jest: true,
+        es2021: true,
     },
-    "extends": [
+    parser: "@babel/eslint-parser",
+    /* parser: "babel-eslint",
+    parserOptions: {
+        ecmaVersion: 2019,
+        sourceType: "module",
+        ecmaFeatures: {
+            jsx: true,
+        },
+    }, */
+    plugins: [
+        //"eslint-plugin-react",
+        //"eslint-plugin-react-hooks",
+    ],
+    extends: [
         "eslint:recommended",
         //"plugin:react/recommended"
     ],
-    "parser": "@babel/eslint-parser",
-    "plugins": [
-        //"react",
-        //"react-hooks",
-    ],
-    "settings": {
-        "react": {
-            "createClass": "createReactClass", 
-            // Regex for Component Factory use,
+    settings: {
+        /*react: {
+            createClass: "createReactClass", // Regex for Component Factory use,
             // default to "createReactClass"
-            "pragma": "React",  // Pragma to use, default to "React"
-            "version": "detect", 
-            // React version. "detect" automatically picks
+            pragma: "React", // Pragma to use, default to "React"
+            version: "detect", // React version. "detect" automatically picks
             // the version you have installed.
             // You can also use `16.0`, `16.3`, etc, if you
             // want to override the detected value.
-            "flowVersion": "0.53" // Flow version
+            flowVersion: "0.53", // Flow version
         },
-        "propWrapperFunctions": [
-            // The names of any function used to wrap propTypes, e.g. 
-            // `forbidExtraProps`. If this isn't set, any propTypes wrapped in 
+        propWrapperFunctions: [
+            // The names of any function used to wrap propTypes, e.g.
+            // `forbidExtraProps`. If this isn't set, any propTypes wrapped in
             // a function will be skipped.
             "forbidExtraProps",
-            {"property": "freeze", "object": "Object"},
-            {"property": "myFavoriteWrapper"}
-        ]
+            { property: "freeze", object: "Object" },
+            { property: "myFavoriteWrapper" },
+        ],*/
     },
-    "rules": {
+    rules: {
+        //strict: "warn",
         "no-console": "off",
         indent: [
-            "warn", 
+            "warn",
             4,
             {
                 SwitchCase: 1,
@@ -48,7 +57,7 @@ module.exports = {
             }
         ],
         "linebreak-style": [
-            "error", 
+            "error",
             "unix"
         ],
         quotes: ["off", "single"],
@@ -71,5 +80,8 @@ module.exports = {
                 maxEOF: 1,
             },
         ],
-    }
+        //"react/jsx-uses-react": "warn",
+        //"react-hooks/rules-of-hooks": "error",
+        //"react-hooks/exhaustive-deps": "warn",
+    },
 };

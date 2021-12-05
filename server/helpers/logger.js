@@ -1,6 +1,6 @@
-let { PWD, DYNO } = process.env;
-const isHeroku = DYNO && (PWD === '/app');
 
+const isHeroku = process.env.DYNO && (process.env.PWD === '/app');
+const isSystemdService = (process.stdout.isTTY == undefined);
 
 module.exports = function (ticker = '') {
 
@@ -13,7 +13,7 @@ module.exports = function (ticker = '') {
 
     function log (type, ...args) { // Все аргументы = массив аргументов
 
-        const prefix = isHeroku
+        const prefix = isHeroku || isSystemdService
             ? ''
             : `[${(new Date()).toUTCString()}] `
         ;

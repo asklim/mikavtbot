@@ -27,20 +27,15 @@ async function getStreamImageFrom (url) {
                 "Cache-Control": 'no-cache',
             },
         });
-
-        //debug(`axios 'GET' Response:`)
-        //console.log( axiosResponse );
-
         //*****INFO: response is Axios Response Object
         //http://zetcode.com/javascript/axios/
 
         //*****INFO: axiosResponse.data is IncomingMessage Object
-
         const readable = axiosResponse.data;
 
-        return readable
+        return readable.
             // eslint-disable-next-line no-unused-vars
-            .on( 'error', (_err) => {
+            on( 'error', (_err) => {
                 log
                 .error( `readable.on: ERROR image reading from '${url}'` );
             });
@@ -62,6 +57,7 @@ function postImageTo ({ url, data, headers }) {
     .then( _response2console )
     .then( (telegramResponse) => {     // from Telegram Server
 
+        let  fileId;
         if( telegramResponse.ok ) {
 
             // data.result.date = 1588088067
@@ -72,15 +68,15 @@ function postImageTo ({ url, data, headers }) {
             //at 1970-01-19T09:08:08.067Z, Mon Jan 19 1970 12:08:08 GMT+0300
             //(Moscow Standard Time)
 
-            const { file_id } = telegramResponse.result.photo[0];
+            fileId = telegramResponse.result.photo[0].file_id;
 
             log.info( `SUCCESS: image uploaded at ${isoDate}, ${dt}` );
-            log.info( `file_id: ${file_id}` );
+            log.info( `file_id:`, fileId );
         }
         else {
             debug( `uploading error, data:\n`, telegramResponse );
         }
-        return telegramResponse.ok;
+        return fileId; //telegramResponse.ok;
     })
     .catch( (error) => {
         log.error( `CATCH: in 'postImageTo'\n`, error );

@@ -1,24 +1,26 @@
-const debug = require( 'debug' )( 'actions:cmd:test' );
+const debug = require( 'debug' )( '!actions:cmd:test' );
 
 const { consoleLogger, } = require( '../helpers' );
 const log = consoleLogger( 'mikaV:' );
 
-//const { uploadTestPhoto, } = require( '../actions' );
+const { uploadTestPhoto, } = require( './upload-photo' );
+
+/**  Замыкание переменной для сохранения значений между вызовами */
+let testFileId;
 
 module.exports = async (ctx) => {
     try {
-        debug( '/test command' );
-        //debug( 'url:', bot.getEndpointURL( 'sendPhoto' ));
-        const TEST_FILE_ID = 'AgACAgIAAxkDAAMEYCkHCRlpDVTcqjSIMCJOp2GSQ1Q'+
-            'AAh2yMRtab0hJKrUGJVvGQl_YUFWZLgADAQADAgADbQADBeYEAAEeBA';
-        const tgMsg = await ctx.replyWithPhoto( TEST_FILE_ID );
+        debug( '"/test" command; testFileId is', typeof testFileId );
+        if( !testFileId ) {
 
+            const { token } = ctx.telegram;
+            const { apiRoot } = ctx.tg.options;
+            const { id: chat_id } = ctx.chat;
+            testFileId = await uploadTestPhoto( { token, apiRoot, chat_id } );
+            return;
+        }
+        const tgMsg = await ctx.replyWithPhoto( testFileId );
         debug( tgMsg );
-
-        /*const { token } = ctx.telegram;
-        const { apiRoot } = ctx.tg.options;
-        const { id: chat_id } = ctx.chat;
-        uploadTestPhoto( { token, apiRoot, chat_id } );*/
     }
     catch (error) {
         log.error( 'catch-handler:cmd:test\n', error );

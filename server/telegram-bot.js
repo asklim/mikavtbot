@@ -49,6 +49,7 @@ if( !AUTH_TOKEN ) {
 const bot = new Telegraf( AUTH_TOKEN );
 
 
+//debug( 'sendPhoto url:', bot.getEndpointURL( 'sendPhoto' ));
 
 bot.start( actions.handler_start );
 

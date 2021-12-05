@@ -241,6 +241,8 @@ async function outputStartServerInfo() {
         const userInfo = util.format( '%O', os.userInfo() );
 
         console.log( `stdout.isTTY is ${process.stdout.isTTY}`.yellow );
+        // true - in terminal, undefined - in service journal
+
         console.log( `package.json dir is ${icwd}`.red ); // = '/app'
         console.log( `PWD (${__filename}) is ${PWD}`.red );
         console.log( `USER @ NAME is ${USER} @ ${NAME}`.red );

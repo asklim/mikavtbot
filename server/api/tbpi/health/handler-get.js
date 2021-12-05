@@ -27,8 +27,8 @@ const {
  *
  * GET /tbpi/health/context
  * GET /tbpi/health/database
- * @returns send 200 {ok: true, maindb : 'nn'} - count of docs.
- * @returns send 500 {ok: false, maindb : undefined} - no Mongo
+ * @returns send 200 {ok: true, [dbname] : 'nn'} - count of docs.
+ * @returns send 500 {ok: false, [dbname] : undefined} - no Mongo
  **/
 
 module.exports = async function (req, res) {
@@ -98,7 +98,7 @@ module.exports = async function (req, res) {
  * @param mongodb - Mongoose.Connection to db
  * @returns count documents in db for all collections
  **/
- async function totalDocumentsInDB (mongodb) {
+async function totalDocumentsInDB (mongodb) {
 
     let total = 0;
     for( let name of mongodb.modelNames() ) {

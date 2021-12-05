@@ -1,5 +1,4 @@
 const debug = require( 'debug' )( 'actions:upload-photo' );
-const path = require( 'path' );
 const {
     consoleLogger,
     securefy,
@@ -9,10 +8,8 @@ const log = consoleLogger( 'upload-photo:' );
 
 const FormData = require( 'form-data' );
 
-const {
-    //createWriteStream,
-    createReadStream
-} = require( 'fs' );
+const path = require( 'path' );
+const { createReadStream } = require( 'fs' );
 
 const {
     //NetworkError,
@@ -22,27 +19,23 @@ const {
 
 
 /**
- *  Загружает тестовое фото (формат .png?)
+ *  Загружает тестовое фото
  *  в Telegram chat by [chat_id]
- *  ----
- *  from /server/image/test-informer.png
  *  @param {string} token   - токен для доступа к Telegram-боту
  *  @param {string} apiRoot - путь к Telegram API
  *  @param {number} chat_id - id чата/пользователя куда загрузить фото
- *  @return undefined | false | true
- *  ----
- *  true - если отправка прошла успешно.
+ *  @return undefined | string (file_id) - если отправка прошла успешно.
 */
 function uploadTestPhoto ({ token, apiRoot, chat_id }) {
 
+
     const options = { token, apiRoot, chat_id };
-    const fname = path.resolve( __dirname,
-        'test-greeting-hi.jpg' //'test-informer.png'
-    );
+    const fname = path.resolve( __dirname, getRandomTestFileName() );
+
     try {
         const streamFromFile = createReadStream( fname );
         debug(
-            `read streamImage from test file ${fname},\n`,
+            `read streamImage from test file ${fname},\n` +
             'readableHighWaterMark:', streamFromFile.readableHighWaterMark
         );
 
@@ -58,6 +51,16 @@ function uploadTestPhoto ({ token, apiRoot, chat_id }) {
     }
 }
 
+function getRandomTestFileName () {
+
+    const TEST_FILE_NAMES = [
+        'test-greeting-hi.jpg',
+        'test-informer.png'
+    ];
+    const index = Math.floor( TEST_FILE_NAMES.length * Math.random());
+    return TEST_FILE_NAMES[index];
+}
+
 
 /**
  *  Скачивает фото from photoURL и Загружает
@@ -67,9 +70,7 @@ function uploadTestPhoto ({ token, apiRoot, chat_id }) {
  *  @param {string} apiRoot   - путь к Telegram API
  *  @param {number} chat_id   - id чата/пользователя куда загрузить фото
  *  @param {string} photoURL  - полный адрес для скачивания изображения
- *  @return undefined | false | true
- *  ----
- *  true - если отправка прошла успешно.
+ *  @return undefined | string (file_id) - если отправка прошла успешно.
 */
 async function uploadPhoto ({ token, apiRoot, chat_id }, photoURL) {
 
@@ -106,16 +107,14 @@ module.exports = {
 
 
 /**
- *  Загружает stream for photo (формат .png?)
+ *  Загружает stream for photo
  *  в Telegram chat by [chat_id]
  *  ----
  *  @param {string} token     - токен для доступа к Telegram-боту
  *  @param {string} apiRoot   - путь к Telegram API
  *  @param {number} chat_id   - id чата/пользователя куда загрузить фото
  *  @param {Readable} stream  - поток изображения
- *  @return undefined | false | true
- *  -----
- *  true - если отправка прошла успешно.
+ *  @return { undefined | Promise< string >} (file_id) - если отправка прошла успешно.
 */
 function _uploadImageStream ({ token, apiRoot, chat_id }, stream) {
 
