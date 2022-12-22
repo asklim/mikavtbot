@@ -32,7 +32,7 @@
         "express": "^5.0.0-alpha.8",
         "form-data": "^4.0.0",
         "http-errors": "^1.8.1",
-        "jsonwebtoken": "^8.5.1",
+        "jsonwebtoken": "^9.0.0",
         "mongoose": "^6.0.14",
         "morgan": "^1.10.0",
         "telegraf": "^4.4.2"
