@@ -1,4 +1,5 @@
 
+// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
 const HTTP = require( `./http-response-codes` );
 
 
@@ -8,59 +9,64 @@ const HTTP = require( `./http-response-codes` );
  * @param {*} status
  * @param {*} content
  */
- function sendJSONresponse (res, status, content = 'response') {
+function sendJSONresponse (res: any, status: any, content = 'response') {
 
     let response = ( typeof content === 'object' ) ? content : { 'message': content };
     res.status( status ).json( response );
 }
 
 
-function send200Ok (res, msg = 'OK') {
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'send200Ok'... Remove this comment to see the full error message
+function send200Ok (res: any, msg = 'OK') {
     sendJSONresponse( res, HTTP.OK, msg );
 }
 
-function send201Created (res, msg = 'CREATED') {
+function send201Created (res: any, msg = 'CREATED') {
     sendJSONresponse( res, HTTP.CREATED, msg );
 }
 
-function send204NoContent (res, msg = 'NO_CONTENT') {
+function send204NoContent (res: any, msg = 'NO_CONTENT') {
     sendJSONresponse( res, HTTP.NO_CONTENT, msg );
 }
 
-function send400BadRequest (res, msg = 'BAD_REQUEST (invalid syntax)') {
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'send400Bad... Remove this comment to see the full error message
+function send400BadRequest (res: any, msg = 'BAD_REQUEST (invalid syntax)') {
     sendJSONresponse( res, HTTP.BAD_REQUEST, msg );
 }
 
-function send401UnAuthorized (res, msg = 'UnAuthorized') {
+function send401UnAuthorized (res: any, msg = 'UnAuthorized') {
     sendJSONresponse( res, HTTP.UNAUTHORIZED, msg );
 }
 
-function send404NotFound (res, msg = 'NOT_FOUND') {
+function send404NotFound (res: any, msg = 'NOT_FOUND') {
     sendJSONresponse( res, HTTP.NOT_FOUND, msg );
 }
 
 // Метод запроса не разрешен к использованию для данного URL
-function send405MethodNotAllowed (res, msg = 'METHOD_NOT_ALLOWED') {
+function send405MethodNotAllowed (res: any, msg = 'METHOD_NOT_ALLOWED') {
     sendJSONresponse( res, HTTP.METHOD_NOT_ALLOWED, msg );
 }
 
-function send409Conflict (res, msg = 'CONFLICT') {
+function send409Conflict (res: any, msg = 'CONFLICT') {
     sendJSONresponse( res, HTTP.CONFLICT, msg );
 }
 
-function send500ServerError (res, msg = 'INTERNAL_SERVER_ERROR') {
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'send500Ser... Remove this comment to see the full error message
+function send500ServerError (res: any, msg = 'INTERNAL_SERVER_ERROR') {
     sendJSONresponse( res, HTTP.INTERNAL_SERVER_ERROR, msg );
 }
 
-function send503ServiceUnavailable (res, msg = 'SERVICE_UNAVAILABLE') {
+function send503ServiceUnavailable (res: any, msg = 'SERVICE_UNAVAILABLE') {
     sendJSONresponse( res, HTTP.SERVICE_UNAVAILABLE, msg );
 }
 
 
-const callbackError400 = (req, res) => send400BadRequest( res, 'callbackE400' );
-const callbackError405 = (req, res) => send405MethodNotAllowed( res, 'callbackE405' );
+const callbackError400 = (req: any, res: any) => send400BadRequest( res, 'callbackE400' );
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'callbackEr... Remove this comment to see the full error message
+const callbackError405 = (req: any, res: any) => send405MethodNotAllowed( res, 'callbackE405' );
 
 
+// @ts-expect-error TS(2580): Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
 module.exports = {
 
     sendJSONresponse,

@@ -1,14 +1,19 @@
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'formatWith... Remove this comment to see the full error message
 const { formatWithOptions } = require( 'util' );
 const {
+    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'consoleLog... Remove this comment to see the full error message
     consoleLogger,
+// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
 } = require( '../helpers' );
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'log'.
 const log = consoleLogger( 'DB:' );
 
 /**
  * Выводит адрес/имя_db, массив имен моделей
  * и количество документов в их коллекциях
 */
-module.exports = async function (mongooseConnection) {
+// @ts-expect-error TS(2580): Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
+module.exports = async function (mongooseConnection: any) {
 
     //debug( `Mongoose version ${mongooseConnection.base.version}` );
 

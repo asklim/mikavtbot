@@ -1,20 +1,32 @@
 //const debug = require( 'debug' )( 'api:health:[h-GET]' );
 const {
+    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'icwd'.
     icwd,
+    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'consoleLog... Remove this comment to see the full error message
     consoleLogger,
+    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'securefy'.
     securefy,
+    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'send200Ok'... Remove this comment to see the full error message
     send200Ok,
+    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'send400Bad... Remove this comment to see the full error message
     send400BadRequest,
+    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'send500Ser... Remove this comment to see the full error message
     send500ServerError,
+// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
 } = require( '../../../helpers/' );
 
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'log'.
 const log = consoleLogger( 'api-health:' );
 
+// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
 const dbTBot = require( `${icwd}/server/databases/` ).getDB();
 
+// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
 const chatsList = require( `${icwd}/server/helpers/chats-list.js` );
 const {
+    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'uploadTest... Remove this comment to see the full error message
     uploadTestPhoto,
+// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
 } = require( `${icwd}/server/helpers/upload-photo.js` );
 
 
@@ -29,9 +41,10 @@ const {
  * @returns send 500 {ok: false, [dbname] : undefined} - no Mongo
  **/
 
+// @ts-expect-error TS(2580): Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
 module.exports = async function (
-    req,
-    res
+    req: any,
+    res: any
 ) {
     //params : {'app' | 'context' | 'database'}
     log.info(
@@ -109,7 +122,7 @@ module.exports = async function (
  * @param mongodb - Mongoose.Connection to db
  * @returns count documents in db for all collections
  **/
-async function totalDocumentsInDB (mongodb) {
+async function totalDocumentsInDB (mongodb: any) {
 
     let total = 0;
     for( let name of mongodb.modelNames() ) {

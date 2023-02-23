@@ -1,18 +1,29 @@
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'debug'.
 const debug = require( 'debug' )( 'main' );
+// @ts-expect-error TS(2580): Cannot find name 'process'. Do you need to install... Remove this comment to see the full error message
 debug( process.env.NODE_ENV );
 
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'fs'.
 const fs = require( 'fs' );
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'path'.
 const path = require( 'path' );
 //const Jimp = require( 'jimp' );
 
 const {
+    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'chooseFont... Remove this comment to see the full error message
     chooseFontSize,
+    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'createImag... Remove this comment to see the full error message
     createImagedCanvas,
+    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'printTextO... Remove this comment to see the full error message
     printTextOnCanvas,
+    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'resizedIma... Remove this comment to see the full error message
     resizedImageToBuffer,
+// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
 } = require( './image-creator' );
 
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'getSetting... Remove this comment to see the full error message
 const { getSettings } = require( './get-settings' );
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'sharp'.
 const sharp = require('sharp');
 
 const MINIMAL_FONT_SIZE = 12;
@@ -24,6 +35,7 @@ const outputDirName = './output';
 const textsFName = './text.txt';
 
 if( !fs.existsSync( bgimagesDirName )) {
+    // @ts-expect-error TS(1108): A 'return' statement can only be used within a fun... Remove this comment to see the full error message
     return _errorAndExit(
         'В папке с скриптом создай папку ' + bgimagesDirName +
         ' и положи в неё картинки'
@@ -31,6 +43,7 @@ if( !fs.existsSync( bgimagesDirName )) {
 }
 
 if( !fs.existsSync( textsFName )) {
+    // @ts-expect-error TS(1108): A 'return' statement can only be used within a fun... Remove this comment to see the full error message
     return _errorAndExit(
         'В папке с скриптом создай файл ' + textsFName + 
         ' и на каждой его строке напиши тексты'
@@ -48,11 +61,13 @@ const texts = fs.readFileSync( path.resolve( textsFName ), 'utf8' );
 const textsArr = texts.split( /\r?\n/g ).filter( Boolean );
 
 if( !imagesFNames.length ){
+    // @ts-expect-error TS(1108): A 'return' statement can only be used within a fun... Remove this comment to see the full error message
     return _errorAndExit( 
         'Папка ' + bgimagesDirName + ' пустая, положи в неё картинки' 
     );
 }
 if( !textsArr.length ){
+    // @ts-expect-error TS(1108): A 'return' statement can only be used within a fun... Remove this comment to see the full error message
     return _errorAndExit( 
         'В файле ' + textsFName +
         ' нет текста, добавь по одному сообщению на строку'
@@ -73,7 +88,7 @@ const bgImageBuffers = {};
 
         let allImagesResults = await preProcessingAllImages( imagesFNames, settings );
 
-        const imagesOk = allImagesResults.filter( (item) => !!item.value );
+        const imagesOk = allImagesResults.filter( (item: any) => !!item.value );
         console.log( 
             `Successed buffered background images: ${imagesOk.length}\n` 
         );
@@ -81,7 +96,7 @@ const bgImageBuffers = {};
 
         let allTextsResults = await processingAllTexts( textsArr, settings );
 
-        const textsOk = allTextsResults.filter( (item) => !!item.value );
+        const textsOk = allTextsResults.filter( (item: any) => !!item.value );
         console.log( 
             `Успешно наложено текстов на images: ${textsOk.length}`
         );
@@ -109,32 +124,34 @@ const bgImageBuffers = {};
  *      value: string
  * }]}
  */
-async function preProcessingAllImages (fileNames, settings) {
+async function preProcessingAllImages (fileNames: any, settings: any) {
 
-    const cachingOneBackgroundImageTask = async (fname) => {        
+    const cachingOneBackgroundImageTask = async (fname: any) => {        
         return new Promise( (resolve) => {
 
             resizedImageToBuffer( 
                 path.resolve( bgimagesDirName, fname ), 
                 settings 
             )
-            .then( (buffer) => {
+            .then( (buffer: any) => {
+                // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
                 bgImageBuffers[fname] = buffer;
                 //debug( buffer );
                 console.log( `${fname} added to background images cache.` );
                 resolve( fname );
             })
-            .catch( (err) => {
+            .catch( (err: any) => {
                 debug( 'CATCH: cachingOneImageTask.', err.message );
                 throw err; // Обработка Этой ошибки теряется.
             });
         });
     };
     
+    // @ts-expect-error TS(2550): Property 'allSettled' does not exist on type 'Prom... Remove this comment to see the full error message
     return Promise.allSettled( 
         fileNames.map( cachingOneBackgroundImageTask )
     )
-    .catch( (err) => {
+    .catch( (err: any) => {
         debug( 'CATCH: preProcessingAllImages.', err.message );
         throw err; // Обработка Этой ошибки теряется.
     });
@@ -151,9 +168,9 @@ async function preProcessingAllImages (fileNames, settings) {
  *      value: string
  * }]} - массив объектов
 **/
-async function processingAllTexts (texts, settings) {
+async function processingAllTexts (texts: any, settings: any) {
     
-    const overlayOneTextTask = async (text, index) => {       
+    const overlayOneTextTask = async (text: any, index: any) => {       
         
         try {
             const imageIndex = index % Object.keys( bgImageBuffers ).length;
@@ -165,6 +182,7 @@ async function processingAllTexts (texts, settings) {
 
             const imageBuffer = await createTextOnImage( 
                 text, 
+                // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
                 bgImageBuffers[ key ], 
                 settings 
             );
@@ -189,6 +207,7 @@ async function processingAllTexts (texts, settings) {
                     console.log( err.message );
                 }
                 else {
+                    // @ts-expect-error TS(2571): Object is of type 'unknown'.
                     debug( 'CATCH: overlayOneTextTask.', err.message );
                     throw err;
                 }
@@ -236,11 +255,13 @@ async function processingAllTexts (texts, settings) {
 
     try {
         console.log( `output path: ${path.resolve( outputDirName )}` );
+        // @ts-expect-error TS(2550): Property 'allSettled' does not exist on type 'Prom... Remove this comment to see the full error message
         return Promise.allSettled( 
             texts.map( overlayOneTextTask )
         );
     }
     catch (err) {
+        // @ts-expect-error TS(2571): Object is of type 'unknown'.
         debug( 'CATCH: processingAllTexts.', err.message );
         throw err;
     }
@@ -256,7 +277,7 @@ async function processingAllTexts (texts, settings) {
  * @param {Buffer} bgImageBuffer - background image Buffer 
  * @param {{}} settings 
  */
-async function createTextOnImage (text, bgImageBuffer, settings) {
+async function createTextOnImage (text: any, bgImageBuffer: any, settings: any) {
 
     //debug( `typeof bgImageBuffer is ${typeof bgImageBuffer}` );
     try {
@@ -281,6 +302,7 @@ async function createTextOnImage (text, bgImageBuffer, settings) {
     }        
     catch( err ) {
         if( err ) {
+            // @ts-expect-error TS(2571): Object is of type 'unknown'.
             debug( 'CATCH: createTextOnImage:', err.message );
             throw err;
         }
@@ -292,9 +314,10 @@ async function createTextOnImage (text, bgImageBuffer, settings) {
  * Выводим ошибку в консоль и выход
  * @param text
  */
-function _errorAndExit (text){
+function _errorAndExit (text: any){
 
     console.log( `Error: ${text}` );    
+    // @ts-expect-error TS(2580): Cannot find name 'process'. Do you need to install... Remove this comment to see the full error message
     process.exit(1);
 }
 

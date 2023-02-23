@@ -1,21 +1,33 @@
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'debug'.
 const debug = require( 'debug' )('lib:raw:node-fetch');
 
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'Readable'.
 const { Readable } = require( 'stream' );
 const { 
     //createWriteStream,
+    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'createRead... Remove this comment to see the full error message
     createReadStream 
+// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
 } = require('fs');
 
+// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
 const nodeFetch = require( 'node-fetch' );
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'FormData'.
 const FormData = require( 'form-data' );
 
 
 //lass ZeroSizeError extends Error {}
+// @ts-expect-error TS(2300): Duplicate identifier 'NetworkError'.
 class NetworkError extends Error {}
 
 
 
-async function uploadTestPhoto( { token, apiRoot, chat_id } ) {
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'uploadTest... Remove this comment to see the full error message
+async function uploadTestPhoto( {
+    token,
+    apiRoot,
+    chat_id
+}: any ) {
 
 
     /** 
@@ -50,7 +62,8 @@ async function uploadTestPhoto( { token, apiRoot, chat_id } ) {
 
 
 
-function getStreamImageFrom( url ) {
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'getStreamI... Remove this comment to see the full error message
+function getStreamImageFrom( url: any ) {
 
         
     let getOptions = {
@@ -66,7 +79,7 @@ function getStreamImageFrom( url ) {
     return nodeFetch( url, getOptions )
     
     //.then( response2console )
-    .then( async response => {
+    .then( async (response: any) => {
     
         //debug( `typeof .body : ${typeof response.body }`); //object
         //debug( `response : \n${JSON.stringify( response )}`);
@@ -93,15 +106,18 @@ function getStreamImageFrom( url ) {
         }
     })
     .then( response2console )
-    .catch( error => 
-    {
+    .catch( (error: any) => {
         debug( `catch: ERROR in 'getStreamImageFrom'\n`, error  );        
     });
 }
 
 
 
-async function uploadPhoto( { token, apiRoot, chat_id }, url ) {
+async function uploadPhoto( {
+    token,
+    apiRoot,
+    chat_id
+}: any, url: any ) {
 
 
     // Telegram требует POST with multipart/form-data
@@ -131,6 +147,7 @@ async function uploadPhoto( { token, apiRoot, chat_id }, url ) {
     let postOptions = {
         method: 'POST',
         body: form,
+        // @ts-expect-error TS(2339): Property 'getHeaders' does not exist on type 'Form... Remove this comment to see the full error message
         headers: form.getHeaders()   
     };
 
@@ -143,6 +160,7 @@ async function uploadPhoto( { token, apiRoot, chat_id }, url ) {
 
 
 
+// @ts-expect-error TS(2580): Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
 module.exports = {
     //getStreamImageFrom,
     uploadPhoto,
@@ -152,23 +170,25 @@ module.exports = {
 
 
 
-function postingPhoto( urlTo, options) {
+function postingPhoto( urlTo: any, options: any) {
 
  
     return nodeFetch( urlTo, options )
     
     .then( checkStatus )
-    .then( response => response.json())
+    .then( (response: any) => response.json())
     .then( response2console )
     // response.json ЗАМЕНЯЕТ следующие 2 строки
     //.then( response => response.body.read() ) //<Buffer>   
     //.then( telegramResponse => JSON.parse( telegramResponse ))
-    .then( telegramResponse => {
+    .then( (telegramResponse: any) => {
         
         if( telegramResponse.ok ) {
         
+            // @ts-expect-error TS(2554): Expected 0 arguments, but got 1.
             let dt = Date( telegramResponse.result.date );
             let isoDate = new Date( dt );            
+            // @ts-expect-error TS(2322): Type 'string' is not assignable to type 'Date'.
             isoDate = isoDate.toISOString();
 
             let { file_id } = telegramResponse.result.photo[0];
@@ -181,7 +201,7 @@ function postingPhoto( urlTo, options) {
             debug( `uploading error, body:\n`, telegramResponse );        
         }
     })
-    .catch( error => {
+    .catch( (error: any) => {
         
         if( error instanceof NetworkError ) {
 
@@ -196,7 +216,7 @@ function postingPhoto( urlTo, options) {
 
 
 
-function response2console( response )
+function response2console( response: any )
 {
 
     console.log('middleware-response:');
@@ -206,7 +226,7 @@ function response2console( response )
 
 
 
-function checkStatus(response) 
+function checkStatus(response: any) 
 {
     //debug('check Status running ...');
 

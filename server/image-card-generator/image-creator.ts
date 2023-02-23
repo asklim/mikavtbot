@@ -1,11 +1,16 @@
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'debug'.
 const debug = require( 'debug' )( 'image' );
 const { 
     createCanvas, 
+    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'Image'.
     Image 
+// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
 } = require( 'canvas' );
 //const Jimp = require( 'jimp' );
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'sharp'.
 const sharp = require( 'sharp' );
 
+// @ts-expect-error TS(2580): Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
 module.exports = {
     chooseFontSize,
     createImagedCanvas,
@@ -19,7 +24,8 @@ module.exports = {
  * @param {string} pathFileName - путь и полное имя файла 
  * @param {{}} settings - параметры преобразования
  */
-async function resizedImageToBuffer (pathFileName, settings) {
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'resizedIma... Remove this comment to see the full error message
+async function resizedImageToBuffer (pathFileName: any, settings: any) {
 
     const {
         width,
@@ -48,7 +54,8 @@ async function resizedImageToBuffer (pathFileName, settings) {
  * @param {Buffer} bgImageBuffer
  * @param {{}} settings 
  */
-function createImagedCanvas( bgImageBuffer, settings ) {
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'createImag... Remove this comment to see the full error message
+function createImagedCanvas( bgImageBuffer: any, settings: any ) {
 
     const {
         width, height,
@@ -79,7 +86,8 @@ function createImagedCanvas( bgImageBuffer, settings ) {
  * @param {Canvas} bgImagedCanvas - Canvas с картинкой
  * @param {{}} settings 
  */
-function printTextOnCanvas( text, bgImagedCanvas, settings ) {
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'printTextO... Remove this comment to see the full error message
+function printTextOnCanvas( text: any, bgImagedCanvas: any, settings: any ) {
 
     const {
         width, height,
@@ -137,7 +145,8 @@ function printTextOnCanvas( text, bgImagedCanvas, settings ) {
  * @param {string} text - однострочный текст
  * @param {{}} settings - параметры 
  */
-function chooseFontSize (bgCanvas, text, settings) {
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'chooseFont... Remove this comment to see the full error message
+function chooseFontSize (bgCanvas: any, text: any, settings: any) {
 
     const { 
         marginTopMultiplicator,
@@ -210,7 +219,7 @@ function chooseFontSize (bgCanvas, text, settings) {
  * @param {{}} settings
  * @param {number} fontSize
  */
-function wrapLines (ctx, text, settings, fontSize) {
+function wrapLines (ctx: any, text: any, settings: any, fontSize: any) {
     
     const { 
         multiplicator,

@@ -1,8 +1,12 @@
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'debug'.
 const debug = require( 'debug' )( '-dbs:info' );
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'formatWith... Remove this comment to see the full error message
 const { formatWithOptions } = require( 'util' );
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'consoleLog... Remove this comment to see the full error message
 const { consoleLogger, } = require( '../helpers' );
 
-module.exports.log = async function (mongooseConnection) {
+// @ts-expect-error TS(2580): Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
+module.exports.log = async function (mongooseConnection: any) {
 
     //debug( `Mongoose version ${mongooseConnection.base.version}` );
 

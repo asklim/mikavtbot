@@ -1,9 +1,12 @@
 
 const {
     //callbackError400,
+    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'callbackEr... Remove this comment to see the full error message
     callbackError405,
+// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
 } = require( '../../../helpers/' );
 
+// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
 const handlerGET = require( './handler-get' );
 
 
@@ -13,7 +16,8 @@ const handlerGET = require( './handler-get' );
  * @usage GET /tbpi/health/context
  * @usage GET /tbpi/health/databases
  */
-module.exports = function ( router ) {
+// @ts-expect-error TS(2580): Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
+module.exports = function ( router: any ) {
 
     //router.all( '/health/', callbackError400 );
 

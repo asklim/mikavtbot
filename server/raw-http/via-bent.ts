@@ -1,22 +1,36 @@
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'debug'.
 const debug = require( 'debug' )('lib:raw:via-bent');
 
+// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
 const bent = require( 'bent' );
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'FormData'.
 const FormData = require('form-data');
 
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'Readable'.
 const { Readable } = require( 'stream' );
 
 const { 
     //createWriteStream,
+    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'createRead... Remove this comment to see the full error message
     createReadStream 
+// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
 } = require('fs');
 
 const { 
     //icwd, 
+    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'consoleLog... Remove this comment to see the full error message
     consoleLogger 
+// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
 } = require( './helpers' );
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'log'.
 const log = consoleLogger( 'lib-via-bent:' );
 
-async function uploadTestPhoto( { token, apiRoot, chat_id } ) {
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'uploadTest... Remove this comment to see the full error message
+async function uploadTestPhoto( {
+    token,
+    apiRoot,
+    chat_id
+}: any ) {
 
 
     /** 
@@ -46,6 +60,7 @@ async function uploadTestPhoto( { token, apiRoot, chat_id } ) {
         method: 'POST',
         url: apiSendPhotoUrl,
         body: form,
+        // @ts-expect-error TS(2339): Property 'getHeaders' does not exist on type 'Form... Remove this comment to see the full error message
         headers: form.getHeaders(),
     };
 
@@ -57,7 +72,8 @@ async function uploadTestPhoto( { token, apiRoot, chat_id } ) {
 
 
 
-async function getStreamImageFrom( url ) {
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'getStreamI... Remove this comment to see the full error message
+async function getStreamImageFrom( url: any ) {
 
 
     /***  
@@ -109,7 +125,11 @@ async function getStreamImageFrom( url ) {
 
 
 
-async function uploadPhoto( { token, apiRoot, chat_id }, photoURL ) {
+async function uploadPhoto( {
+    token,
+    apiRoot,
+    chat_id
+}: any, photoURL: any ) {
 
 
     /** 
@@ -149,6 +169,7 @@ async function uploadPhoto( { token, apiRoot, chat_id }, photoURL ) {
         method: 'POST',
         url: apiSendPhotoUrl,
         body: form,
+        // @ts-expect-error TS(2339): Property 'getHeaders' does not exist on type 'Form... Remove this comment to see the full error message
         headers: form.getHeaders(),
     };
 
@@ -160,6 +181,7 @@ async function uploadPhoto( { token, apiRoot, chat_id }, photoURL ) {
 
 
 
+// @ts-expect-error TS(2580): Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
 module.exports = {
 
     //getStreamImageFrom,
@@ -170,7 +192,7 @@ module.exports = {
 
 
 
-async function postingPhoto( options ) {
+async function postingPhoto( options: any ) {
 
     
     let {
@@ -194,8 +216,10 @@ async function postingPhoto( options ) {
         
             if( telegramRes.ok ) {
                 
+                // @ts-expect-error TS(2554): Expected 0 arguments, but got 1.
                 let dt = Date( telegramRes.result.date );
                 let isoDate = new Date( dt );            
+                // @ts-expect-error TS(2322): Type 'string' is not assignable to type 'Date'.
                 isoDate = isoDate.toISOString();
                 //Если сразу сделать dt = new Date( ... ), то получается 
                 //at 1970-01-19T09:08:08.067Z, Mon Jan 19 1970 12:08:08 GMT+0300 

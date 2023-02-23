@@ -1,13 +1,19 @@
 const {
+    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'consoleLog... Remove this comment to see the full error message
     consoleLogger,
+// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
 } = require( '../helpers/' );
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'log'.
 const log = consoleLogger( 'DB:' );
 
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'mongoose'.
 const mongoose = require( 'mongoose' );
+// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
 const infoOfDBtoConsole = require( './info-of-db' );
 
 
-module.exports = function (uri, title) {
+// @ts-expect-error TS(2580): Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
+module.exports = function (uri: any, title: any) {
 
     const connection = mongoose.createConnection( uri, {});
 
@@ -18,7 +24,7 @@ module.exports = function (uri, title) {
         infoOfDBtoConsole( connection );
     });
 
-    connection.on( 'error', (err) => {
+    connection.on( 'error', (err: any) => {
         log.error( `${title} - connection error:\n`, err );
     });
 

@@ -1,21 +1,32 @@
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'debug'.
 const debug = require( 'debug' )( 'tbot:mikav' );
 
 const {
+    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'consoleLog... Remove this comment to see the full error message
     consoleLogger,
+    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'securetize... Remove this comment to see the full error message
     securetizeToken,
+// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
 } = require( '../helpers' );
 
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'log'.
 const log = consoleLogger( 'mikaV:' );
 
 const {
     END_POINTS,
+    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'TELEGRAM_A... Remove this comment to see the full error message
     TELEGRAM_API_ROOT,
+// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
 } = require( './telegram-endpoints.js' );
 
+// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
 const { Telegraf } = require( 'telegraf' );
 
 
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'MikaVTeleg... Remove this comment to see the full error message
 class MikaVTelegraf extends Telegraf {
+    launch: any;
+    telegram: any;
 
     async launchBot () {
 
@@ -39,11 +50,13 @@ class MikaVTelegraf extends Telegraf {
     }
 
 
-    static getEndpointURL (endPoint, botIdAndToken) {
+    static getEndpointURL (endPoint: any, botIdAndToken: any) {
 
         let token, apiRoot, action;
         try {
+            // @ts-expect-error TS(2339): Property 'token' does not exist on type 'typeof Mi... Remove this comment to see the full error message
             token = botIdAndToken || this?.token;
+            // @ts-expect-error TS(2339): Property 'telegram' does not exist on type 'typeof... Remove this comment to see the full error message
             apiRoot = this?.telegram?.options?.apiRoot || TELEGRAM_API_ROOT;
             action = END_POINTS[ endPoint.toLowerCase() ];
 
@@ -60,10 +73,10 @@ class MikaVTelegraf extends Telegraf {
             );
         }
     }
-
 }
 
 
+// @ts-expect-error TS(2580): Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
 module.exports = {
     MikaVTelegraf,
 };

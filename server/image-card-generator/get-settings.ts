@@ -1,16 +1,22 @@
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'debug'.
 const debug = require( 'debug' )( 'settings' );
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'fs'.
 const fs = require( 'fs' );
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'path'.
 const path = require( 'path' );
+// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
 const yaml = require( 'yaml' );
 
 
+// @ts-expect-error TS(2580): Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
 module.exports = { getSettings };
 
 /**
  * Получаем настройки или, если их нет, то создаём файл с дефолтными
  * @param {string} yamlSettingsPathFName - имя файла настроек (.yaml)
  */
-async function getSettings (yamlSettingsPathFName){
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'getSetting... Remove this comment to see the full error message
+async function getSettings (yamlSettingsPathFName: any){
     
 
     const configPFName = path.resolve( yamlSettingsPathFName );
@@ -87,7 +93,7 @@ async function getSettings (yamlSettingsPathFName){
 
     fs.writeFile( configPFName, String( doc ),
         // eslint-disable-next-line no-unused-vars
-        (err, written, _string) => {
+        (err: any, written: any, _string: any) => {
             debug( `Осталось записать ${written} байт из ${_string && _string.length}` );
             if( err ) {
                 console.log( `Ошибка записи в файл настроек ${configPFName}` );

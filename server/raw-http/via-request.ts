@@ -1,10 +1,14 @@
 
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'debug'.
 const debug = require( 'debug' )('lib:raw:request');
+// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
 const request = require( 'request' );
 
 const { 
     //createWriteStream,
+    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'createRead... Remove this comment to see the full error message
     createReadStream 
+// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
 } = require('fs');
 
 const TEST_PHOTO_FNAME = `./server/images/test-informer.png`;
@@ -16,7 +20,8 @@ const TEST_PHOTO_FNAME = `./server/images/test-informer.png`;
  *  @return Request {}
  *   see 'data-samples/Request.log'
 */
-function getStreamImageFrom (url) {
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'getStreamI... Remove this comment to see the full error message
+function getStreamImageFrom (url: any) {
 
     
     const getOptions = {
@@ -29,17 +34,15 @@ function getStreamImageFrom (url) {
 
     return request
             .get( getOptions )
-            .on( 'error', (err) => 
-            { 
+            .on( 'error', (err: any) => { 
                 debug( `error image downloading from '${url}':\n`, err  );
             })
-            .on( 'response', (res) => 
-            {
+            .on( 'response', (res: any) => {
                 //debug( 'request GET-response:\n', res );
                 // Incoming Message
                 debug( `image downloaded from '${res.request.href}'` );
                 debug( `image downloaded: res.statusCode= ${res.statusCode}` );
-                
+        
                 if( res.statusCode !== 200 ) 
                 {
                     debug( `image downloading: no image data.` );  
@@ -54,7 +57,11 @@ function getStreamImageFrom (url) {
 
 
 
-async function uploadPhoto ({ token, apiRoot, chat_id }, photoUrl) {
+async function uploadPhoto ({
+    token,
+    apiRoot,
+    chat_id
+}: any, photoUrl: any) {
 
 
     const readable = await getStreamImageFrom( photoUrl );
@@ -79,7 +86,12 @@ async function uploadPhoto ({ token, apiRoot, chat_id }, photoUrl) {
 }
 
 
-async function uploadTestPhoto ({ token, apiRoot, chat_id }) {
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'uploadTest... Remove this comment to see the full error message
+async function uploadTestPhoto ({
+    token,
+    apiRoot,
+    chat_id
+}: any) {
 
 
     const fromfile = await createReadStream( TEST_PHOTO_FNAME );
@@ -104,6 +116,7 @@ async function uploadTestPhoto ({ token, apiRoot, chat_id }) {
 }
 
 
+// @ts-expect-error TS(2580): Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
 module.exports = {
 
     //getStreamImageFrom,
@@ -113,12 +126,12 @@ module.exports = {
 
 
 
-function postingPhoto (options) {
+function postingPhoto (options: any) {
 
 
     return request.post( 
         options,
-        (error, response, responseBody) => {
+        (error: any, response: any, responseBody: any) => {
             
             if( error ) {
 
@@ -133,8 +146,10 @@ function postingPhoto (options) {
             
             if( telegramRes.ok ) {
 
+                // @ts-expect-error TS(2554): Expected 0 arguments, but got 1.
                 let dt = Date( telegramRes.result.date );
                 let isoDate = new Date( dt );            
+                // @ts-expect-error TS(2322): Type 'string' is not assignable to type 'Date'.
                 isoDate = isoDate.toISOString();
 
                 let { file_id } = telegramRes.result.photo[0];
