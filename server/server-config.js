@@ -17,5 +17,4 @@ module.exports = {
     dbNames,
     mongoURIs,
     RSIS_API_SERVER_LOCAL,
-
 };

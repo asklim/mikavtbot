@@ -1,5 +1,5 @@
 const debug = require( 'debug' )( 'actions:onmessage' );
-const { consoleLogger, } = require( '../helpers' );
+const { consoleLogger, } = require( '../../helpers' );
 
 const log = consoleLogger( 'mikaV:' );
 

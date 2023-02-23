@@ -1,19 +1,17 @@
 
 const {
-    callbackError400,
+    //callbackError400,
     callbackError405,
-} = require( '../../../helpers' );
+} = require( '../../../helpers/' );
 
 const handlerGET = require( './handler-get' );
 
 
 /**
  * Return status of app or DBs
- * @usage GET /api/health/app
- * @usage GET /api/health/databases
- * @usage GET /tbpi/config/ping/bot
- * @usage GET /tbpi/config/ping/context
- * @usage GET /tbpi/config/ping/mongodb
+ * @usage GET /tbpi/health/app
+ * @usage GET /tbpi/health/context
+ * @usage GET /tbpi/health/databases
  */
 module.exports = function ( router ) {
 
@@ -24,6 +22,7 @@ module.exports = function ( router ) {
 
     router.get( route, handlerGET );
     router.all( route, callbackError405 );
+
     router.get( routeWithId, handlerGET );
     router.all( routeWithId, callbackError405 );
 };

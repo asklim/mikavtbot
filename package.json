@@ -1,16 +1,18 @@
 {
     "name": "mikavtbot",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "description": "Telegram bot for usage in rsis",
-    "main": "server/index.js",
+    "main": "dist/index.js",
     "private": true,
     "scripts": {
         "production": "NODE_ENV=production npm run start",
         "start": "node --trace-warnings server/",
-        "debug": "DEBUG=$DEBUG,helpers:*,raw:* npm run debug:tbot",
-        "debug:tbot": "DEBUG=$DEBUG,tbot*,actions:*,telegraf:main npm run start",
+        "start:ts": "node --trace-warnings dist/",
+        "start:tsc": "npx tsc && node --trace-warnings dist/",
+        "debug": "DEBUG=$DEBUG,helpers:*,raw:*,api:* npm run debug:tbot",
+        "debug:tbot": "DEBUG=$DEBUG,tbot*,actions:*,telegraf:main npm run start:ts",
         "debug:all": "DEBUG=* npm run start",
-        "dev": "NODE_ENV=development npm run debug",
+        "debug:tsc": "DEBUG=helpers:*,raw:*,api:*,tbot:*,actions:*,telegraf:main npm run start:tsc",
         "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install",
         "test": "npm run test"
     },
@@ -29,10 +31,10 @@
         "dotenv": "^10.0.0",
         "dotenv-expand": "^5.1.0",
         "ejs": "^3.1.6",
-        "express": "^5.0.0-alpha.8",
+        "express": "^4.18.2",
         "form-data": "^4.0.0",
         "http-errors": "^1.8.1",
-        "jsonwebtoken": "^8.5.1",
+        "jsonwebtoken": "^9.0.0",
         "mongoose": "^6.0.14",
         "morgan": "^1.10.0",
         "telegraf": "^4.4.2"
@@ -40,7 +42,11 @@
     "devDependencies": {
         "@babel/eslint-parser": "^7.16.3",
         "@babel/preset-env": "^7.16.4",
+        "@babel/preset-typescript": "^7.16.5",
         "eslint": "^8.3.0",
-        "jest": "^27.4.3"
+        "jest": "^27.4.3",
+        "source-map-loader": "^4.0.1",
+        "ts-loader": "^9.4.2",
+        "typescript": "^5.0.0-beta"
     }
 }

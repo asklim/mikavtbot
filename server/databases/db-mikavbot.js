@@ -1,5 +1,5 @@
 
-const connection = require( './create-conn' );
+const createConnectionTo = require( './create-conn' );
 
 const {
     dbNames,
@@ -19,7 +19,7 @@ let uri = ( NODE_ENV == undefined || NODE_ENV == 'production' )
     : ( process.env.MONGO_DEV || mongoURIs.DEV )
 ;
 
-const db = connection.createConn( `${uri}/${dbmain}`, title );
+const db = createConnectionTo( `${uri}/${dbmain}`, title );
 
 
 // BRING IN YOUR SCHEMAS & MODELS

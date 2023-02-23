@@ -1,15 +1,18 @@
-const debug = require( 'debug' )( 'actions:upload-photo' );
+const debug = require( 'debug' )( 'helpers:upload-photo' );
 const {
+    icwd,
     consoleLogger,
     securefy,
     securetizeToken,
-} = require( '../helpers' );
+} = require( './' );
 const log = consoleLogger( 'upload-photo:' );
+
+const { TELEGRAM_API_ROOT } = require( '../mikavbot/telegram-endpoints.js' );
 
 const FormData = require( 'form-data' );
 
 const path = require( 'path' );
-const { createReadStream } = require( 'fs' );
+const { createReadStream, readdirSync } = require( 'fs' );
 
 const {
     //NetworkError,
@@ -17,6 +20,7 @@ const {
     postImageTo,
 } = require( '../raw-http/via-axios' );
 
+const TEST_IMAGES_DIR = `${icwd}/images/test-images`;
 
 /**
  *  Загружает тестовое фото
@@ -26,11 +30,11 @@ const {
  *  @param {number} chat_id - id чата/пользователя куда загрузить фото
  *  @return undefined | string (file_id) - если отправка прошла успешно.
 */
-function uploadTestPhoto ({ token, apiRoot, chat_id }) {
+function uploadTestPhoto ({ token, /*apiRoot,*/ chat_id }) {
 
 
-    const options = { token, apiRoot, chat_id };
-    const fname = path.resolve( __dirname, getRandomTestFileName() );
+    const options = { token, apiRoot: TELEGRAM_API_ROOT, chat_id };
+    const fname = getRandomTestFileName();
 
     try {
         const streamFromFile = createReadStream( fname );
@@ -53,12 +57,15 @@ function uploadTestPhoto ({ token, apiRoot, chat_id }) {
 
 function getRandomTestFileName () {
 
-    const TEST_FILE_NAMES = [
+    /*const TEST_FILE_NAMES = [
         'test-greeting-hi.jpg',
         'test-informer.png'
-    ];
-    const index = Math.floor( TEST_FILE_NAMES.length * Math.random());
-    return TEST_FILE_NAMES[index];
+    ];*/
+    const testImagesFNames = readdirSync( TEST_IMAGES_DIR, { withFileTypes: true }).
+        map( (item) => item.isFile() && item.name ).
+        filter( Boolean );
+    const index = Math.floor( testImagesFNames.length * Math.random());
+    return path.resolve( TEST_IMAGES_DIR, testImagesFNames[ index ] );
 }
 
 

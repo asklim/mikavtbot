@@ -1,13 +1,13 @@
 const {
     consoleLogger,
-} = require( '../helpers' );
+} = require( '../helpers/' );
 const log = consoleLogger( 'DB:' );
 
 const mongoose = require( 'mongoose' );
 const infoOfDBtoConsole = require( './info-of-db' );
 
 
-module.exports.createConn = function (uri, title) {
+module.exports = function (uri, title) {
 
     const connection = mongoose.createConnection( uri, {});
 

@@ -1,39 +1,40 @@
 #!/usr/bin/env node
 require( 'dotenv' ).config();
 
-const debug = require( 'debug' )( 'rsis:www' );
+const debug = require( 'debug' )( 'tbot:www' );
 const http = require( 'http' );
 const os = require( 'os' );
 const util = require( 'util' );
 const colors = require( 'colors' );
 const {
     icwd,
-    securetizeToken,
-} = require( './helpers' );
+    getProcessEnvWithout,
+} = require( './helpers/' );
 
-const version = require( `${icwd}/package.json` ).version;
+const version = require( '../package.json' ).version;
 
 
 outputStartServerInfo();
 
-const { bot: mikavbot } = require( './telegram-bot.js' );
 const {
-    app: expressBot,
+    app: expressNodejs,
     databasesShutdown,
 } = require( './app.js' );
 
+const botLauncher = require( './bot-launcher.js' );
+//debug( 'botLauncher.getBot is', botLauncher ); // { runBot: [...], getBot: [...] }
 
 /*******************************************************
  * Get port from environment and store in Express.
  */
 const port = normalizePort( process.env.PORT || '3569' );
-expressBot.set( 'port', port );
+expressNodejs.set( 'port', port );
 
 
 /**
  * Create HTTP server.
  */
-const server = http.createServer( expressBot );
+const server = http.createServer( expressNodejs );
 
 
 const shutdownTheServer = async () => {
@@ -121,7 +122,8 @@ server.listen( port,  () => {
 // For nodemon restarts
 process.once( 'SIGUSR2', () => {
 
-    mikavbot.stop( 'SIGUSR2' );
+    const mikavbot = botLauncher.getBot();
+    mikavbot?.stop( 'SIGUSR2' );
 
     databasesShutdown( 'SIGUSR2 - nodemon restart',
         () => {
@@ -136,7 +138,9 @@ process.once( 'SIGUSR2', () => {
 // For app termination
 process.on( 'SIGINT', () => {
 
-    mikavbot.stop( 'SIGINT' );
+    const mikavbot = botLauncher.getBot();
+    //debug( 'typeof mikavbot is', typeof mikavbot ); // object
+    mikavbot?.stop( 'SIGINT' );
 
     databasesShutdown( 'SIGINT app termination', () => {
 
@@ -145,7 +149,7 @@ process.on( 'SIGINT', () => {
             function () {
                 setTimeout(
                     () => { process.exit(0); },
-                    1000
+                    500
                 );
             }
         );
@@ -156,7 +160,8 @@ process.on( 'SIGINT', () => {
 // For Heroku app termination
 process.on( 'SIGTERM', () => {
 
-    mikavbot.stop( 'SIGTERM' );
+    const mikavbot = botLauncher.getBot();
+    mikavbot && mikavbot.stop( 'SIGTERM' );
 
     databasesShutdown( 'SIGTERM app termination', () => {
 
@@ -165,7 +170,7 @@ process.on( 'SIGTERM', () => {
             function () {
                 setTimeout(
                     () => { process.exit(0); },
-                    1000
+                    500
                 );
             }
         );
@@ -201,39 +206,53 @@ function normalizePort (val) {
 function outputServerAppInfo (outputMode, appVersion, httpServer) {
 
     const serverAddress = httpServer.address();
-    const {
-        address,
-        family,
-        port
-    } = serverAddress;
+    let outputs;
 
-    const bind = typeof serverAddress === 'string'
-        ? 'pipe ' + serverAddress
-        : 'port ' + port;
+    const node_env = process.env.NODE_ENV || 'undefined';
 
-    const outputs = {
-        full: () => console.log( 'Express server = ',  httpServer, '\n' ),
-        addr: () => {
-            const { NODE_ENV } = process.env;
-            const node_env = NODE_ENV ? NODE_ENV : 'undefined';
-            console.log( '\napp version', appVersion.cyan );
-            console.log( 'NODE Environment is', node_env.cyan );
-            console.log(
-                'Express server = "' + address.cyan
-                + '" Family= "' + family.cyan
-                + '" listening on ' + bind.cyan,
-                '\n'
-            );
-        },
-        default: () => console.log( '\n' )
-    };
+    if( serverAddress === 'string' ) {
+        const bind = serverAddress;
+        outputs = {
+            full: () => console.log( 'Express server = ',  httpServer, '\n' ),
+            addr: () => {
+                console.log( '\napp version', appVersion.cyan );
+                console.log( 'NODE Environment is', node_env.cyan );
+                console.log( 'Express server listening on ' + bind.cyan, '\n' );
+            },
+            default: () => console.log( '\n' )
+        };
+    }
+    else {
+        const {
+            address,
+            family,
+            port
+        } = serverAddress;
+
+        const bind = 'port ' + port;
+
+        outputs = {
+            full: () => console.log( 'Express server = ',  httpServer, '\n' ),
+            addr: () => {
+                console.log( '\napp version', appVersion.cyan );
+                console.log( 'NODE Environment is', node_env.cyan );
+                console.log(
+                    'Express server = "' + address.cyan
+                    + '" Family= "' + family.cyan
+                    + '" listening on ' + bind.cyan,
+                    '\n'
+                );
+            },
+            default: () => console.log( '\n' )
+        };
+    }
     (outputs[ outputMode.toLowerCase() ] || outputs[ 'default' ])();
 }
 
 
 async function outputStartServerInfo() {
 
-    getProcessEnvWithoutNpm().
+    getProcessEnvWithout( 'npm_, XDG, LESS' ).
     then( (envList) => {
         console.log( envList );
 
@@ -249,40 +268,4 @@ async function outputStartServerInfo() {
         console.log( `platform is ${os.platform()}, hostname is ${os.hostname()}`.cyan );
         console.log( colors.yellow( 'User Info : ', userInfo ), '\n' );
     });
-}
-
-
-/**
- * Выводит переменные окружения process.env.*,
- * но без npm_* переменых, которых очень много
- *
-**/
-function getProcessEnvWithoutNpm() {
-
-    function isSecretEnvVar( varName ) {
-
-        const secretKeys = [
-            'JWT_SECRET', 'ATLAS_CREDENTIALS',
-            'GOOGLE_MAP_API_KEY', 'RSIS_GOOGLE_API_KEY',
-            'NGROK_AUTH_TOKEN', 'VIBER_CHAT_TOKEN',
-            'AVANGARD_V_VIBER_CHAT_TOKEN',
-            'MIKAVBOT_TOKEN', 'MIKAHOMEBOT_TOKEN',
-            'PATH', 'LS_COLORS'
-        ];
-        return secretKeys.includes( varName );
-    }
-
-    const envWithoutNpm = {};
-
-    Object.keys( process.env ).
-    forEach( (key) => {
-        if( isSecretEnvVar( key )) {
-            envWithoutNpm[ key ] = securetizeToken( process.env[ key ] );
-        }
-        else if( !key.startsWith('npm_') ) {
-            envWithoutNpm[ key ] = process.env[ key ];
-        }
-    });
-
-    return Promise.resolve( envWithoutNpm );
 }

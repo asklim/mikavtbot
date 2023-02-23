@@ -8,9 +8,11 @@ module.exports = function (api) {
                     firefox: "60",
                     chrome: "67",
                     safari: "11.1",
+                    node: "current",
                 }
             }
         ],
+        "@babel/preset-typescript",
         /*[ "@babel/preset-react",
             {
                 "pragma": "dom",          // default pragma is React.createElement
@@ -21,12 +23,12 @@ module.exports = function (api) {
     ];
 
     const plugins = [
-            //"@babel/plugin-proposal-class-properties",
-            //"react-hot-loader/babel",
+        //"@babel/plugin-proposal-class-properties",
+        //"react-hot-loader/babel",
     ];
 
     api.cache.forever();
-    
+
     return {
         presets,
         plugins

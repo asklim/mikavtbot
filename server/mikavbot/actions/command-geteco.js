@@ -1,14 +1,17 @@
-const debug = require( 'debug' )( 'actions:cmd:geteco' );
+const debug = require('debug')('actions:cmd:geteco');
 
-const { consoleLogger, } = require( '../helpers' );
-const log = consoleLogger( 'mikaV:' );
+const {
+    consoleLogger,
+} = require('../../helpers');
 
-const { uploadPhoto, } = require( './upload-photo' );
+const { uploadPhoto, } = require('../../helpers/upload-photo.js');
+const log = consoleLogger('mikaV:');
+
 
 module.exports = async (ctx) => {
     try {
-        debug( '/geteco command' );
-        debug( 'ctx.chat: ', ctx.chat );
+        debug('/geteco command');
+        debug('ctx.chat: ', ctx.chat);
         const imageURL = "http://www.ecopress.by/cgi/vitebsk.php";
         //let imageURL = "https://octodex.github.com/images/Fintechtocat.png";
 
@@ -19,6 +22,6 @@ module.exports = async (ctx) => {
         uploadPhoto( { token, apiRoot, chat_id }, imageURL );
     }
     catch (error) {
-        log.error( 'catch-handler:cmd:geteco\n', error );
+        log.error('catch-handler:cmd:geteco\n', error );
     }
 };

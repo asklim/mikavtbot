@@ -1,10 +1,9 @@
-const uploadPhoto = require( './upload-photo' );
+const command_geteco = require( './command-geteco' );
+const command_test = require( './command-test' );
 const handler_help = require( './handler-help' );
 const handler_on_message = require( './handler-on-message' );
 const handler_on_text = require( './handler-on-text' );
 const handler_start = require( './handler-start' );
-const command_geteco = require( './command-geteco' );
-const command_test = require( './command-test' );
 
 module.exports = {
     command_geteco,
@@ -13,5 +12,4 @@ module.exports = {
     handler_on_message,
     handler_on_text,
     handler_start,
-    ... uploadPhoto,
 };

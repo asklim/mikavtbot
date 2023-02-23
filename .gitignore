@@ -4,6 +4,7 @@
 # microsoft office temporary documents
 ~$*.*
 
+dist/
 
 # Static Bootstrap map files
 /static/bootstrap/css/*.css.map
