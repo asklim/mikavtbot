@@ -1,7 +1,19 @@
-import { realpathSync } from 'node:fs';
+import {
+    realpathSync,
+    readFileSync,
+} from 'node:fs';
+
 export const icwd = realpathSync( process.cwd() );
 
+// import { version } from '<root>/package.json';
+// This import ADD 'package.json' to dist/
+const packageJson = JSON.parse( readFileSync(`${icwd}/package.json`, 'utf-8'))
+const { version } = packageJson;
+
+export { version as botVersion };
+export { default as debugFactory } from 'debug';
 export { default as consoleLogger } from './logger';
+export * from './logger-class';
 export { default as getProcessEnvWithout } from './get-process-env-without';
 export { default as httpResponseCodes } from './http-response-codes';
 export * from './http-responses';

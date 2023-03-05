@@ -1,14 +1,20 @@
-// import { default as debugFactory } from 'debug';
+// import {
+//     Logger,
+//     debugFactory
+// } from '<srv>/helpers/';
 // const debug = debugFactory('tbot:run');
+// const log = new Logger('TBot:');
 
-// import { consoleLogger } from './helpers/';
-// const log = consoleLogger('TBot:');
+import {
+    createBot,
+    MikaVTelegraf
+} from '<srv>/mikavbot/';
 
-import createBot from './mikavbot/create-bot';
+let mikavbot: MikaVTelegraf | undefined;
 
-let mikavbot: any;
-
-async function runBot (botIdAndToken: string) {
+async function runBot (
+    botIdAndToken: string
+) {
 
     if( process.env.BOT_MODE == 'OFF' ) {
         return void 0;
@@ -18,11 +24,10 @@ async function runBot (botIdAndToken: string) {
     }
 
     mikavbot = await createBot( botIdAndToken );
-    /*const launched =*/ await mikavbot.launchBot();
-    //debug( 'runBot', mikavbot == launched ); // true
-    //debug( 'runBot', mikavbot === launched );// true
-    //debug( 'launched is', typeof launched ); // object
-
+    /*const launched =*/ await mikavbot?.launchBot?.();
+    //debug('runBot', mikavbot == launched ); // true
+    //debug('runBot', mikavbot === launched );// true
+    //debug('launched is', typeof launched ); // object
 
     return mikavbot;
 }

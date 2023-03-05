@@ -1,15 +1,14 @@
-import mongoose, { Mongoose } from 'mongoose';
+import mongoose, {
+    version
+} from 'mongoose';
 
 import { default as infoOfDBtoConsole } from './info-of-db';
 
-import { consoleLogger } from '../helpers/';
+import { Logger } from '<srv>/helpers/';
 
-const log = consoleLogger( 'DB:' );
+const log = new Logger('DB:');
+log.debug(`Mongoose version: ${version}`);
 
-
-class AppMongoose extends Mongoose {
-
-}
 
 export default function (
     uri: string,
@@ -18,26 +17,26 @@ export default function (
     const connection = mongoose.createConnection( uri, {});
 
     // CONNECTION EVENTS
-    connection.on( 'connected', () => {
+    connection.on('connected', () => {
         const { host, port } = connection;
-        log.debug( `${title} - connected to ${host}:${port}` );
+        log.debug(`${title} - connected to ${host}:${port}`);
         infoOfDBtoConsole( connection );
     });
 
-    connection.on( 'error', (err: any) => {
-        log.error( `${title} - connection error:\n`, err );
+    connection.on('error', (err: any) => {
+        log.error(`${title} - connection error:\n`, err );
     });
 
-    connection.on( 'disconnecting', () => {
-        log.debug( `${title} connection closing ...` );
+    connection.on('disconnecting', () => {
+        log.debug(`${title} connection closing ...`);
     });
 
-    connection.on( 'disconnected', () => {
-        log.info( `${title} disconnected from MongoDB.` );
+    connection.on('disconnected', () => {
+        log.info(`${title} disconnected from MongoDB.`);
     });
 
-    connection.on( 'close', () => {
-        log.info( `${title} connection closed.` );
+    connection.on('close', () => {
+        log.info(`${title} connection closed.`);
     });
 
     // connection.closeConn = () => {

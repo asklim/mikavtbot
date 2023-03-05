@@ -20,7 +20,7 @@ import {
 import {
     Logger,
     IConsoleLogger
-} from '<srv>/helpers/logger-class';
+} from '<srv>/helpers/';
 
 const defaultLogger = new Logger('[tbot:express]');
 

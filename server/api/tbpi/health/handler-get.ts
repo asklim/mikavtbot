@@ -3,21 +3,21 @@ import { Response, Request } from 'express';
 
 import {
     icwd,
-    consoleLogger,
+    Logger,
     securifyObjByList,
     send200Ok,
     send400BadRequest,
     send500ServerError,
-} from '../../../helpers/';
+} from '<srv>/helpers/';
 
-import { getDB } from '../../../databases/';
+import { getDB } from '<srv>/databases/';
 const dbTBot = getDB();
 
-import chatsList from '../../../helpers/chats-list';
+import chatsList from '<srv>/helpers/chats-list';
 
-import { uploadTestPhoto } from '../../../helpers/upload-photo';
+import { uploadTestPhoto } from '<srv>/helpers/upload-photo';
 
-const log = consoleLogger( 'api-health:' );
+const log = new Logger('api-health:');
 
 /**
  * Return status of app or DBs
@@ -29,7 +29,6 @@ const log = consoleLogger( 'api-health:' );
  * @returns send 200 {ok: true, [dbname] : 'nn'} - count of docs.
  * @returns send 500 {ok: false, [dbname] : undefined} - no Mongo
  **/
-
 export default async function (
     req: Request,
     res: Response
@@ -68,7 +67,7 @@ export default async function (
         //debug( 'mikavbot is', mikavbot );
 
         const ctx = {
-            token: req.app.get( 'BOT_ID_TOKEN' ),
+            token: req.app.get('BOT_ID_TOKEN'),
             //process.env.MIKAHOMEBOT_TOKEN, //mikavbot.token,
             //apiRoot: mikavbot.telegram.options.apiRoot,
             //apiRoot: 'https://api.telegram.org',

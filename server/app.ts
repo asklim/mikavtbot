@@ -1,20 +1,19 @@
-// import { default as debugFactory } from 'debug';
+import { default as createError } from 'http-errors';
+import express from 'express';
+import cookieParser from 'cookie-parser';
+import morgan from 'morgan';
+
+// import {
+//     Logger,
+//     //debugFactory
+// } from '<srv>/helpers/';
 // const debug = debugFactory('tbot:app');
 
-import { default as createError } from 'http-errors';
-
-import express from 'express';
-
-import cookieParser from 'cookie-parser';
-
-import morgan from 'morgan';
-import { Logger } from '<srv>/helpers/logger-class';
 import { default as app } from '<srv>/expressApp/';
 
 const { NODE_ENV } = process.env;
 
 const isProduction = NODE_ENV == 'production';
-Logger.setLevel( isProduction );
 
 // NODE_ENV может быть undefined в продакшене для выполнения debug()
 // 'development', 'test' - Для разработки + debug()
@@ -41,7 +40,7 @@ import {
     databasesShutdown,
 } from './databases/';
 
-createDatabasesConnections();
+//createDatabasesConnections();
 
 import tbpiRouter from './api/tbpi-router';
 

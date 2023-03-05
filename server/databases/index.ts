@@ -17,7 +17,7 @@ const dbs: any = {};
  * @return {Mongoose.Connection} The connection to database
 */
 function getDB(
-    dbType: string | undefined = 'main'
+    dbType: string = 'main'
 ) {
     return dbs.botmain;
 }
@@ -32,23 +32,25 @@ async function createDatabasesConnections() {
 
 // To be called when process is restarted Nodemon or terminated
 
-const databasesShutdown = (
+function databasesShutdown (
     msg: string,
-    next: any
-) => {
+    next: () => void
+): void {
+
     const allDbsClosingPromises = Object.keys( dbs ).map(
         (dbKey) => /*dbs[ dbKey ].closeConn()*/ dbKey
     );
 
-
-    Promise.all( allDbsClosingPromises )
-    .then( dbsNames => {
-        console.log( 'dbs closed: ', dbsNames );
-        console.log( 'Mongoose disconnected through ' + msg );
-        next();
-    })
-    .catch( error => console.log( error.message ));
+    Promise.all( allDbsClosingPromises ).
+    then( dbsNames => {
+        console.log('dbs closed: ', dbsNames );
+        console.log('Mongoose disconnected through ' + msg );
+        next?.();
+    }).
+    catch( error => console.log( error.message ));
 };
+
+createDatabasesConnections();
 
 export {
     getDB,
