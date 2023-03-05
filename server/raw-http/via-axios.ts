@@ -1,20 +1,19 @@
+import { default as debugFactory } from 'debug';
+const debug = debugFactory('raw:via-axios');
 
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'debug'.
-const debug = require( 'debug' )( 'raw:via-axios' );
-const {
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'consoleLog... Remove this comment to see the full error message
-    consoleLogger,
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-} = require( '../helpers' );
-
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'log'.
+import { consoleLogger } from '../helpers/';
 const log = consoleLogger( 'raw:axios' );
 
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-const axios = require( 'axios' ).default;
+import { default as axios, AxiosResponse } from 'axios';
 
-// @ts-expect-error TS(2300): Duplicate identifier 'NetworkError'.
 class NetworkError extends Error {}
+
+
+export {
+    NetworkError,
+    getStreamImageFrom,
+    postImageTo,
+};
 
 
 /***
@@ -22,9 +21,9 @@ class NetworkError extends Error {}
  *  @return {IncomingMessage} -  readable Stream,
  *  see 'data-samples/IncomingMessage.log'
 */
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'getStreamI... Remove this comment to see the full error message
-async function getStreamImageFrom (url: any) {
-
+async function getStreamImageFrom (
+    url: string
+) {
     try {
         const axiosResponse = await axios({
             method: 'GET',
@@ -53,19 +52,18 @@ async function getStreamImageFrom (url: any) {
 }
 
 
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'postImageT... Remove this comment to see the full error message
 function postImageTo ({
     url,
     data,
     headers
-}: any) {
-
+}: any
+) {
     return axios({
         method: 'POST',
         url, data, headers
     })
     .then( _checkStatus )
-    .then( (axiosResponse: any) => axiosResponse.data )
+    .then( (res: AxiosResponse) => res.data )
     .then( _response2console )
     .then( (telegramResponse: any) => {     // from Telegram Server
 
@@ -96,14 +94,7 @@ function postImageTo ({
 }
 
 
-// @ts-expect-error TS(2580): Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
-module.exports = {
-
-    NetworkError,
-    getStreamImageFrom,
-    postImageTo,
-
-};
+/************ */
 
 
 function _response2console( response: any ) {

@@ -1,32 +1,20 @@
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'debug'.
-const debug = require( 'debug' )( 'tbot:mikav' );
+import { default as debugFactory } from 'debug';
+const debug = debugFactory('tbot:mikav');
 
-const {
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'consoleLog... Remove this comment to see the full error message
-    consoleLogger,
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'securetize... Remove this comment to see the full error message
-    securetizeToken,
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-} = require( '../helpers' );
+import { consoleLogger, securifyToken, } from '../helpers/';
 
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'log'.
-const log = consoleLogger( 'mikaV:' );
+const log = consoleLogger('mikaV:');
 
-const {
+import {
     END_POINTS,
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'TELEGRAM_A... Remove this comment to see the full error message
     TELEGRAM_API_ROOT,
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-} = require( './telegram-endpoints.js' );
+} from './telegram-endpoints';
 
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-const { Telegraf } = require( 'telegraf' );
+import { Telegraf } from 'telegraf';
 
+export default class MikaVTelegraf extends Telegraf {
 
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'MikaVTeleg... Remove this comment to see the full error message
-class MikaVTelegraf extends Telegraf {
-    launch: any;
-    telegram: any;
+    private startTimestamp: number | undefined;
 
     async launchBot () {
 
@@ -35,48 +23,57 @@ class MikaVTelegraf extends Telegraf {
         try {
             await this.launch();
 
+            this.startTimestamp = Date.now();
             let info;
             info = await this.telegram.getWebhookInfo();
-            log.info( 'webhook Info: ', info );
+            log.info('webhook Info: ', info );
 
             info = await this.telegram.getMe();
-            log.info( 'Me: ', info );
+            log.info('Me: ', info );
 
             return Promise.resolve( this );
         }
         catch (err) {
-            log.error( 'telegram-bot.launchBot error:\n', err );
+            log.error('telegram-bot.launchBot error:\n', err );
         }
     }
 
+    public getStartTime (): number | undefined {
+        return this.startTimestamp;
+    }
 
-    static getEndpointURL (endPoint: any, botIdAndToken: any) {
+    private getTgToken (): string {
+        return this.telegram?.token;
+    }
 
-        let token, apiRoot, action;
+    private getTgApiRoot (): string {
+        return this.telegram?.options?.apiRoot;
+    }
+
+
+    public getEndpointURL (
+        endPoint: string,
+        botIdAndToken?: string
+    ) {
+        let token: string = '',
+            apiRoot,
+            action;
         try {
-            // @ts-expect-error TS(2339): Property 'token' does not exist on type 'typeof Mi... Remove this comment to see the full error message
-            token = botIdAndToken || this?.token;
-            // @ts-expect-error TS(2339): Property 'telegram' does not exist on type 'typeof... Remove this comment to see the full error message
-            apiRoot = this?.telegram?.options?.apiRoot || TELEGRAM_API_ROOT;
+            token = botIdAndToken ?? this.getTgToken();
+            apiRoot = this.getTgApiRoot() ?? TELEGRAM_API_ROOT;
             action = END_POINTS[ endPoint.toLowerCase() ];
 
-            return ( apiRoot && token && action
-                ? `${apiRoot}/bot${token}${action}`
+            return ( !!apiRoot && !!token && !!action ?
+                `${apiRoot}/bot${token}${action}`
                 : void 0
             );
         }
         catch (e) {
-            debug( 'typeof this', typeof this,
+            log.error('typeof this', typeof this,
                 '\napiRoot', apiRoot,
-                '\ntoken', securetizeToken( token ),
+                '\ntoken', securifyToken( token ),
                 '\naction', action
             );
         }
     }
 }
-
-
-// @ts-expect-error TS(2580): Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
-module.exports = {
-    MikaVTelegraf,
-};

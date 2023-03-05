@@ -1,55 +1,57 @@
+import * as process from 'process';
 
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'securetize... Remove this comment to see the full error message
-const { securetizeToken, } = require( './securetize.js' );
+import { securifyToken, } from './securitize';
+
+const defaultSecretKeys = [
+    'JWT_SECRET',
+    'ATLAS_CREDENTIALS',
+    'GOOGLE_MAP_API_KEY',
+    'RSIS_GOOGLE_API_KEY',
+    'NGROK_AUTH_TOKEN',
+    'VIBER_CHAT_TOKEN',
+    'AVANGARD_V_VIBER_CHAT_TOKEN',
+    'MIKAVBOT_TOKEN',
+    'MIKAHOMEBOT_TOKEN',
+    'PATH',
+    'LS_COLORS'
+];
 
 /**
  * Выводит переменные окружения process.env.*,
  * но без npm_* переменых, которых очень много
  * secretKeys сокращаются и вместо сокращения вставляется '***'
 **/
-// @ts-expect-error TS(2580): Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
-module.exports = function getProcessEnvWithout(
-    excludes='npm_',
-    isSorted = true,
-    secretKeys = [
-        'JWT_SECRET', 'ATLAS_CREDENTIALS',
-        'GOOGLE_MAP_API_KEY', 'RSIS_GOOGLE_API_KEY',
-        'NGROK_AUTH_TOKEN', 'VIBER_CHAT_TOKEN',
-        'AVANGARD_V_VIBER_CHAT_TOKEN',
-        'MIKAVBOT_TOKEN', 'MIKAHOMEBOT_TOKEN',
-        'PATH', 'LS_COLORS'
-    ]
+export default function getProcessEnvWithout(
+    excludes: string = 'npm_',
+    isSorted: boolean = true,
+    secretKeys: string[] = defaultSecretKeys
 ){
-    const isSecretEnvVar = (varName: any) => secretKeys.includes( varName );
+    const isSecretEnvVar = (varName: string) => secretKeys.includes( varName );
 
     const excludesArray = excludes.split(',').map( x => x.trim() ).filter(Boolean);
 
-    function isExcludeEnvVar (envVar: any) {
-        const isStarts = (element: any) => envVar.startsWith( element );
+    function isExcludeEnvVar (envVar: string) {
+        const isStarts = (element: string) => envVar.startsWith( element );
         return excludesArray.some( isStarts );
     }
 
-    const envWithout = {};
+    const envWithout: {[key: string]: string} = {};
 
-    // @ts-expect-error TS(2580): Cannot find name 'process'. Do you need to install... Remove this comment to see the full error message
     Object.keys( process.env ).
     forEach( (key) => {
+        let token = <string> process.env[ key ];
         if( isSecretEnvVar( key )) {
-            // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-            envWithout[ key ] = securetizeToken( process.env[ key ] );
+            envWithout[ key ] = securifyToken( token );
         }
         else if( !isExcludeEnvVar( key ) ) {
-            // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-            envWithout[ key ] = process.env[ key ];
+            envWithout[ key ] = token;
         }
     });
 
-    let result;
+    let result: {[key: string]: string} = {};
     if( isSorted ) {
         result = {};
-        // @ts-expect-error TS(2550): Property 'entries' does not exist on type 'ObjectC... Remove this comment to see the full error message
         for( const [key, value] of Object.entries( envWithout ).sort() ) {
-            // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
             result[ key ] = value;
         }
     }

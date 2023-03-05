@@ -1,71 +1,57 @@
-//const debug = require( 'debug' )( 'tbot:app' );
+// import { default as debugFactory } from 'debug';
+// const debug = debugFactory('tbot:app');
 
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-const createError = require( 'http-errors' );
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'express'.
-const express = require( 'express' );
-//const path = require( 'path' );
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-const cookieParser = require( 'cookie-parser' );
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-const morgan = require( 'morgan' );
+import { default as createError } from 'http-errors';
 
-//const { icwd } = require( './helpers/' );
+import express from 'express';
 
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'NODE_ENV'.
+import cookieParser from 'cookie-parser';
+
+import morgan from 'morgan';
+import { Logger } from '<srv>/helpers/logger-class';
+import { default as app } from '<srv>/expressApp/';
+
 const { NODE_ENV } = process.env;
+
+const isProduction = NODE_ENV == 'production';
+Logger.setLevel( isProduction );
 
 // NODE_ENV может быть undefined в продакшене для выполнения debug()
 // 'development', 'test' - Для разработки + debug()
 // 'production' - production without debug()
 // 'undefined'  - production with debug()
-const BOT_ID_TOKEN = (NODE_ENV == undefined || NODE_ENV == 'production')
-    // @ts-expect-error TS(2580): Cannot find name 'process'. Do you need to install... Remove this comment to see the full error message
+const BOT_ID_TOKEN = ( NODE_ENV == undefined || isProduction )
     ? process.env.MIKAVBOT_TOKEN
-    // @ts-expect-error TS(2580): Cannot find name 'process'. Do you need to install... Remove this comment to see the full error message
     : process.env.MIKAHOMEBOT_TOKEN;
 
 if( !BOT_ID_TOKEN ) {
-    // @ts-expect-error TS(2345): Argument of type '{ isLocal: boolean; errmsg: stri... Remove this comment to see the full error message
-    throw new Error({
-        // выводит в консоль: Error: [object Object]
-        isLocal: false,
-        errmsg: 'No auth token for Telegram.',
-        // @ts-expect-error TS(2339): Property 'errmsg' does not exist on type 'String'.
-        toString: function() { return this.errmsg; },
-        // Error: undefined, if toString: () => this.errmsg, // this===undefined
-    });
+    throw new Error('No auth token for Telegram.');
 }
 
 (async function () {
-    // @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-    const bot = require( './bot-launcher.js' );
+    const bot = await import('./bot-launcher');
     /*let mikavbot =*/ await bot.runBot( BOT_ID_TOKEN );
     //debug( 'mikavbot is', mikavbot ); // Telegraf
     //debug( 'mikavbot.getBot is', bot.getBot() ); // Telegraf
 })();
 
 
-const {
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'createData... Remove this comment to see the full error message
+import {
     createDatabasesConnections,
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'databasesS... Remove this comment to see the full error message
     databasesShutdown,
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-} = require( './databases/' );
+} from './databases/';
 
 createDatabasesConnections();
 
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-const tbpiRouter = require( './api/tbpi-router.js' );
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-const indexRouter = require( './api/index-router.js' );
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-const usersRouter = require( './api/users-router.js' );
+import tbpiRouter from './api/tbpi-router';
 
-const app = express();
+import indexRouter from './api/index-router';
 
-app.set( 'BOT_ID_TOKEN', BOT_ID_TOKEN );
+import usersRouter from './api/users-router';
+
+//const app = express();
+
+app.set('BOT_ID_TOKEN', BOT_ID_TOKEN );
 
 // view engine setup
 //app.set( 'views', path.join( '../views' ));
@@ -82,12 +68,12 @@ app.use( morgan( morganTemplate ));
 app.use( express.json());
 app.use( express.urlencoded({ extended: false }));
 app.use( cookieParser());
-app.use( express.static( `../public` ));
+app.use( express.static(`../public`));
 
-app.use( '/tbpi', tbpiRouter );
-app.use( '/users', usersRouter );
+app.use('/tbpi', tbpiRouter );
+app.use('/users', usersRouter );
 
-app.use( '/', indexRouter );
+app.use('/', indexRouter );
 
 // catch 404 and forward to error handler
 app.use( function(req: any, res: any, next: any ) {
@@ -109,8 +95,7 @@ app.use( function( err: any, req: any, res: any, _next: any ) {
 });
 
 
-// @ts-expect-error TS(2580): Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
-module.exports = {
+export {
     app,
     databasesShutdown,
 };

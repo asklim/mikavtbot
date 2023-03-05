@@ -1,18 +1,12 @@
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'debug'.
-const debug = require('debug')('actions:ontext');
-const {
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'consoleLog... Remove this comment to see the full error message
-    consoleLogger,
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'uploadTest... Remove this comment to see the full error message
-    uploadTestPhoto
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-} = require('../../helpers');
+import { default as debugFactory } from 'debug';
+const debug = debugFactory('actions:ontext');
 
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'log'.
+import { consoleLogger } from '../../helpers/';
+
+import { uploadTestPhoto } from '../../helpers/upload-photo';
 const log = consoleLogger('mikaV:');
 
-// @ts-expect-error TS(2580): Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
-module.exports = async (ctx: any) => {
+export default async (ctx: any) => {
     //  Простые смайлики приходят сюда.
     try {
         const { message } = ctx;

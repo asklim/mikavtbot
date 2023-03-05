@@ -1,28 +1,26 @@
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'debug'.
-const debug = require( 'debug' )('lib:raw:http');
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'http'.
-const http = require( 'http' );
+import { default as debugFactory } from 'debug';
+const debug = debugFactory('raw:via-http');
 
-const { 
+import http from 'http';
+
+import {
     //createWriteStream,
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'createRead... Remove this comment to see the full error message
-    createReadStream 
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-} = require( 'fs' );
+    createReadStream
+} from 'fs';
 
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'FormData'.
-const FormData = require( 'form-data' );
+import FormData from 'form-data';
 
 
-/** 
+/**
  *  Скачивает изображение по адресу url
  *  ------------------------------------
  *  @param  url  - полный адрес для скачивания изображения
  *  @return {Readable stream} - Incoming Message
  *   see 'data-samples/Request.log'
 */
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'getStreamI... Remove this comment to see the full error message
-function getStreamImageFrom (url: any) {
+function getStreamImageFrom (
+    url: string
+) {
 
     let getOptions = {
         encoding: null,
@@ -56,18 +54,18 @@ function getStreamImageFrom (url: any) {
             // res {: Incoming Message}
             debug( `I: image downloaded from '${res.request.href}'` );
             debug( `I: image downloaded: res.statusCode= ${statusCode}` );
-            resolve( res );            
+            resolve( res );
         });
     });
 }
 
 
-/** 
+/**
  *  @param {string} token     - токен для доступа к Telegram-боту
  *  @param {string} apiRoot   - путь к Telegram API
  *  @param {} chat_id   - id чата/пользователя куда загрузить фото
  *  @param {string} photoUrl - откуда брать фото
- *  @return 
+ *  @return
  **/
 async function uploadPhoto ({
     token,
@@ -81,14 +79,14 @@ async function uploadPhoto ({
 
     try {
         readable = await getStreamImageFrom( photoUrl );
-        //debug( 'http streamImage GET-response:\n', readable );    
+        //debug( 'http streamImage GET-response:\n', readable );
     }
     catch (ex) {
 
-        console.log( `E: image downloading: no image data.` );  
+        console.log( `E: image downloading: no image data.` );
         return;
     }
-    
+
     let apiSendPhotoUrl = `${apiRoot}/bot${token}/sendPhoto`;
     debug( `uploadPhoto: try from '${apiSendPhotoUrl}'` );
 
@@ -97,11 +95,10 @@ async function uploadPhoto ({
     form.append( 'photo', readable );
 
     const url = new URL( apiSendPhotoUrl );
-    
+
     const postOptions = {
         ... url,
         method: 'POST',
-        // @ts-expect-error TS(2339): Property 'getHeaders' does not exist on type 'Form... Remove this comment to see the full error message
         headers: form.getHeaders(),
         body: form,
     };
@@ -116,21 +113,20 @@ async function uploadPhoto ({
 
 
 
-/** 
+/**
  *  @param  token     - токен для доступа к Telegram-боту
  *  @param  apiRoot   - путь к Telegram API
  *  @param  chat_id   - id чата/пользователя куда загрузить фото
- *  @return 
+ *  @return
  *   see 'data-samples/Request.log'
  *   'test photo' is /server/image/test-informer.png
  */
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'uploadTest... Remove this comment to see the full error message
 async function uploadTestPhoto ({
-    token,
-    apiRoot,
-    chat_id
-}: any) {
-
+        token,
+        apiRoot,
+        chat_id
+    }: any
+) {
     // Telegram требует POST with multipart/form-data
 
     let fromfile;
@@ -142,7 +138,7 @@ async function uploadTestPhoto ({
     }
     catch (ex) {
 
-        console.log( `E: read from file: no image test file.` );  
+        console.log( `E: read from file: no image test file.` );
         return;
     }
 
@@ -154,11 +150,10 @@ async function uploadTestPhoto ({
     form.append( 'photo', fromfile );
 
     const url = new URL( apiSendPhotoUrl );
-    
+
     const postOptions = {
         ... url,
         method: 'POST',
-        // @ts-expect-error TS(2339): Property 'getHeaders' does not exist on type 'Form... Remove this comment to see the full error message
         headers: form.getHeaders(),
         body: form,
     };
@@ -167,44 +162,39 @@ async function uploadTestPhoto ({
 }
 
 
-// @ts-expect-error TS(2580): Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
-module.exports = 
-{
-    //getStreamImageFrom,
+export {
+    getStreamImageFrom,
     uploadPhoto,
     uploadTestPhoto,
-
 };
 
 
-
-// @ts-expect-error TS(2393): Duplicate function implementation.
 function postingPhoto (options: any) {
 
     const { body, ...rest } = options;
     debug( 'http.request options:\n', rest );
 
     const req = http.request( rest );
-    
+
     // Write data to request body
-    body.pipe( req );    
+    body.pipe( req );
 
     req.on( 'error', (error: any) => {
-    
-        console.log( 
-            `E: error image uploading to '${req.href}'\n`,
-            error 
-        );    
+
+        console.log(
+            `E: error image uploading to '${req.path}'\n`,
+            error
+        );
     });
-      
+
     req.on( 'response', async (res: any) => {
-        
+
         if( res.statusCode !== 200 ) {
 
-            console.log( 
+            console.log(
                 `E: uploading error: res.statusCode = ${res.statusCode}\n`
-                //+`body (tg-data): `, telegramRes 
-            );  
+                //+`body (tg-data): `, telegramRes
+            );
             return;
         }
 
@@ -216,18 +206,18 @@ function postingPhoto (options: any) {
         debug( 'http.request POST-response.read():\n', response );
 
         let telegramRes = JSON.parse( response );
-        
+
         if( telegramRes.ok ) {
 
             // @ts-expect-error TS(2554): Expected 0 arguments, but got 1.
             let dt = Date( telegramRes.result.date );
-            let isoDate = new Date( dt );            
+            let isoDate = new Date( dt );
             // @ts-expect-error TS(2322): Type 'string' is not assignable to type 'Date'.
             isoDate = isoDate.toISOString();
 
             let { file_id } = telegramRes.result.photo[0];
             console.log( `SUCCESS: image uploaded at ${isoDate}, ${dt}`);
             console.log( `file_id: ${file_id}` );
-        }        
+        }
     });
 }

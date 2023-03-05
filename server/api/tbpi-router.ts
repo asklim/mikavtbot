@@ -1,18 +1,23 @@
 
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'router'.
-const router = require( 'express' ).Router();
+import { default as HTTP } from '../helpers/http-response-codes';
 
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-require( './tbpi/health/health-router' )( router );
+import express, {
+    Request,
+    Response
+} from 'express';
 
+const router = express.Router();
+
+import { default as addHealthRoutes } from './tbpi/health/health-router';
+
+(async () => {
+    await addHealthRoutes( router );
+})();
 
 router.get('/*',
-    (_req: any, res: any) => {
-        res.
-        status( 400 ).
-        json({ message: "Bad request in tbpi-router." });
-    }
+    (_req: Request, res: Response) => res.
+        status( HTTP.BAD_REQUEST ).
+        json({ message: "Bad request in tbpi-router." })
 );
 
-// @ts-expect-error TS(2580): Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
-module.exports = router;
+export default router;

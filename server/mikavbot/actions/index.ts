@@ -1,22 +1,6 @@
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-const command_geteco = require( './command-geteco' );
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-const command_test = require( './command-test' );
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-const handler_help = require( './handler-help' );
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-const handler_on_message = require( './handler-on-message' );
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-const handler_on_text = require( './handler-on-text' );
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-const handler_start = require( './handler-start' );
-
-// @ts-expect-error TS(2580): Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
-module.exports = {
-    command_geteco,
-    command_test,
-    handler_help,
-    handler_on_message,
-    handler_on_text,
-    handler_start,
-};
+export { default as command_geteco } from './command-geteco';
+export { default as command_test } from './command-test';
+export { default as handler_help } from './handler-help';
+export { default as handler_on_message } from './handler-on-message';
+export { default as handler_on_text } from './handler-on-text';
+export { default as handler_start } from './handler-start';

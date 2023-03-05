@@ -1,17 +1,14 @@
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'debug'.
-const debug = require( 'debug' )( 'image' );
-const { 
-    createCanvas, 
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'Image'.
-    Image 
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-} = require( 'canvas' );
+import { default as debugFactory } from 'debug';
+const debug = debugFactory('image');
+import {
+    createCanvas,
+    Image
+} from 'canvas';
 //const Jimp = require( 'jimp' );
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'sharp'.
-const sharp = require( 'sharp' );
 
-// @ts-expect-error TS(2580): Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
-module.exports = {
+import sharp from 'sharp';
+
+export {
     chooseFontSize,
     createImagedCanvas,
     printTextOnCanvas,
@@ -21,10 +18,9 @@ module.exports = {
 /**
  * Считывает файл с диска, изменяет его размер до необходимого
  * @returns возвращает в виде Buffer
- * @param {string} pathFileName - путь и полное имя файла 
+ * @param {string} pathFileName - путь и полное имя файла
  * @param {{}} settings - параметры преобразования
  */
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'resizedIma... Remove this comment to see the full error message
 async function resizedImageToBuffer (pathFileName: any, settings: any) {
 
     const {
@@ -32,10 +28,10 @@ async function resizedImageToBuffer (pathFileName: any, settings: any) {
         height,
         multiplicator,
     } = settings;
-    
+
     const resultWidth = width * multiplicator;
-    const resultHeight = height * multiplicator;   
-        
+    const resultHeight = height * multiplicator;
+
     return await sharp( pathFileName )
         .resize( resultWidth, resultHeight )
         .png()
@@ -52,9 +48,8 @@ async function resizedImageToBuffer (pathFileName: any, settings: any) {
 /**
  * Создает объект Canvas с background изображением
  * @param {Buffer} bgImageBuffer
- * @param {{}} settings 
+ * @param {{}} settings
  */
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'createImag... Remove this comment to see the full error message
 function createImagedCanvas( bgImageBuffer: any, settings: any ) {
 
     const {
@@ -62,12 +57,12 @@ function createImagedCanvas( bgImageBuffer: any, settings: any ) {
         multiplicator,
     } = settings;
 
-    const imagedCanvas = createCanvas( 
-        width * multiplicator, 
-        height * multiplicator 
+    const imagedCanvas = createCanvas(
+        width * multiplicator,
+        height * multiplicator
     );
     const ctx = imagedCanvas.getContext( '2d' );
-    debug( `text canvas: ${ctx.canvas.width} x ${ctx.canvas.height}`);
+    debug( `text canvas: ${imagedCanvas.width} x ${imagedCanvas.height}`);
 
     const bgImage = new Image();
     bgImage.src = bgImageBuffer;
@@ -80,13 +75,12 @@ function createImagedCanvas( bgImageBuffer: any, settings: any ) {
 /**
  * Печатает один однострочный текст text на bgImagedCanvas
  * разбивая его на несколько строк (параметры в settings)
- * @returns 
+ * @returns
  * Объект Canvas изображения с наложенным текстом
- * @param {string} text 
+ * @param {string} text
  * @param {Canvas} bgImagedCanvas - Canvas с картинкой
- * @param {{}} settings 
+ * @param {{}} settings
  */
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'printTextO... Remove this comment to see the full error message
 function printTextOnCanvas( text: any, bgImagedCanvas: any, settings: any ) {
 
     const {
@@ -108,7 +102,7 @@ function printTextOnCanvas( text: any, bgImagedCanvas: any, settings: any ) {
     let freeVerticalMargins = height * multiplicator - lines.length * lineHeight;
     let marginTop = freeVerticalMargins / 2 + lineHeight / 2;
 
-    debug( 'lines of text:\n', lines );   
+    debug( 'lines of text:\n', lines );
     //Печатаем на канвасе текст
     lines
     .forEach( (line) => {
@@ -139,18 +133,17 @@ function printTextOnCanvas( text: any, bgImagedCanvas: any, settings: any ) {
 
 
 /**
- * Максимально возможный размер шрифта для печати текста 
+ * Максимально возможный размер шрифта для печати текста
  * на картинке, так чтобы всё влезло
  * @param {{Canvas}} bgCanvas - Canvas
  * @param {string} text - однострочный текст
- * @param {{}} settings - параметры 
+ * @param {{}} settings - параметры
  */
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'chooseFont... Remove this comment to see the full error message
 function chooseFontSize (bgCanvas: any, text: any, settings: any) {
 
-    const { 
+    const {
         marginTopMultiplicator,
-        maxTextWidth, 
+        maxTextWidth,
         font,
         multiplicator,
     } = settings;
@@ -159,18 +152,18 @@ function chooseFontSize (bgCanvas: any, text: any, settings: any) {
     let fontSize = font.size * multiplicator;
     let lines = wrapLines( ctx, text, settings, fontSize );
 
-    if( !lines.length ) { 
+    if( !lines.length ) {
         // Шрифт слишком большой, какое-то из слов не влезает по ширине
         // Уменьшаем шрифт, пока всё не влезет
         //console.log( `Текущий размер ${fontSize}px - слишком большой.` );
-        while( 
-            fontSize && !lines.length 
+        while(
+            fontSize && !lines.length
         ){
             fontSize--; // Уменьшаем шрифт, чтобы всё влезло
             lines = wrapLines( ctx, text, settings, fontSize );
         }
 
-        if( fontSize == 0 ) { return 0; }        
+        if( fontSize == 0 ) { return 0; }
     }
 
     // Проверяем, сколько пустого места остаётся сверху
@@ -183,11 +176,11 @@ function chooseFontSize (bgCanvas: any, text: any, settings: any) {
 
     if( freeTopMargin < marginTop ) {
 
-        while( 
+        while(
             freeTopMargin < marginTop
         ){
-            // Уменьшаем шрифт, чтобы отступ сверху был больше  
-            fontSize--;         
+            // Уменьшаем шрифт, чтобы отступ сверху был больше
+            fontSize--;
             lines = wrapLines( ctx, text, settings, fontSize );
             lineHeight = fontSize * font.lineHeightMultiplicator;
             freeTopMargin = (canvasHeight - lines.length * lineHeight) / 2;
@@ -210,9 +203,9 @@ function chooseFontSize (bgCanvas: any, text: any, settings: any) {
 
 
 /**
- * Отдаёт массив со строками текста, которые влезают в максимальную ширину 
+ * Отдаёт массив со строками текста, которые влезают в максимальную ширину
  * для текста maxTextWidth при размере шрифта fontSize.
- * Если отдаёт пустой массив, то одно из слов не влезает по ширине 
+ * Если отдаёт пустой массив, то одно из слов не влезает по ширине
  * и значит шрифт нужно уменьшать
  * @param {{}} ctx - Canvas.ctx
  * @param {string} text
@@ -220,17 +213,17 @@ function chooseFontSize (bgCanvas: any, text: any, settings: any) {
  * @param {number} fontSize
  */
 function wrapLines (ctx: any, text: any, settings: any, fontSize: any) {
-    
-    const { 
+
+    const {
         multiplicator,
-        maxTextWidth, 
+        maxTextWidth,
         font,
     } = settings;
 
     ctx.font = `${font.style} ${fontSize}px ${font.name}`;
     const spaceWidth = ctx.measureText(' ').width;
     //debug( `Размер space= ${space}px.`);
-    
+
     const words = text.trim()
         .replace( /\n\n/g,' ` ' )
         .replace( /(\n\s|\s\n)/g, '\r' )
@@ -252,7 +245,7 @@ function wrapLines (ctx: any, text: any, settings: any, fontSize: any) {
         if( wordWidth > maxTextWidth * multiplicator ) {
             // Если одно слово больше по ширине, значит шрифт большой.
             return [];
-        } 
+        }
 
         if( wordWidth ) {
             lineWidth += (lineWidth ? spaceWidth : 0) + wordWidth;
@@ -261,10 +254,10 @@ function wrapLines (ctx: any, text: any, settings: any, fontSize: any) {
         if( wordWidth && lineWidth <= maxTextWidth * multiplicator ) {
             //добавляем слово к строке
             line += (line ? ' ' : '') + word;
-        } 
+        }
         else {
             // Начинаем новую строку
-            if( line ) { lines.push( line.trim() ); } 
+            if( line ) { lines.push( line.trim() ); }
             line = word;
             lineWidth = wordWidth;
         }

@@ -1,48 +1,89 @@
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'formatWith... Remove this comment to see the full error message
-const { formatWithOptions } = require( 'util' );
-const {
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'consoleLog... Remove this comment to see the full error message
-    consoleLogger,
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-} = require( '../helpers' );
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'log'.
-const log = consoleLogger( 'DB:' );
+import { default as debugFactory } from 'debug';
+const debug = debugFactory('dbs:info');
+
+import { Connection } from 'mongoose';
+import { formatWithOptions } from 'util';
+import { consoleLogger } from '../helpers';
+
 
 /**
  * Выводит адрес/имя_db, массив имен моделей
  * и количество документов в их коллекциях
 */
-// @ts-expect-error TS(2580): Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
-module.exports = async function (mongooseConnection: any) {
-
+export default async function (
+    mongooseConnection: Connection
+) {
     //debug( `Mongoose version ${mongooseConnection.base.version}` );
 
     const { host, port, db, id } = mongooseConnection;
-    //debug( `Mongoose connection id: ${id}` );
+    debug(`Mongoose connection id: ${id}`);
 
     const title = `dbinfo: ${host}:${port}/${db.databaseName}`;
     const log = consoleLogger( `${title}:` );
 
+    async function * theModels(
+        models: string[]
+    ): any {
+        for( let modelName of models ) {
+            yield mongooseConnection.model( modelName );
+        }
+    }
+
     try {
-        const models = mongooseConnection.modelNames();
+        const models = mongooseConnection.modelNames().sort();
         //массив имен моделей (Строки)
         //debug( `${title}: model's count = ${models.length}` );
         //debug( `${title}:`, models );
 
         const infoDocs = [];
-        for( let modelName of models ) {
-            let theModel = mongooseConnection.model( modelName );
-            let count = await theModel.countDocuments({});
-            infoDocs.push([ modelName, count ]);
+        // for( let modelName of models ) {
+        //     let theModel = mongooseConnection.model( modelName );
+        //     let count = await theModel.countDocuments({});
+        //     let elem = [ modelName, count ];
+        //     infoDocs.push( elem );
+        // }
+
+        for await( let theModel of theModels( models )) {
+            let count = <number>( await theModel.countDocuments({}) );
+            let record = [ theModel.modelName, count ];
+            infoDocs.push( record );
         }
 
-        console.log( `${title}:\n`,
-            formatWithOptions( { colors: true }, '%O', infoDocs )
-        );
+        logging( infoDocs, log, 'v2' );
+        // console.log( `${title}:\n`,
+        //     formatWithOptions( { colors: true }, '%O', infoDocs )
+        // );
     }
     catch (error) {
-        console.log( 'info-of-db.js - catch block');
+        console.log( 'info-of-db.ts - catch block');
         log.error( error );
     }
 
 };
+
+
+function logging (
+    docs: (string | number)[][],
+    logger: any,
+    version: string = 'v1'
+) {
+    if( !Array.isArray( docs )) {
+        throw new Error(`info-of-db.logging: 'docs' must be an Array.`);
+    }
+
+    if( version == 'v2' ) {
+        if( docs.length ) {
+            docs.forEach( (el) => logger.info( el ));
+        }
+        else {
+            logger.info(`DB has no collections.`);
+        }
+    }
+    else {
+        /** version 1 */
+        logger.info('\n',
+            formatWithOptions( { colors: true }, '%O', docs )
+        );
+    }
+}
+

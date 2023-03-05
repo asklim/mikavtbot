@@ -1,48 +1,54 @@
 #!/usr/bin/env node
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-require( 'dotenv' ).config();
+import * as dotenv from 'dotenv';
+// see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+dotenv.config()
+import 'module-alias/register';
 
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'debug'.
-const debug = require( 'debug' )( 'tbot:www' );
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'http'.
-const http = require( 'http' );
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-const os = require( 'os' );
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-const util = require( 'util' );
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-const colors = require( 'colors' );
-const {
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'icwd'.
+import { default as debugFactory } from 'debug';
+const debug = debugFactory('tbot:www');
+
+import http from 'node:http';
+import { AddressInfo } from 'node:net';
+import fs from 'node:fs';
+import os from 'node:os';
+import util from 'node:util';
+
+import colors from 'colors';
+import {
     icwd,
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'getProcess... Remove this comment to see the full error message
     getProcessEnvWithout,
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-} = require( './helpers/' );
+    securifyObjByList
+} from './helpers/';
 
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-const version = require( '../package.json' ).version;
+// import { version } from '<root>/package.json';
+// This import ADD 'package.json' to dist/
 
+const packageJson = JSON.parse( fs.readFileSync(`${icwd}/package.json`, 'utf-8'))
+const { version } = packageJson;
 
-outputStartServerInfo();
-
-const {
-    app: expressNodejs,
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'databasesS... Remove this comment to see the full error message
+import {
+    app as expressNodejs,
     databasesShutdown,
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-} = require( './app.js' );
+} from './app';
 
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-const botLauncher = require( './bot-launcher.js' );
+import * as botLauncher from './bot-launcher';
 //debug( 'botLauncher.getBot is', botLauncher ); // { runBot: [...], getBot: [...] }
+
+showStartSystemInfo();
+
 
 /*******************************************************
  * Get port from environment and store in Express.
  */
-// @ts-expect-error TS(2580): Cannot find name 'process'. Do you need to install... Remove this comment to see the full error message
+
 const port = normalizePort( process.env.PORT || '3569' );
-expressNodejs.set( 'port', port );
+expressNodejs.set('port', port );
+expressNodejs.set('botVersion', version );
+
+debug('express.settings', securifyObjByList(
+    expressNodejs?.settings,
+    ['BOT_ID_TOKEN']
+));
 
 
 /**
@@ -78,13 +84,11 @@ const handleOnError = (error: any) => {
 
         case 'EACCES':
             console.error( bind + ' requires elevated privileges' );
-            // @ts-expect-error TS(2580): Cannot find name 'process'. Do you need to install... Remove this comment to see the full error message
             process.exit(1);
             break;
 
         case 'EADDRINUSE':
             console.error( bind + ' is already in use' );
-            // @ts-expect-error TS(2580): Cannot find name 'process'. Do you need to install... Remove this comment to see the full error message
             process.exit(1);
             break;
 
@@ -102,24 +106,22 @@ const handleOnListening = () => {
     const addr = server.address();
     const bind = typeof addr === 'string'
         ? 'pipe ' + addr
-        : 'port ' + addr.port;
+        : 'port ' + addr?.port;
 
-    debug( 'Listening on ' + bind );
+    debug(`Listening on ${bind}`);
 };
 
 
-server.on( 'error', handleOnError );
+server.on('error', handleOnError );
 
-server.on( 'listening', handleOnListening );
+server.on('listening', handleOnListening );
 
-server.on( 'clientError', (err: any, socket: any) => {
-
+server.on('clientError', (err: any, socket: any) => {
     socket.end( 'HTTP/1.1 400 Bad Request\r\n\r\n' );
 });
 
-server.on( 'close', () => {
-
-    console.log( 'http-server closing ...' );
+server.on('close', () => {
+    console.log('http-server closing ...');
 });
 
 
@@ -136,7 +138,6 @@ server.listen( port,  () => {
 // CAPTURE APP TERMINATION / RESTART EVENTS
 
 // For nodemon restarts
-// @ts-expect-error TS(2580): Cannot find name 'process'. Do you need to install... Remove this comment to see the full error message
 process.once( 'SIGUSR2', () => {
 
     const mikavbot = botLauncher.getBot();
@@ -146,7 +147,6 @@ process.once( 'SIGUSR2', () => {
         () => {
             shutdownTheServer()
             .then( () => {
-                // @ts-expect-error TS(2580): Cannot find name 'process'. Do you need to install... Remove this comment to see the full error message
                 process.kill( process.pid, 'SIGUSR2' );
             });
         });
@@ -154,7 +154,6 @@ process.once( 'SIGUSR2', () => {
 
 
 // For app termination
-// @ts-expect-error TS(2580): Cannot find name 'process'. Do you need to install... Remove this comment to see the full error message
 process.on( 'SIGINT', () => {
 
     const mikavbot = botLauncher.getBot();
@@ -167,7 +166,6 @@ process.on( 'SIGINT', () => {
         .then(
             function () {
                 setTimeout(
-                    // @ts-expect-error TS(2580): Cannot find name 'process'. Do you need to install... Remove this comment to see the full error message
                     () => { process.exit(0); },
                     500
                 );
@@ -178,19 +176,17 @@ process.on( 'SIGINT', () => {
 
 
 // For Heroku app termination
-// @ts-expect-error TS(2580): Cannot find name 'process'. Do you need to install... Remove this comment to see the full error message
-process.on( 'SIGTERM', () => {
+process.on('SIGTERM', () => {
 
     const mikavbot = botLauncher.getBot();
-    mikavbot && mikavbot.stop( 'SIGTERM' );
+    mikavbot?.stop('SIGTERM');
 
-    databasesShutdown( 'SIGTERM app termination', () => {
+    databasesShutdown('SIGTERM app termination', () => {
 
         shutdownTheServer()
         .then(
             function () {
                 setTimeout(
-                    // @ts-expect-error TS(2580): Cannot find name 'process'. Do you need to install... Remove this comment to see the full error message
                     () => { process.exit(0); },
                     500
                 );
@@ -204,7 +200,7 @@ process.on( 'SIGTERM', () => {
 /**
  * Normalize a port into a number, string, or false.
  */
-function normalizePort (val: any) {
+function normalizePort (val: any) : number | string | boolean {
 
     let port = parseInt( val, 10 );
 
@@ -225,78 +221,59 @@ function normalizePort (val: any) {
  * @param {string} appVersion
  * @param {http.Server} httpServer
  */
-function outputServerAppInfo (outputMode: any, appVersion: any, httpServer: any) {
-
-    const serverAddress = httpServer.address();
-    let outputs;
-
-    // @ts-expect-error TS(2580): Cannot find name 'process'. Do you need to install... Remove this comment to see the full error message
-    const node_env = process.env.NODE_ENV || 'undefined';
-
-    if( serverAddress === 'string' ) {
-        const bind = serverAddress;
-        outputs = {
-            full: () => console.log( 'Express server = ',  httpServer, '\n' ),
-            addr: () => {
-                console.log( '\napp version', appVersion.cyan );
-                console.log( 'NODE Environment is', node_env.cyan );
-                console.log( 'Express server listening on ' + bind.cyan, '\n' );
-            },
-            default: () => console.log( '\n' )
-        };
-    }
-    else {
+function outputServerAppInfo (
+    outputMode: string,
+    appVersion: string,
+    httpServer: http.Server
+) {
+    function getAddressInfo (
+        server: http.Server
+    ) {
+        const serverAddress = server.address();
         const {
             address,
             family,
             port
-        } = serverAddress;
+        } = <AddressInfo> serverAddress;
 
-        const bind = 'port ' + port;
+        const bind = typeof serverAddress == 'string' ?
+            'pipe ' + serverAddress
+            : 'port ' + port;
 
-        outputs = {
-            full: () => console.log( 'Express server = ',  httpServer, '\n' ),
-            addr: () => {
-                console.log( '\napp version', appVersion.cyan );
-                console.log( 'NODE Environment is', node_env.cyan );
-                console.log(
-                    'Express server = "' + address.cyan
-                    + '" Family= "' + family.cyan
-                    // @ts-expect-error TS(2339): Property 'cyan' does not exist on type 'string'.
-                    + '" listening on ' + bind.cyan,
-                    '\n'
-                );
-            },
-            default: () => console.log( '\n' )
-        };
+        return 'Express server = "' + address.cyan
+                + '" Family= "' + family.cyan
+                + '" listening on ' + bind.cyan;
     }
-    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-    (outputs[ outputMode.toLowerCase() ] || outputs[ 'default' ])();
+
+    const node_env = process.env.NODE_ENV ?? 'undefined';
+
+    const outputs: {[key: string]: ()=>void} = {
+        full: () => console.log( 'Express server = ',  httpServer, '\n' ),
+        addr: () => {
+            console.log('\napp version', appVersion.cyan );
+            console.log('NODE Environment is', node_env.cyan );
+            console.log( getAddressInfo( httpServer ), '\n');
+        },
+        default: () => console.log( '\n' )
+    };
+    (outputs[ outputMode.toLowerCase() ] ?? outputs['default'])();
 }
 
 
-async function outputStartServerInfo() {
+async function showStartSystemInfo() {
 
-    getProcessEnvWithout( 'npm_, XDG, LESS' ).
-    then( (envList: any) => {
-        console.log( envList );
+    const envList = await getProcessEnvWithout('npm_, XDG, LESS');
+    console.log( envList );
 
-        // @ts-expect-error TS(2580): Cannot find name 'process'. Do you need to install... Remove this comment to see the full error message
-        const { PWD, USER, NAME, } = process.env;
-        const userInfo = util.format( '%O', os.userInfo() );
+    const { PWD, USER, NAME, } = process.env;
+    const userInfo = util.format('%O', os.userInfo() );
 
-        // @ts-expect-error TS(2580): Cannot find name 'process'. Do you need to install... Remove this comment to see the full error message
-        console.log( `stdout.isTTY is ${process.stdout.isTTY}`.yellow );
-        // true - in terminal, undefined - in service journal
+    console.log(`stdout.isTTY is ${process.stdout.isTTY}`.yellow );
+    // true - in terminal, undefined - in service journal
 
-        // @ts-expect-error TS(2339): Property 'red' does not exist on type 'string'.
-        console.log( `package.json dir is ${icwd}`.red ); // = '/app'
-        // @ts-expect-error TS(2304): Cannot find name '__filename'.
-        console.log( `PWD (${__filename}) is ${PWD}`.red );
-        // @ts-expect-error TS(2339): Property 'red' does not exist on type 'string'.
-        console.log( `USER @ NAME is ${USER} @ ${NAME}`.red );
-        // @ts-expect-error TS(2339): Property 'cyan' does not exist on type 'string'.
-        console.log( `platform is ${os.platform()}, hostname is ${os.hostname()}`.cyan );
-        console.log( colors.yellow( 'User Info : ', userInfo ), '\n' );
-    });
+    console.log(`package.json dir is ${icwd}`.red ); // = '/app'
+    console.log(`PWD (${__filename}) is ${PWD}`.red );
+    console.log(`USER @ NAME is ${USER} @ ${NAME}`.red );
+    console.log(`platform is ${os.platform()}, hostname is ${os.hostname()}`.cyan );
+    console.log( colors.yellow(`User Info : ${userInfo}`), '\n');
 }

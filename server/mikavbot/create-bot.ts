@@ -1,31 +1,24 @@
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'debug'.
-const debug = require( 'debug' )( 'tbot:mikav' );
+import { default as debugFactory } from 'debug';
+const debug = debugFactory('tbot:createbot');
 
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-const actions = require( './actions' );
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-const commandGeteco = require( './actions/command-geteco.ts' );
+import * as actions from './actions/';
 
-const {
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'consoleLog... Remove this comment to see the full error message
+import {
     consoleLogger,
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-} = require( '../helpers' );
+    securifyToken
+} from '../helpers/';
+const log = consoleLogger('mikaV:');
 
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'log'.
-const log = consoleLogger( 'mikaV:' );
-
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'MikaVTeleg... Remove this comment to see the full error message
-const { MikaVTelegraf } = require( './telegram-bot.js' );
+import { default as MikaVTelegraf } from './telegram-bot';
 
 
-
-// @ts-expect-error TS(2580): Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
-module.exports.createBot = async function (authToken: any) {
+export default async function createBot (
+    authToken: string
+): Promise<MikaVTelegraf> {
 
     const bot = new MikaVTelegraf( authToken );
 
-    //debug( 'sendPhoto url:', bot.getEndpointURL( 'sendPhoto' ));
+    debug('sendPhoto url:', securifyToken( bot.getEndpointURL('sendPhoto'),42,13 ));
 
     bot.start( actions.handler_start );
 
@@ -33,28 +26,27 @@ module.exports.createBot = async function (authToken: any) {
     bot.help( actions.handler_help );
 
 
-    bot.command( '/geteco', commandGeteco );
+    bot.command('/geteco', actions.command_geteco );
 
 
-    bot.command( '/test', actions.command_test );
+    bot.command('/test', actions.command_test );
 
 
-    bot.on( 'text', actions.handler_on_text );
+    bot.on('text', actions.handler_on_text );
 
 
-    bot.on( 'message', actions.handler_on_message );
+    bot.on('message', actions.handler_on_message );
 
 
     bot.use( (ctx: any, next: any) => {
         try {
-            debug( 'last handler (.use)! ctx:\n', ctx );
+            log.debug('last handler (.use)! ctx:\n', ctx );
             if( next ) { return next(); }
         }
         catch (error) {
-            log.error( 'catch-handler:use(default)\n', error );
+            log.error('catch-handler:use(default)\n', error );
         }
     });
 
     return bot;
 };
-

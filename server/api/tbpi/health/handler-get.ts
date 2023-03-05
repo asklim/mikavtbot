@@ -1,34 +1,23 @@
 //const debug = require( 'debug' )( 'api:health:[h-GET]' );
-const {
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'icwd'.
+import { Response, Request } from 'express';
+
+import {
     icwd,
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'consoleLog... Remove this comment to see the full error message
     consoleLogger,
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'securefy'.
-    securefy,
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'send200Ok'... Remove this comment to see the full error message
+    securifyObjByList,
     send200Ok,
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'send400Bad... Remove this comment to see the full error message
     send400BadRequest,
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'send500Ser... Remove this comment to see the full error message
     send500ServerError,
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-} = require( '../../../helpers/' );
+} from '../../../helpers/';
 
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'log'.
+import { getDB } from '../../../databases/';
+const dbTBot = getDB();
+
+import chatsList from '../../../helpers/chats-list';
+
+import { uploadTestPhoto } from '../../../helpers/upload-photo';
+
 const log = consoleLogger( 'api-health:' );
-
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-const dbTBot = require( `${icwd}/server/databases/` ).getDB();
-
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-const chatsList = require( `${icwd}/server/helpers/chats-list.js` );
-const {
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'uploadTest... Remove this comment to see the full error message
-    uploadTestPhoto,
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-} = require( `${icwd}/server/helpers/upload-photo.js` );
-
 
 /**
  * Return status of app or DBs
@@ -41,10 +30,9 @@ const {
  * @returns send 500 {ok: false, [dbname] : undefined} - no Mongo
  **/
 
-// @ts-expect-error TS(2580): Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
-module.exports = async function (
-    req: any,
-    res: any
+export default async function (
+    req: Request,
+    res: Response
 ) {
     //params : {'app' | 'context' | 'database'}
     log.info(
@@ -76,7 +64,7 @@ module.exports = async function (
 
     if( ticker == 'context' ) {
 
-        //const { mikavbot } = require( `${icwd}/server/app.js` );
+        //const { mikavbot } = require( `${icwd}/server/app` );
         //debug( 'mikavbot is', mikavbot );
 
         const ctx = {
@@ -87,7 +75,7 @@ module.exports = async function (
             chat_id: chatsList.andreiklim.id
         };
         uploadTestPhoto( ctx );
-        return send200Ok( res, securefy( { ok: true, ...ctx } ));
+        return send200Ok( res, securifyObjByList( { ok: true, ...ctx } ));
     }
 
 

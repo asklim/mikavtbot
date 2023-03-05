@@ -1,40 +1,35 @@
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'debug'.
-const debug = require( 'debug' )( 'helpers:upload-photo' );
-const {
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'icwd'.
+import { default as debugFactory } from 'debug';
+const debug = debugFactory('helpers:upload-photo');
+
+import path from 'path';
+import { createReadStream, readdirSync } from 'fs';
+import FormData from 'form-data';
+
+import {
     icwd,
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'consoleLog... Remove this comment to see the full error message
     consoleLogger,
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'securefy'.
-    securefy,
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'securetize... Remove this comment to see the full error message
-    securetizeToken,
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-} = require( './' );
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'log'.
-const log = consoleLogger( 'upload-photo:' );
+    securifyObjByList,
+    securifyToken
+} from '<srv>/helpers/';
 
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'TELEGRAM_A... Remove this comment to see the full error message
-const { TELEGRAM_API_ROOT } = require( '../mikavbot/telegram-endpoints.js' );
+const log = consoleLogger('upload-photo:');
 
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'FormData'.
-const FormData = require( 'form-data' );
+import { TELEGRAM_API_ROOT } from '<srv>/mikavbot/telegram-endpoints';
 
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'path'.
-const path = require( 'path' );
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'createRead... Remove this comment to see the full error message
-const { createReadStream, readdirSync } = require( 'fs' );
-
-const {
+import {
     //NetworkError,
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'getStreamI... Remove this comment to see the full error message
     getStreamImageFrom,
-    // @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'postImageT... Remove this comment to see the full error message
     postImageTo,
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-} = require( '../raw-http/via-axios' );
+} from '<srv>/raw-http/via-axios';
 
 const TEST_IMAGES_DIR = `${icwd}/images/test-images`;
+
+
+export {
+    uploadPhoto,
+    uploadTestPhoto,
+};
+
 
 /**
  *  Загружает тестовое фото
@@ -44,13 +39,12 @@ const TEST_IMAGES_DIR = `${icwd}/images/test-images`;
  *  @param {number} chat_id - id чата/пользователя куда загрузить фото
  *  @return undefined | string (file_id) - если отправка прошла успешно.
 */
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'uploadTest... Remove this comment to see the full error message
 function uploadTestPhoto ({
-    token,
-    /*apiRoot,*/ chat_id
-}: any) {
-
-
+        token,
+        /*apiRoot,*/
+        chat_id
+    }: any
+) {
     const options = { token, apiRoot: TELEGRAM_API_ROOT, chat_id };
     const fname = getRandomTestFileName();
 
@@ -97,12 +91,14 @@ function getRandomTestFileName () {
  *  @param {string} photoURL  - полный адрес для скачивания изображения
  *  @return undefined | string (file_id) - если отправка прошла успешно.
 */
-// @ts-expect-error TS(2393): Duplicate function implementation.
-async function uploadPhoto ({
-    token,
-    apiRoot,
-    chat_id
-}: any, photoURL: any) {
+async function uploadPhoto (
+    {
+        token,
+        apiRoot,
+        chat_id
+    }: any,
+    photoURL: string
+) {
 
     try {
         const options = { token, apiRoot, chat_id };
@@ -110,9 +106,9 @@ async function uploadPhoto ({
         //console.log('image stream ', imageReadable);  //IncomingMessage
 
         if( !imageReadable ) {
-            throw new Error( 'no image data.' );
+            throw new Error('no image data.');
         }
-        debug( 'uploadPhoto options:', securefy( options ));
+        debug('uploadPhoto options:', securifyObjByList( options ));
 
         return _uploadImageStream(
             options,
@@ -128,48 +124,40 @@ async function uploadPhoto ({
 }
 
 
-// @ts-expect-error TS(2580): Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
-module.exports = {
-
-    uploadPhoto,
-    uploadTestPhoto,
-};
-
-
-
 /**
  *  Загружает stream for photo
  *  в Telegram chat by [chat_id]
  *  ----
- *  @param {string} token     - токен для доступа к Telegram-боту
- *  @param {string} apiRoot   - путь к Telegram API
- *  @param {number} chat_id   - id чата/пользователя куда загрузить фото
+ *  @param {string} options.token     - токен для доступа к Telegram-боту
+ *  @param {string} options.apiRoot   - путь к Telegram API
+ *  @param {number} options.chat_id   - id чата/пользователя куда загрузить фото
  *  @param {Readable} stream  - поток изображения
  *  @return { undefined | Promise< string >} (file_id) - если отправка прошла успешно.
 */
-function _uploadImageStream ({
-    token,
-    apiRoot,
-    chat_id
-}: any, stream: any) {
-
+function _uploadImageStream (
+    {
+        token,
+        apiRoot,
+        chat_id
+    }: any,
+    stream: any
+) {
     // Telegram требует POST with form-data(multipart)
 
-    const shortToken = securetizeToken( token );
-    log.info( `try upload to '${apiRoot}/bot${shortToken}/sendPhoto'` );
+    const shortToken = securifyToken( token );
+    log.info(`try upload to '${apiRoot}/bot${shortToken}/sendPhoto'`);
 
     const apiSendPhotoUrl = `${apiRoot}/bot${token}/sendPhoto`;
 
     //console.log('image stream ', stream);  //IncomingMessage || ReadStream
 
     const form = new FormData();
-    form.append( 'chat_id', chat_id );
-    form.append( 'photo', stream );
+    form.append('chat_id', chat_id );
+    form.append('photo', stream );
 
     let postOptions = {
         url: apiSendPhotoUrl,
         data: form,
-        // @ts-expect-error TS(2339): Property 'getHeaders' does not exist on type 'Form... Remove this comment to see the full error message
         headers: form.getHeaders(),
     };
 

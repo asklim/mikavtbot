@@ -1,29 +1,25 @@
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'debug'.
-const debug = require( 'debug' )( 'settings' );
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'fs'.
-const fs = require( 'fs' );
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'path'.
-const path = require( 'path' );
-// @ts-expect-error TS(2580): Cannot find name 'require'. Do you need to install... Remove this comment to see the full error message
-const yaml = require( 'yaml' );
+import { default as debugFactory } from 'debug';
+const debug = debugFactory('settings');
 
+import yaml from 'yaml';
 
-// @ts-expect-error TS(2580): Cannot find name 'module'. Do you need to install ... Remove this comment to see the full error message
-module.exports = { getSettings };
+import fs from 'node:fs';
+import path from 'node:path';
+
+export default getSettings;
 
 /**
  * Получаем настройки или, если их нет, то создаём файл с дефолтными
  * @param {string} yamlSettingsPathFName - имя файла настроек (.yaml)
  */
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'getSetting... Remove this comment to see the full error message
 async function getSettings (yamlSettingsPathFName: any){
-    
+
 
     const configPFName = path.resolve( yamlSettingsPathFName );
-    
+
     if( fs.existsSync( configPFName )) {
 
-        const file = fs.readFileSync( configPFName, 'utf8' );        
+        const file = fs.readFileSync( configPFName, 'utf8' );
         return await yaml.parse( file );
     }
 
@@ -44,9 +40,9 @@ async function getSettings (yamlSettingsPathFName: any){
             textBaseline: 'middle',
             textAlign: 'center',
             shadow: {
-                offsetX: 1, 
-                offsetY: 1, 
-                color: 'rgba(0, 0, 0, 0.5)', 
+                offsetX: 1,
+                offsetY: 1,
+                color: 'rgba(0, 0, 0, 0.5)',
                 blur: 8,
             },
             stroke: {
@@ -61,8 +57,8 @@ async function getSettings (yamlSettingsPathFName: any){
         }
     };
 
-    const doc = new yaml.Document();
-    doc.version = true;
+    const doc = new yaml.Document( config );
+    //doc.version = true;
     doc.commentBefore = [
         '#################################################',
         ' Конфигурация для создания картинок.',
@@ -89,12 +85,11 @@ async function getSettings (yamlSettingsPathFName: any){
         '   strokeStyle, lineWidth - обводка текста',
         '   glow - свечение под текстом',
     ].join( '\n' );
-    doc.contents = config;
+    // doc.contents = config;
 
     fs.writeFile( configPFName, String( doc ),
         // eslint-disable-next-line no-unused-vars
-        (err: any, written: any, _string: any) => {
-            debug( `Осталось записать ${written} байт из ${_string && _string.length}` );
+        (err: any) => {
             if( err ) {
                 console.log( `Ошибка записи в файл настроек ${configPFName}` );
             }
