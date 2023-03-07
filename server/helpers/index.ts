@@ -12,9 +12,9 @@ const { version } = packageJson;
 
 export { version as botVersion };
 export { default as debugFactory } from 'debug';
-export { default as consoleLogger } from './logger';
+//export { default as consoleLogger } from './logger';
 export * from './logger-class';
-export { default as getProcessEnvWithout } from './get-process-env-without';
+//export { default as getProcessEnvWithout } from './startup/get-process-env-without';
 export { default as httpResponseCodes } from './http-response-codes';
 export * from './http-responses';
 export * from './securitize';

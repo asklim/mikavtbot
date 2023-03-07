@@ -1,6 +1,6 @@
 import * as process from 'process';
 
-import { securifyToken, } from './securitize';
+import { securifyToken, } from '../securitize';
 
 const defaultSecretKeys = [
     'JWT_SECRET',

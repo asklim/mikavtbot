@@ -1,11 +1,11 @@
-import { default as debugFactory } from 'debug';
-const debug = debugFactory('actions:onmessage');
-
-import { consoleLogger } from '../../helpers/';
-
-const log = consoleLogger('mikaV:');
 
 import { Context } from 'telegraf';
+
+import { Logger, debugFactory } from '<srv>/helpers/';
+
+const log = new Logger('mikaV:');
+const debug = debugFactory('actions:onmessage');
+
 
 export default async (ctx: Context) => {
 

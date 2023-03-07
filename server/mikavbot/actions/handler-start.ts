@@ -1,9 +1,8 @@
-import { default as debugFactory } from 'debug';
+
+import { Logger, debugFactory } from '<srv>/helpers/';
+
 const debug = debugFactory('actions:start');
-
-import { consoleLogger } from '../../helpers/';
-
-const log = consoleLogger('mikaV:');
+const log = new Logger('mikaV:');
 
 export default async (ctx: any) => {
     try {

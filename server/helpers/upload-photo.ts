@@ -7,12 +7,12 @@ import FormData from 'form-data';
 
 import {
     icwd,
-    consoleLogger,
+    Logger,
     securifyObjByList,
     securifyToken
 } from '<srv>/helpers/';
 
-const log = consoleLogger('upload-photo:');
+const log = new Logger('upload-photo:');
 
 import { TELEGRAM_API_ROOT } from '<srv>/mikavbot/telegram-endpoints';
 

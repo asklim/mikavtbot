@@ -1,11 +1,8 @@
-import { default as debugFactory } from 'debug';
+import { Logger, debugFactory } from '<srv>/helpers/';
+import { uploadTestPhoto } from '<srv>/helpers/upload-photo';
+
+const log = new Logger('mikaV:');
 const debug = debugFactory('!actions:cmd:test');
-
-import { consoleLogger } from '../../helpers/';
-
-import { uploadTestPhoto } from '../../helpers/upload-photo';
-
-const log = consoleLogger('mikaV:');
 
 
 /**  Замыкание переменной для сохранения значений между вызовами */

@@ -1,12 +1,10 @@
-import { default as debugFactory } from 'debug';
-const debug = debugFactory('actions:cmd:geteco');
+//import { Context } from 'telegraf';
 
 import { uploadPhoto } from '../../helpers/upload-photo';
+import { Logger, debugFactory } from '<srv>/helpers/';
 
-import { consoleLogger } from '../../helpers/';
-const log = consoleLogger('mikaV:');
-
-//import { Context } from 'telegraf';
+const log = new Logger('mikaV:');
+//const debug = debugFactory('actions:cmd:geteco');
 
 
 export default async (

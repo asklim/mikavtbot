@@ -163,7 +163,10 @@ async function processingAllTexts (
     settings: any
 ) {
 
-    const overlayOneTextTask = async (text: any, index: any) => {
+    const overlayOneTextTask = async (
+        text: string,
+        index: number
+    ): Promise< string > => {
 
         try {
             const imageIndex = index % Object.keys( bgImageBuffers ).length;
@@ -192,22 +195,22 @@ async function processingAllTexts (
             debug( `output sharp info:\n`, info );
             return  newImagePath;
         }
-        catch( err ) {
-
+        catch (err) {
             if( err ) {
                 if( err instanceof ImageGeneratorError ) {
                     console.log( err.message );
                 }
                 else {
                     debug( 'CATCH: overlayOneTextTask.', err );
-                    throw err;
+                    //throw err;
                 }
             }
+            return '';
         }
     };
 
     try {
-        console.log( `output path: ${path.resolve( outputDirName )}` );
+        console.log(`output path: ${path.resolve( outputDirName )}`);
         return Promise.allSettled(
             texts.map( overlayOneTextTask )
         );
@@ -273,4 +276,3 @@ function _errorAndExit (text: any){
     console.log( `Error: ${text}` );
     process.exit(1);
 }
-

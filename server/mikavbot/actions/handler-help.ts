@@ -1,16 +1,14 @@
-import { default as debugFactory } from 'debug';
+import { Logger, debugFactory } from '<srv>/helpers/';
+
 const debug = debugFactory('actions:help');
-
-import { consoleLogger } from '../../helpers/';
-
-const log = consoleLogger( 'mikaV:' );
+const log = new Logger('mikaV:');
 
 export default async (ctx: any) => {
     try {
-        debug( 'help command' );
-        ctx.replyWithHTML( '<b>Help Text</b>' );
+        debug('help command');
+        ctx.replyWithHTML('<b>Help Text</b>');
     }
     catch (error) {
-        log.error( 'catch-handler:help\n', error );
+        log.error('catch-handler:help\n', error );
     }
 };

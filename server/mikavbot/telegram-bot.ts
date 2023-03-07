@@ -1,16 +1,17 @@
-import { default as debugFactory } from 'debug';
-const debug = debugFactory('tbot:mikav');
-
-import { consoleLogger, securifyToken, } from '../helpers/';
-
-const log = consoleLogger('mikaV:');
+import { Telegraf } from 'telegraf';
+import {
+    debugFactory,
+    Logger,
+    securifyToken
+} from '<srv>/helpers/';
 
 import {
     END_POINTS,
     TELEGRAM_API_ROOT,
 } from './telegram-endpoints';
 
-import { Telegraf } from 'telegraf';
+const debug = debugFactory('tbot:mikav');
+const log = new Logger('mikaV:');
 
 export default class MikaVTelegraf extends Telegraf {
 

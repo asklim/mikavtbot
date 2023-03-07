@@ -1,15 +1,14 @@
-import { default as debugFactory } from 'debug';
-const debug = debugFactory('tbot:createbot');
-
-import * as actions from './actions/';
-
 import {
-    consoleLogger,
+    debugFactory,
+    Logger,
     securifyToken
-} from '../helpers/';
-const log = consoleLogger('mikaV:');
+} from '<srv>/helpers/';
 
 import { default as MikaVTelegraf } from './telegram-bot';
+import * as actions from './actions/';
+
+const debug = debugFactory('tbot:createbot');
+const log = new Logger('mikaV:');
 
 
 export default async function createBot (

@@ -1,10 +1,13 @@
-import { default as debugFactory } from 'debug';
-const debug = debugFactory('raw:via-axios');
-
-import { consoleLogger } from '../helpers/';
-const log = consoleLogger( 'raw:axios' );
-
 import { default as axios, AxiosResponse } from 'axios';
+import { Telegraf } from 'telegraf';
+
+import {
+    debugFactory,
+    Logger,
+} from '<srv>/helpers/';
+
+const debug = debugFactory('raw:via-axios');
+const log = new Logger('raw:axios');
 
 class NetworkError extends Error {}
 
@@ -52,22 +55,28 @@ async function getStreamImageFrom (
 }
 
 
-function postImageTo ({
-    url,
-    data,
-    headers
-}: any
+async function postImageTo (
+    {
+        url,
+        data,
+        headers
+    }: any
 ) {
-    return axios({
-        method: 'POST',
-        url, data, headers
-    })
-    .then( _checkStatus )
-    .then( (res: AxiosResponse) => res.data )
-    .then( _response2console )
-    .then( (telegramResponse: any) => {     // from Telegram Server
+    try {
+        const res = await axios({
+            method: 'POST',
+            url, data, headers
+        });
+        _checkStatus( res );
+        //.then( (res: AxiosResponse) => res.data )
+        const telegramResponse = res?.data;
 
-        let  fileId;
+        _response2console( telegramResponse );
+
+        //.then( (telegramResponse: any) => {     // from Telegram Server
+
+        let  fileId: string | undefined;
+
         if( telegramResponse.ok ) {
 
             // data.result.date = 1588088067
@@ -80,30 +89,31 @@ function postImageTo ({
 
             fileId = telegramResponse.result.photo[0].file_id;
 
-            log.info( `SUCCESS: image uploaded at ${isoDate}, ${dt}` );
-            log.info( `file_id:`, fileId );
+            log.info(`SUCCESS: image uploaded at ${isoDate}, ${dt}` );
+            log.info(`file_id:`, fileId );
         }
         else {
-            debug( `uploading error, data:\n`, telegramResponse );
+            debug(`uploading error, data:\n`, telegramResponse );
         }
         return fileId; //telegramResponse.ok;
-    })
-    .catch( (error: any) => {
-        log.error( `CATCH: in 'postImageTo'\n`, error );
-    });
+        //});
+    }
+    catch (err: any) {
+        log.error(`CATCH: in 'postImageTo'\n`, err );
+    }
 }
 
 
 /************ */
 
 
-function _response2console( response: any ) {
+async function _response2console( response: any ) {
     debug('response:\n', response );
     return response;
 }
 
 
-function _checkStatus( response: any ) {
+async function _checkStatus( response: any ) {
 
     debug('check Status running ...');
     let { status, statusText } = response;
@@ -114,4 +124,3 @@ function _checkStatus( response: any ) {
     );
     return response;
 }
-

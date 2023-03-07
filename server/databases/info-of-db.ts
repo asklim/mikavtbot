@@ -3,7 +3,7 @@ const debug = debugFactory('dbs:info');
 
 import { Connection } from 'mongoose';
 import { formatWithOptions } from 'util';
-import { consoleLogger } from '../helpers';
+import { Logger } from '../helpers/';
 
 
 /**
@@ -19,7 +19,7 @@ export default async function (
     debug(`Mongoose connection id: ${id}`);
 
     const title = `dbinfo: ${host}:${port}/${db.databaseName}`;
-    const log = consoleLogger( `${title}:` );
+    const log = new Logger( `${title}:` );
 
     async function * theModels(
         models: string[]
@@ -86,4 +86,3 @@ function logging (
         );
     }
 }
-

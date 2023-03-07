@@ -1,10 +1,9 @@
-import { default as debugFactory } from 'debug';
+
+import { Logger, debugFactory } from '<srv>/helpers/';
+import { uploadTestPhoto } from '<srv>/helpers/upload-photo';
+
 const debug = debugFactory('actions:ontext');
-
-import { consoleLogger } from '../../helpers/';
-
-import { uploadTestPhoto } from '../../helpers/upload-photo';
-const log = consoleLogger('mikaV:');
+const log = new Logger('mikaV:');
 
 export default async (ctx: any) => {
     //  Простые смайлики приходят сюда.
