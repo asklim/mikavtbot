@@ -118,22 +118,6 @@ server.listen( port,  () => {
 // *************************************************************
 // CAPTURE APP TERMINATION / RESTART EVENTS
 
-// For nodemon restarts
-process.once('SIGUSR2', async () => {
-
-    const mikavbot = botLauncher.getBot();
-    mikavbot?.stop('SIGUSR2');
-
-    await shutdownTheServer();
-    databasesShutdown(
-        'SIGUSR2, nodemon restart',
-        async () => {
-            setTimeout( process.kill, 500, process.pid, 'SIGUSR2');
-        }
-    );
-});
-
-
 const OK_EXIT_CODE = 0;
 
 // For app termination
@@ -146,7 +130,13 @@ process.on('SIGINT', async () => {
     mikavbot?.stop('SIGINT');
 
     await shutdownTheServer();
-    databasesShutdown('SIGINT, app termination', ()=>{} );
+    await databasesShutdown(
+        'SIGINT, app termination',
+        () => {
+            //console.log(`Process finished (pid:${process.pid}, exit code: 0).`);
+            //setTimeout( process.exit, 500, OK_EXIT_CODE );
+        }
+    );
     console.log(`Process finished (pid:${process.pid}, exit code: 0).`);
     process.exit( OK_EXIT_CODE );
 });
@@ -161,8 +151,24 @@ process.on('SIGTERM', async () => {
     await shutdownTheServer();
     await databasesShutdown(
         'SIGTERM, app termination',
-        async () => {
+        () => {
             setTimeout( process.exit, 500, OK_EXIT_CODE );
+        }
+    );
+});
+
+
+// For nodemon restarts
+process.once('SIGUSR2', async () => {
+
+    const mikavbot = botLauncher.getBot();
+    mikavbot?.stop('SIGUSR2');
+
+    await shutdownTheServer();
+    await databasesShutdown(
+        'SIGUSR2, nodemon restart',
+        () => {
+            setTimeout( process.kill, 500, process.pid, 'SIGUSR2');
         }
     );
 });

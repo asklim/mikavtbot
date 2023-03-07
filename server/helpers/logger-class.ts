@@ -21,9 +21,7 @@ export interface IConsoleLogger {
 
 export class Logger implements IConsoleLogger {
 
-    static setLevel (
-        isProduction: boolean
-    ): void {
+    static setLevel (isProduction: boolean): void {
         log.setLevel( isProduction ?
             log.levels.DEBUG
             : log.levels.TRACE
@@ -35,10 +33,7 @@ export class Logger implements IConsoleLogger {
     constructor (
         ticker: string = ''
     ) {
-        this._ticker = ticker == '' ?
-            ''
-            : ' ' + ticker
-        ;
+        this._ticker = ticker == '' ? '' : ' ' + ticker;
     }
     // Замыкаем _ticker, но не _date, иначе
     // будет одно и то же время на момент вызова logger.<fn>()

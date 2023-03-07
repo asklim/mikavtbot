@@ -1,8 +1,6 @@
-//const debug = require( 'debug' )( 'api:health:[h-GET]' );
 import { Response, Request } from 'express';
 
 import {
-    icwd,
     Logger,
     securifyObjByList,
     send200Ok,
@@ -11,13 +9,12 @@ import {
 } from '<srv>/helpers/';
 
 import { getDB } from '<srv>/databases/';
-const dbTBot = getDB();
-
 import chatsList from '<srv>/helpers/chats-list';
-
 import { uploadTestPhoto } from '<srv>/helpers/upload-photo';
 
 const log = new Logger('api-health:');
+const dbTBot = getDB();
+
 
 /**
  * Return status of app or DBs
@@ -40,7 +37,7 @@ export default async function (
     );
 
     if( !req.params ) {
-        return send400BadRequest( res, 'No .params in request.' );
+        return send400BadRequest( res, 'No .params in request.');
     }
 
     const { pingId } = req.params;
@@ -62,9 +59,6 @@ export default async function (
     }
 
     if( ticker == 'context' ) {
-
-        //const { mikavbot } = require( `${icwd}/server/app` );
-        //debug( 'mikavbot is', mikavbot );
 
         const ctx = {
             token: req.app.get('BOT_ID_TOKEN'),

@@ -16,25 +16,6 @@ export default function showServerAppInfo (
     appVersion: string,
     httpServer: http.Server
 ) {
-    function getAddressInfo (
-        server: http.Server
-    ) {
-        const serverAddress = server.address();
-        const {
-            address,
-            family,
-            port
-        } = <AddressInfo> serverAddress;
-
-        const bind = typeof serverAddress == 'string' ?
-            'pipe ' + serverAddress
-            : 'port ' + port;
-
-        return 'Express server = "' + address.cyan
-                + '" Family= "' + family.cyan
-                + '" listening on ' + bind.cyan;
-    }
-
     const node_env = process.env.NODE_ENV ?? 'undefined';
 
     const outputs: {[key: string]: ()=>void} = {
@@ -47,4 +28,24 @@ export default function showServerAppInfo (
         default: () => console.log( '\n' )
     };
     (outputs[ outputMode.toLowerCase() ] ?? outputs['default'])();
+}
+
+
+function getAddressInfo (
+    server: http.Server
+) {
+    const serverAddress = server.address();
+    const {
+        address,
+        family,
+        port
+    } = <AddressInfo> serverAddress;
+
+    const bind = typeof serverAddress == 'string' ?
+        'pipe ' + serverAddress
+        : 'port ' + port;
+
+    return 'Express server = "' + address.cyan
+            + '" Family= "' + family.cyan
+            + '" listening on ' + bind.cyan;
 }

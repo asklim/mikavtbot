@@ -32,16 +32,16 @@ async function createDatabasesConnections() {
 
 // To be called when process is restarted Nodemon or terminated
 
-function databasesShutdown (
+async function databasesShutdown (
     msg: string,
     next: () => void
-): void {
+): Promise<void> {
 
     const allDbsClosingPromises = Object.keys( dbs ).map(
         (dbKey) => /*dbs[ dbKey ].closeConn()*/ dbKey
     );
 
-    Promise.all( allDbsClosingPromises ).
+    return Promise.all( allDbsClosingPromises ).
     then( dbsNames => {
         console.log('dbs closed: ', dbsNames );
         console.log('Mongoose disconnected through ' + msg );
