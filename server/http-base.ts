@@ -1,25 +1,18 @@
 #!/usr/bin/env node
-import '.';
-
-// import * as dotenv from 'dotenv';
-// // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
-// dotenv.config()
-// import 'module-alias/register';
+//import '.';
 
 import http from 'node:http';
-import { AddressInfo } from 'node:net';
-import fs from 'node:fs';
+import { showServerAppInfo } from './helpers/startup/';
 
 import {
+    env,
     botVersion,
     debugFactory,
     securifyObjByList
 } from '<srv>/helpers/';
 
-import {
-    app as expressNodejs,
-    databasesShutdown,
-} from './app';
+import expressNodejs from './app';
+import { databasesShutdown } from './databases/';
 
 import * as botLauncher from './bot-launcher';
 
@@ -30,7 +23,7 @@ const debug = debugFactory('tbot:www');
  * Get port from environment and store in Express.
  */
 
-const port = normalizePort( process.env.PORT || '3569' );
+const port = normalizePort( env.PORT ?? '3569');
 expressNodejs.set('port', port );
 expressNodejs.set('botVersion', botVersion );
 
@@ -106,7 +99,7 @@ server.on('error', handleOnError );
 server.on('listening', handleOnListening );
 
 server.on('clientError', (err: any, socket: any) => {
-    socket.end( 'HTTP/1.1 400 Bad Request\r\n\r\n' );
+    socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
 });
 
 server.on('close', () => {
@@ -114,12 +107,11 @@ server.on('close', () => {
 });
 
 
-
 /**
  * Listen on provided port, on all network interfaces.
  */
 server.listen( port,  () => {
-    outputServerAppInfo( 'addr'/*'full'*/, botVersion, server );
+    showServerAppInfo('addr'/*'full'*/, botVersion, server );
 });
 
 
@@ -190,51 +182,4 @@ function normalizePort (val: any) : number | string | boolean {
             ? port  // port number
             : false
     ;
-}
-
-
-/**
- * Выводит информацию о сервере и
- * его окружении в консоль
- * ---
- * @param {string} outputMode - 'full' | 'addr' | ''
- * @param {string} appVersion
- * @param {http.Server} httpServer
- */
-function outputServerAppInfo (
-    outputMode: string,
-    appVersion: string,
-    httpServer: http.Server
-) {
-    function getAddressInfo (
-        server: http.Server
-    ) {
-        const serverAddress = server.address();
-        const {
-            address,
-            family,
-            port
-        } = <AddressInfo> serverAddress;
-
-        const bind = typeof serverAddress == 'string' ?
-            'pipe ' + serverAddress
-            : 'port ' + port;
-
-        return 'Express server = "' + address.cyan
-                + '" Family= "' + family.cyan
-                + '" listening on ' + bind.cyan;
-    }
-
-    const node_env = process.env.NODE_ENV ?? 'undefined';
-
-    const outputs: {[key: string]: ()=>void} = {
-        full: () => console.log( 'Express server = ',  httpServer, '\n' ),
-        addr: () => {
-            console.log('\napp version', appVersion.cyan );
-            console.log('NODE Environment is', node_env.cyan );
-            console.log( getAddressInfo( httpServer ), '\n');
-        },
-        default: () => console.log( '\n' )
-    };
-    (outputs[ outputMode.toLowerCase() ] ?? outputs['default'])();
 }

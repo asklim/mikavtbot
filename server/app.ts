@@ -11,6 +11,11 @@ import morgan from 'morgan';
 
 import { default as app } from '<srv>/expressApp/';
 
+
+import tbpiRouter from './api/tbpi-router';
+import indexRouter from './api/index-router';
+import usersRouter from './api/users-router';
+
 const { NODE_ENV } = process.env;
 
 const isProduction = NODE_ENV == 'production';
@@ -34,21 +39,6 @@ if( !BOT_ID_TOKEN ) {
     //debug( 'mikavbot.getBot is', bot.getBot() ); // Telegraf
 })();
 
-
-import {
-    createDatabasesConnections,
-    databasesShutdown,
-} from './databases/';
-
-//createDatabasesConnections();
-
-import tbpiRouter from './api/tbpi-router';
-
-import indexRouter from './api/index-router';
-
-import usersRouter from './api/users-router';
-
-//const app = express();
 
 app.set('BOT_ID_TOKEN', BOT_ID_TOKEN );
 
@@ -94,7 +84,4 @@ app.use( function( err: any, req: any, res: any, _next: any ) {
 });
 
 
-export {
-    app,
-    databasesShutdown,
-};
+export default app;

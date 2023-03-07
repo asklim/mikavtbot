@@ -68,12 +68,9 @@ async function postImageTo (
             url, data, headers
         });
         _checkStatus( res );
-        //.then( (res: AxiosResponse) => res.data )
-        const telegramResponse = res?.data;
+        const telegramResponse = res?.data;  // from Telegram Server
 
-        _response2console( telegramResponse );
-
-        //.then( (telegramResponse: any) => {     // from Telegram Server
+        debug('Telegram response:\n', telegramResponse );
 
         let  fileId: string | undefined;
 
@@ -95,8 +92,7 @@ async function postImageTo (
         else {
             debug(`uploading error, data:\n`, telegramResponse );
         }
-        return fileId; //telegramResponse.ok;
-        //});
+        return fileId;
     }
     catch (err: any) {
         log.error(`CATCH: in 'postImageTo'\n`, err );
@@ -104,23 +100,13 @@ async function postImageTo (
 }
 
 
-/************ */
-
-
-async function _response2console( response: any ) {
-    debug('response:\n', response );
-    return response;
-}
-
 
 async function _checkStatus( response: any ) {
 
-    debug('check Status running ...');
     let { status, statusText } = response;
 
-    (( status > 199 && status < 300 )
-        ? debug( 'check Status is Ok.' )
-        : debug( `ERROR: uploading status = ${status}, ${statusText}` )
+    (( status > 199 && status < 300 ) ?
+        debug('check Status is Ok (within 200..299).')
+        : debug(`ERROR: uploading status = ${status}, ${statusText}`)
     );
-    return response;
 }

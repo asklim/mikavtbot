@@ -1,6 +1,5 @@
-import env from './helpers/env';
-
 import {
+    env,
     botVersion,
     Logger
 } from './helpers/';
@@ -21,5 +20,5 @@ const initLog = new Logger('[prepare]:');
     }
     await showStartSystemInfo( botVersion );
     await import('./http-base');
-    initLog.info( 'End of prepare section.' );
+    initLog.info('End of prepare section.');
 })();
