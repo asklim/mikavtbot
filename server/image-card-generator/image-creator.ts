@@ -1,12 +1,16 @@
 import { default as debugFactory } from 'debug';
 const debug = debugFactory('image');
 import {
+    Canvas,
+    CanvasRenderingContext2D,
     createCanvas,
     Image
 } from 'canvas';
 //const Jimp = require( 'jimp' );
 
 import sharp from 'sharp';
+
+import { GeneratorOptions } from './get-settings';
 
 export {
     chooseFontSize,
@@ -21,8 +25,10 @@ export {
  * @param {string} pathFileName - путь и полное имя файла
  * @param {{}} settings - параметры преобразования
  */
-async function resizedImageToBuffer (pathFileName: any, settings: any) {
-
+async function resizedImageToBuffer (
+    pathFileName: string,
+    settings: GeneratorOptions
+) {
     const {
         width,
         height,
@@ -32,13 +38,13 @@ async function resizedImageToBuffer (pathFileName: any, settings: any) {
     const resultWidth = width * multiplicator;
     const resultHeight = height * multiplicator;
 
-    return await sharp( pathFileName )
+    return sharp( pathFileName )
         .resize( resultWidth, resultHeight )
         .png()
         .toBuffer();
 
     /*let image = await Jimp.read( pathFileName );
-    return await image
+    return image
         .resize( resultWidth, resultHeight )
         .getBufferAsync( Jimp.MIME_BMP );
     */
@@ -50,8 +56,10 @@ async function resizedImageToBuffer (pathFileName: any, settings: any) {
  * @param {Buffer} bgImageBuffer
  * @param {{}} settings
  */
-function createImagedCanvas( bgImageBuffer: any, settings: any ) {
-
+async function createImagedCanvas(
+    bgImageBuffer: Buffer,
+    settings: GeneratorOptions
+) {
     const {
         width, height,
         multiplicator,
@@ -61,14 +69,14 @@ function createImagedCanvas( bgImageBuffer: any, settings: any ) {
         width * multiplicator,
         height * multiplicator
     );
-    const ctx = imagedCanvas.getContext( '2d' );
-    debug( `text canvas: ${imagedCanvas.width} x ${imagedCanvas.height}`);
+    const ctx = imagedCanvas.getContext('2d');
+    debug(`text canvas: ${imagedCanvas.width} x ${imagedCanvas.height}`);
 
     const bgImage = new Image();
     bgImage.src = bgImageBuffer;
     ctx.drawImage( bgImage, 0, 0 );
 
-    return Promise.resolve( imagedCanvas );
+    return  imagedCanvas;
 }
 
 
@@ -81,8 +89,11 @@ function createImagedCanvas( bgImageBuffer: any, settings: any ) {
  * @param {Canvas} bgImagedCanvas - Canvas с картинкой
  * @param {{}} settings
  */
-function printTextOnCanvas( text: any, bgImagedCanvas: any, settings: any ) {
-
+async function printTextOnCanvas(
+    text: string,
+    bgImagedCanvas: Canvas,
+    settings: GeneratorOptions
+) {
     const {
         width, height,
         font,
@@ -90,19 +101,19 @@ function printTextOnCanvas( text: any, bgImagedCanvas: any, settings: any ) {
         outputFontSize,
     } = settings;
 
-    if( width !=0 ) { throw new Error( 'Generated test error.' ); }
+    //if( width !=0 ) { throw new Error('Generated test error.'); }
 
-    const ctx = bgImagedCanvas.getContext( '2d' );
-    debug( `text canvas: ${ctx.canvas.width} x ${ctx.canvas.height}`);
+    const ctx = bgImagedCanvas.getContext('2d');
+    debug(`text canvas: ${bgImagedCanvas.width} x ${bgImagedCanvas.height}`);
 
-    let lineHeight = outputFontSize * font.lineHeightMultiplicator;
+    const lineHeight = outputFontSize * font.lineHeightMultiplicator;
 
-    let lines = wrapLines( ctx, text, settings, outputFontSize );
+    const lines = wrapLines( ctx, text, settings, outputFontSize );
 
-    let freeVerticalMargins = height * multiplicator - lines.length * lineHeight;
+    const freeVerticalMargins = height * multiplicator - lines.length * lineHeight;
     let marginTop = freeVerticalMargins / 2 + lineHeight / 2;
 
-    debug( 'lines of text:\n', lines );
+    debug('lines of text:\n', lines );
     //Печатаем на канвасе текст
     lines
     .forEach( (line) => {
@@ -128,7 +139,7 @@ function printTextOnCanvas( text: any, bgImagedCanvas: any, settings: any ) {
 
         marginTop += lineHeight;
     });
-    return Promise.resolve( bgImagedCanvas );
+    return bgImagedCanvas;
 }
 
 
@@ -139,7 +150,11 @@ function printTextOnCanvas( text: any, bgImagedCanvas: any, settings: any ) {
  * @param {string} text - однострочный текст
  * @param {{}} settings - параметры
  */
-function chooseFontSize (bgCanvas: any, text: any, settings: any) {
+function chooseFontSize (
+    bgCanvas: Canvas,
+    text: string,
+    settings: GeneratorOptions
+) {
 
     const {
         marginTopMultiplicator,
@@ -167,8 +182,8 @@ function chooseFontSize (bgCanvas: any, text: any, settings: any) {
     }
 
     // Проверяем, сколько пустого места остаётся сверху
-    const canvasHeight = ctx.canvas.height;
-    const widthMargins = ctx.canvas.width - maxTextWidth * multiplicator;
+    const canvasHeight = bgCanvas.height; //ctx.canvas.height;
+    const widthMargins = bgCanvas.width - maxTextWidth * multiplicator;
     const marginTop = ( widthMargins / 2) * marginTopMultiplicator;
 
     let lineHeight = fontSize * font.lineHeightMultiplicator;
@@ -212,8 +227,12 @@ function chooseFontSize (bgCanvas: any, text: any, settings: any) {
  * @param {{}} settings
  * @param {number} fontSize
  */
-function wrapLines (ctx: any, text: any, settings: any, fontSize: any) {
-
+function wrapLines (
+    ctx: CanvasRenderingContext2D,
+    text: string,
+    settings: GeneratorOptions,
+    fontSize: number
+) {
     const {
         multiplicator,
         maxTextWidth,
@@ -237,10 +256,10 @@ function wrapLines (ctx: any, text: any, settings: any, fontSize: any) {
         line = '';
     const lines = [];
 
-    for( let word of words ) {
+    for( const word of words ) {
 
         //debug( word ); //очень много слов выводит
-        let wordWidth = word ? ctx.measureText( word ).width : 0;
+        const wordWidth = word ? ctx.measureText( word ).width : 0;
 
         if( wordWidth > maxTextWidth * multiplicator ) {
             // Если одно слово больше по ширине, значит шрифт большой.

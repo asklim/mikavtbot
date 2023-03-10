@@ -4,6 +4,7 @@
 # microsoft office temporary documents
 ~$*.*
 
+build/
 dist/
 
 # Static Bootstrap map files

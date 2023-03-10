@@ -1,6 +1,13 @@
-import * as process from 'process';
+import { env as ENV } from 'node:process';
+import { securifyToken } from '../securitize';
 
-import { securifyToken, } from '../securitize';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type PlainJSObject = { [key: string]: any };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type PlainJSObjectEntry = [string, any];
+// type PJSO = PlainJSObject;
+// type PJSOEntry = PlainJSObjectEntry;
 
 const defaultSecretKeys = [
     'JWT_SECRET',
@@ -16,45 +23,90 @@ const defaultSecretKeys = [
     'LS_COLORS'
 ];
 
+
 /**
  * Выводит переменные окружения process.env.*,
  * но без npm_* переменых, которых очень много
  * secretKeys сокращаются и вместо сокращения вставляется '***'
 **/
-export default function getProcessEnvWithout(
-    excludes: string = 'npm_',
-    isSorted: boolean = true,
+export default async function getProcessEnvWithout(
+    excludes = 'npm_',
+    isSorted = true,
     secretKeys: string[] = defaultSecretKeys
-){
-    const isSecretEnvVar = (varName: string) => secretKeys.includes( varName );
+)
+: Promise<PlainJSObject>
+{
+    return transformPJSO( ENV, excludes, isSorted, secretKeys );
+}
 
+
+export function transformPJSO (
+    obj: PlainJSObject,
+    excludes: string,
+    isSorted: boolean,
+    secretKeys: string[]
+)
+: PlainJSObject
+{
     const excludesArray = excludes.split(',').map( x => x.trim() ).filter(Boolean);
-
-    function isExcludeEnvVar (envVar: string) {
-        const isStarts = (element: string) => envVar.startsWith( element );
-        return excludesArray.some( isStarts );
+    function isForOutput (tuple: PlainJSObjectEntry) {
+        const isStartsWith = (element: string) => tuple[0].startsWith( element );
+        return !excludesArray.some( isStartsWith );
     }
 
-    const envWithout: {[key: string]: string} = {};
-
-    Object.keys( process.env ).
-    forEach( (key) => {
-        let token = <string> process.env[ key ];
-        if( isSecretEnvVar( key )) {
-            envWithout[ key ] = securifyToken( token );
+    const isSecretKey = (tuple: PlainJSObjectEntry) => secretKeys.includes( tuple[0] );
+    function makeSecured (tuple: PlainJSObjectEntry) {
+        if( isSecretKey( tuple )) {
+            tuple[1] = securifyToken( tuple[1] );
         }
-        else if( !isExcludeEnvVar( key ) ) {
-            envWithout[ key ] = token;
-        }
-    });
+        return tuple;
+    }
 
-    let result: {[key: string]: string} = {};
+    const tuples = convertToTuples( obj ).
+        filter( isForOutput ).
+        map( makeSecured )
+    ;
+    return convertToRecord( tuples, isSorted );
+}
+
+
+function convertToTuples (
+    obj: PlainJSObject
+)
+: PlainJSObjectEntry[]
+{
+    const result = new Map();
+
+    for( const key of Object.keys( obj )) {
+        result.set( key, obj[key]?.toString() ?? 'undefined');
+    }
+    return Array.from( result );
+}
+
+
+function compareTuplesAscending(
+    curr: PlainJSObjectEntry,
+    next: PlainJSObjectEntry
+): number {
+    if( curr[0] < next[0] ) { return -1; }
+    if( curr[0] > next[0] ) { return 1; }
+    // a must be equal to b
+    return 0;
+}
+
+
+function convertToRecord (
+    tuples: PlainJSObjectEntry[],
+    isSorted: boolean
+)
+: PlainJSObject
+{
     if( isSorted ) {
-        result = {};
-        for( const [key, value] of Object.entries( envWithout ).sort() ) {
-            result[ key ] = value;
-        }
+        tuples.sort( compareTuplesAscending );
     }
-
-    return Promise.resolve( result || envWithout );
-};
+    const result: PlainJSObject = {};
+    for( const [key, value] of tuples ) {
+        result[ key ] = value;
+    }
+    return result;
+}

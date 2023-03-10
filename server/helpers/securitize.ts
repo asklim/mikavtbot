@@ -5,8 +5,8 @@ export {
 
 function securifyToken(
     token: string | undefined,
-    ahead: number = 12,
-    behind: number = 3
+    ahead = 12,
+    behind = 3
 ): string {
     try {
         if( !token ) {
@@ -29,11 +29,15 @@ function securifyToken(
 }
 
 
-function securifyObjByList (
-    obj: any,
-    propList: string[] = ['token']
-): any {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type TStringObj = {[key:string]: any};
 
+function securifyObjByList (
+    obj: TStringObj,
+    propList: string[] = ['token']
+)
+: TStringObj
+{
     const clone = Object.assign( {}, obj );
 
     function checkProperty (prop: string) {

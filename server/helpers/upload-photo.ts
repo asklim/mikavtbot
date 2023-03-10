@@ -1,18 +1,20 @@
-import { default as debugFactory } from 'debug';
-const debug = debugFactory('helpers:upload-photo');
-
-import path from 'path';
-import { createReadStream, readdirSync } from 'fs';
+import path from 'node:path';
+import { AxiosHeaders } from 'axios';
+import {
+    createReadStream,
+    Dirent,
+    ReadStream,
+    readdirSync
+} from 'node:fs';
 import FormData from 'form-data';
 
 import {
     icwd,
+    debugFactory,
     Logger,
     securifyObjByList,
     securifyToken
 } from '<srv>/helpers/';
-
-const log = new Logger('upload-photo:');
 
 import { TELEGRAM_API_ROOT } from '<srv>/mikavbot/telegram-endpoints';
 
@@ -24,10 +26,19 @@ import {
 
 const TEST_IMAGES_DIR = `${icwd}/images/test-images`;
 
+const log = new Logger('upload-photo:');
+const debug = debugFactory('helpers:upload-photo');
+
 
 export {
     uploadPhoto,
     uploadTestPhoto,
+};
+
+type UploadOptions = {
+    token: string;
+    apiRoot?: string;
+    chat_id: number;
 };
 
 
@@ -35,15 +46,14 @@ export {
  *  Загружает тестовое фото
  *  в Telegram chat by [chat_id]
  *  @param {string} token   - токен для доступа к Telegram-боту
- *  @param {string} apiRoot - путь к Telegram API
  *  @param {number} chat_id - id чата/пользователя куда загрузить фото
  *  @return undefined | string (file_id) - если отправка прошла успешно.
 */
-function uploadTestPhoto ({
+function uploadTestPhoto (
+    {
         token,
-        /*apiRoot,*/
         chat_id
-    }: any
+    }: UploadOptions
 ) {
     const options = { token, apiRoot: TELEGRAM_API_ROOT, chat_id };
     const fname = getRandomTestFileName();
@@ -74,10 +84,10 @@ function getRandomTestFileName () {
         'test-informer.png'
     ];*/
     const testImagesFNames = readdirSync( TEST_IMAGES_DIR, { withFileTypes: true }).
-        map( (item: any) => item.isFile() && item.name ).
+        map( (item: Dirent) => item.isFile() && item.name ).
         filter( Boolean );
     const index = Math.floor( testImagesFNames.length * Math.random());
-    return path.resolve( TEST_IMAGES_DIR, testImagesFNames[ index ] );
+    return path.resolve( TEST_IMAGES_DIR, <string>testImagesFNames[ index ] );
 }
 
 
@@ -92,14 +102,12 @@ function getRandomTestFileName () {
  *  @return undefined | string (file_id) - если отправка прошла успешно.
 */
 async function uploadPhoto (
-    {
-        token,
+    {   token,
         apiRoot,
         chat_id
-    }: any,
+    }: UploadOptions,
     photoURL: string
 ) {
-
     try {
         const options = { token, apiRoot, chat_id };
         const imageReadable = await getStreamImageFrom( photoURL );
@@ -116,7 +124,7 @@ async function uploadPhoto (
         );
     }
     catch (error) {
-        return log.error(
+        log.error(
             `uploadPhoto: error image downloading.\n`,
             error
         );
@@ -139,8 +147,8 @@ function _uploadImageStream (
         token,
         apiRoot,
         chat_id
-    }: any,
-    stream: any
+    }: UploadOptions,
+    stream: ReadStream
 ) {
     // Telegram требует POST with form-data(multipart)
 
@@ -149,16 +157,17 @@ function _uploadImageStream (
 
     const apiSendPhotoUrl = `${apiRoot}/bot${token}/sendPhoto`;
 
-    //console.log('image stream ', stream);  //IncomingMessage || ReadStream
+    //console.log('image stream ', stream);
+    //IncomingMessage || ReadStream
 
     const form = new FormData();
     form.append('chat_id', chat_id );
     form.append('photo', stream );
 
-    let postOptions = {
+    const postOptions = {
         url: apiSendPhotoUrl,
         data: form,
-        headers: form.getHeaders(),
+        headers: <AxiosHeaders> form.getHeaders(),
     };
 
     //debug( `POST headers '${JSON.stringify( postOptions.headers )}'` );

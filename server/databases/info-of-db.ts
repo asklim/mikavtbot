@@ -1,9 +1,15 @@
 import { default as debugFactory } from 'debug';
 const debug = debugFactory('dbs:info');
 
-import { Connection } from 'mongoose';
+import {
+    Connection
+//    , Model
+} from 'mongoose';
 import { formatWithOptions } from 'util';
-import { Logger } from '../helpers/';
+import {
+    Logger,
+    IConsoleLogger
+} from '../helpers/';
 
 
 /**
@@ -23,8 +29,9 @@ export default async function (
 
     async function * theModels(
         models: string[]
-    ): any {
-        for( let modelName of models ) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ) : any {
+        for( const modelName of models ) {
             yield mongooseConnection.model( modelName );
         }
     }
@@ -43,10 +50,12 @@ export default async function (
         //     infoDocs.push( elem );
         // }
 
-        for await( let theModel of theModels( models )) {
-            let count = <number>( await theModel.countDocuments({}) );
-            let record = [ theModel.modelName, count ];
-            infoDocs.push( record );
+        for await(
+            const theModel of theModels( models )
+        ) {
+            const count = <number>( await theModel.countDocuments({}));
+            const tuple = [ theModel.modelName, count ];
+            infoDocs.push( tuple );
         }
 
         logging( infoDocs, log, 'v2' );
@@ -58,14 +67,13 @@ export default async function (
         console.log( 'info-of-db.ts - catch block');
         log.error( error );
     }
-
-};
+}
 
 
 function logging (
     docs: (string | number)[][],
-    logger: any,
-    version: string = 'v1'
+    logger: IConsoleLogger,
+    version = 'v1'
 ) {
     if( !Array.isArray( docs )) {
         throw new Error(`info-of-db.logging: 'docs' must be an Array.`);

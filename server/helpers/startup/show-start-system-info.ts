@@ -8,7 +8,7 @@ import getProcessEnvWithout from './get-process-env-without';
 
 export default async function showStartSystemInfo (
     appVersion: string
-) {
+): Promise<void> {
     const {
         PWD, USER, NAME, NODE_ENV
     } = process.env;

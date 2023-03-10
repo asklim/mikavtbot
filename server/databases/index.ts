@@ -3,11 +3,13 @@
 //     botmain: any
 // };
 
+import { Connection } from 'mongoose';
+
 // const dbs: DBs = {
 //     botmain: undefined
 // };
 
-const dbs: any = {};
+const dbs: {[key:string]: Connection} = {};
 
 /**
  * @name getDB
@@ -17,7 +19,7 @@ const dbs: any = {};
  * @return {Mongoose.Connection} The connection to database
 */
 function getDB(
-    dbType: string = 'main'
+    //dbType = 'main'
 ) {
     return dbs.botmain;
 }
@@ -25,7 +27,7 @@ function getDB(
 async function createDatabasesConnections() {
 
     if( !dbs.botmain ) {
-        dbs.botmain = await import('./db-mikavbot');
+        dbs.botmain = (await import('./db-mikavbot')).default;
     }
 }
 
@@ -35,8 +37,9 @@ async function createDatabasesConnections() {
 async function databasesShutdown (
     msg: string,
     next: () => void
-): Promise<void> {
-
+)
+: Promise<void>
+{
     const allDbsClosingPromises = Object.keys( dbs ).map(
         (dbKey) => /*dbs[ dbKey ].closeConn()*/ dbKey
     );
@@ -48,7 +51,7 @@ async function databasesShutdown (
         next?.();
     }).
     catch( error => console.log( error.message ));
-};
+}
 
 createDatabasesConnections();
 

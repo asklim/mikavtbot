@@ -1,13 +1,17 @@
 //import { Context } from 'telegraf';
 
 import { uploadPhoto } from '../../helpers/upload-photo';
-import { Logger, debugFactory } from '<srv>/helpers/';
+import {
+    Logger,
+    //debugFactory
+} from '<srv>/helpers/';
 
 const log = new Logger('mikaV:');
 //const debug = debugFactory('actions:cmd:geteco');
 
 
 export default async (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ctx: any
 ) => {
     try {
@@ -18,7 +22,7 @@ export default async (
 
         const { token } = ctx.telegram;
         //debug( '/geteco', token );
-        const { apiRoot } = ctx.tg?.options;
+        const apiRoot = ctx.tg?.options?.apiRoot;
         const { id: chat_id } = ctx.chat;
         uploadPhoto(
             { token, apiRoot, chat_id },

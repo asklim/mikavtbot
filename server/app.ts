@@ -1,5 +1,12 @@
-import { default as createError } from 'http-errors';
-import express from 'express';
+import {
+    default as createError,
+    HttpError
+} from 'http-errors';
+
+import express, {
+    Request,
+    Response
+}  from 'express';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 
@@ -65,14 +72,15 @@ app.use('/users', usersRouter );
 app.use('/', indexRouter );
 
 // catch 404 and forward to error handler
-app.use( function(req: any, res: any, next: any ) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+app.use( function(req: Request, res: Response, next: any ) {
 
     next( createError( 404 ), req, res );
 });
 
 // error handler
-// eslint-disable-next-line no-unused-vars
-app.use( function( err: any, req: any, res: any, _next: any ) {
+// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+app.use( function( err: HttpError, req: Request, res: Response, _next: unknown ) {
 
     // set locals, only providing error in development
     res.locals.message = err.message;

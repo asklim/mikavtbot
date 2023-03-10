@@ -30,9 +30,7 @@ export class Logger implements IConsoleLogger {
 
     private _ticker: string;
 
-    constructor (
-        ticker: string = ''
-    ) {
+    constructor (ticker = '') {
         this._ticker = ticker == '' ? '' : ' ' + ticker;
     }
     // Замыкаем _ticker, но не _date, иначе
@@ -59,18 +57,20 @@ export class Logger implements IConsoleLogger {
     }
 
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public debug = (...args: any[]) => log.debug(
         this.debugPrefix('DEBUG')+DEBUG_MESSAGE_COLOR,
         ...args,
         ESCAPE_END
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public info = (...args: any[]) => log.info( this.logPrefix('INF'), ...args );
-
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public warn = (...args: any[]) => log.warn( this.logPrefix('WARN'), ...args );
-
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public error = (...args: any[]) => log.error( this.logPrefix('ERROR'), ...args );
-
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public trace = (...args: any[]) => log.trace( this.debugPrefix('TRACE'), ...args );
 
-};
+}

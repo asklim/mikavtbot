@@ -1,3 +1,6 @@
+import { Context } from 'telegraf';
+import { message } from 'telegraf/filters';
+
 import {
     debugFactory,
     Logger,
@@ -13,8 +16,9 @@ const log = new Logger('mikaV:');
 
 export default async function createBot (
     authToken: string
-): Promise<MikaVTelegraf> {
-
+)
+: Promise<MikaVTelegraf>
+{
     const bot = new MikaVTelegraf( authToken );
 
     debug('sendPhoto url:', securifyToken( bot.getEndpointURL('sendPhoto'),42,13 ));
@@ -25,19 +29,19 @@ export default async function createBot (
     bot.help( actions.handler_help );
 
 
-    bot.command('/geteco', actions.command_geteco );
+    bot.command('geteco', actions.command_geteco );
 
 
-    bot.command('/test', actions.command_test );
+    bot.command('test', actions.command_test );
 
 
-    bot.on('text', actions.handler_on_text );
+    bot.on( message('text'), actions.handler_on_text );
 
 
     bot.on('message', actions.handler_on_message );
 
 
-    bot.use( (ctx: any, next: any) => {
+    bot.use( (ctx: Context, next: ()=>Promise<void>) => {
         try {
             log.debug('last handler (.use)! ctx:\n', ctx );
             if( next ) { return next(); }
@@ -48,4 +52,4 @@ export default async function createBot (
     });
 
     return bot;
-};
+}

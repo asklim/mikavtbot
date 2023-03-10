@@ -7,7 +7,7 @@ export const icwd = realpathSync( process.cwd() );
 
 // import { version } from '<root>/package.json';
 // This import ADD 'package.json' to dist/
-const packageJson = JSON.parse( readFileSync(`${icwd}/package.json`, 'utf-8'))
+const packageJson = JSON.parse( readFileSync(`${icwd}/package.json`, 'utf-8'));
 const { version } = packageJson;
 
 export { version as botVersion };

@@ -11,6 +11,7 @@ import {
 import { getDB } from '<srv>/databases/';
 import chatsList from '<srv>/helpers/chats-list';
 import { uploadTestPhoto } from '<srv>/helpers/upload-photo';
+import { Connection } from 'mongoose';
 
 const log = new Logger('api-health:');
 const dbTBot = getDB();
@@ -94,7 +95,7 @@ export default async function (
     }
 
     send400BadRequest( res, `parameter '${pingId}' is invalid.` );
-};
+}
 
 
 
@@ -103,13 +104,13 @@ export default async function (
  * @param mongodb - Mongoose.Connection to db
  * @returns count documents in db for all collections
  **/
-async function totalDocumentsInDB (mongodb: any) {
+async function totalDocumentsInDB (mongodb: Connection) {
 
     let total = 0;
-    for( let name of mongodb.modelNames() ) {
+    for( const name of mongodb.modelNames() ) {
 
-        let theModel = mongodb.model( name );
-        let count = await theModel.estimatedDocumentCount();
+        const theModel = mongodb.model( name );
+        const count = await theModel.estimatedDocumentCount();
         total += count;
     }
     return total;

@@ -1,6 +1,6 @@
 import { Telegraf } from 'telegraf';
 import {
-    debugFactory,
+    // debugFactory,
     Logger,
     securifyToken
 } from '<srv>/helpers/';
@@ -10,7 +10,7 @@ import {
     TELEGRAM_API_ROOT,
 } from './telegram-endpoints';
 
-const debug = debugFactory('tbot:mikav');
+// const debug = debugFactory('tbot:mikav');
 const log = new Logger('mikaV:');
 
 export default class MikaVTelegraf extends Telegraf {
@@ -56,7 +56,7 @@ export default class MikaVTelegraf extends Telegraf {
         endPoint: string,
         botIdAndToken?: string
     ) {
-        let token: string = '',
+        let token = '',
             apiRoot,
             action;
         try {

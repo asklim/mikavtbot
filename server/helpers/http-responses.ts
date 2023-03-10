@@ -12,10 +12,12 @@ type TMessage = object | string;
  */
 export function sendJSONresponse (
     res: Response,
-    status: any,
+    status: number,
     content: TMessage = 'response'
 ) {
-    let response = ( typeof content === 'object' ) ? content : { 'message': content };
+    const response = typeof content === 'object' ?
+        content
+        : { 'message': content };
     res.status( status ).json( response );
 }
 

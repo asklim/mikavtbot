@@ -1,3 +1,9 @@
 !.eslintrc.js
+!.eslintrc.cjs
+assets/*
+data-samples/*
+dist/*
+images/*
 static/*
+
 # /node_modules/* -- always ignored

@@ -1,14 +1,14 @@
-
 import { default as axios } from 'axios';
+import { IConsoleLogger } from '../logger-class';
 
 
 export default async function isAppRunning (
     port: string,
-    logger: any
+    logger: IConsoleLogger
 ) {
     try {
-        let path = `http://localhost:${port}/tbpi/health/app`;
-        let response = await axios.get( path );
+        const path = `http://localhost:${port}/tbpi/health/app`;
+        const response = await axios.get( path );
         logger?.debug('isAppRunning, path:', path );
         logger?.debug('isAppRunning is true, data:', response.data );
         return true;

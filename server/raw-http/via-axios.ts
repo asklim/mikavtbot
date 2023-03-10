@@ -1,5 +1,9 @@
-import { default as axios, AxiosResponse } from 'axios';
-import { Telegraf } from 'telegraf';
+import {
+    default as axios,
+    AxiosResponse,
+    AxiosHeaders
+} from 'axios';
+// import { Telegraf } from 'telegraf';
 
 import {
     debugFactory,
@@ -44,9 +48,8 @@ async function getStreamImageFrom (
 
         return readable.
             // eslint-disable-next-line no-unused-vars
-            on( 'error', (_err: any) => {
-                log
-                .error( `readable.on: ERROR image reading from '${url}'` );
+            on( 'error', (/*err*/) => {
+                log.error(`readable.on: ERROR image reading from '${url}'`);
             });
     }
     catch( error ) {
@@ -54,13 +57,17 @@ async function getStreamImageFrom (
     }
 }
 
+type TPostOptions = {
+    url: string;
+    data: unknown;
+    headers: AxiosHeaders
+};
 
 async function postImageTo (
-    {
-        url,
+    {   url,
         data,
         headers
-    }: any
+    }: TPostOptions
 ) {
     try {
         const res = await axios({
@@ -94,16 +101,17 @@ async function postImageTo (
         }
         return fileId;
     }
-    catch (err: any) {
+    catch (err) {
         log.error(`CATCH: in 'postImageTo'\n`, err );
     }
 }
 
 
 
-async function _checkStatus( response: any ) {
-
-    let { status, statusText } = response;
+async function _checkStatus(
+    response: AxiosResponse
+) {
+    const { status, statusText } = response;
 
     (( status > 199 && status < 300 ) ?
         debug('check Status is Ok (within 200..299).')

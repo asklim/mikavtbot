@@ -3,7 +3,7 @@ import { Context } from 'telegraf';
 
 import { Logger, debugFactory } from '<srv>/helpers/';
 
-const log = new Logger('mikaV:');
+const log = new Logger('onMessage:');
 const debug = debugFactory('actions:onmessage');
 
 
@@ -23,6 +23,7 @@ export default async (ctx: Context) => {
         // }
         // ctx.replyWithHTML(`<b>This is message, ${sticker.set_name}</b>`);
         ctx.replyWithHTML(`<b>This is message, ${typeof ctx.message}</b>`);
+        log.info('replied with HTML.');
     }
     catch (error) {
         log.error(`ctx.message`, ctx.message );

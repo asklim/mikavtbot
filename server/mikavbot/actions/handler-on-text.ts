@@ -1,16 +1,18 @@
-
 import { Logger, debugFactory } from '<srv>/helpers/';
 import { uploadTestPhoto } from '<srv>/helpers/upload-photo';
 
 const debug = debugFactory('actions:ontext');
 const log = new Logger('mikaV:');
 
-export default async (ctx: any) => {
+
+export default async (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ctx: any
+) => {
     //  Простые смайлики приходят сюда.
     try {
         const { message } = ctx;
         const { token } = ctx.telegram;
-        //const { apiRoot } = ctx.tg.options;
         const { id: chat_id } = ctx.chat;
         const { text } = message;
 
@@ -21,7 +23,7 @@ export default async (ctx: any) => {
         }
 
         if( text == 'test') {
-            uploadTestPhoto({ token, /*apiRoot,*/ chat_id });
+            uploadTestPhoto({ token, chat_id });
         }
         else {
             ctx.reply( `Hello (text), ${text}` );

@@ -4,6 +4,7 @@ debug( process.env.NODE_ENV );
 
 import fs from 'node:fs';
 import path from 'node:path';
+import sharp from 'sharp';
 
 //const Jimp = require( 'jimp' );
 
@@ -14,17 +15,17 @@ import {
     resizedImageToBuffer,
 } from './image-creator';
 
-import getSettings from './get-settings';
+import getSettings, { GeneratorOptions } from './get-settings';
 
-import sharp from 'sharp';
 
-const MINIMAL_FONT_SIZE = 12;
 class ImageGeneratorError extends Error {}
 
 
+const MINIMAL_FONT_SIZE = 12;
 const bgimagesDirName = './bg-images';
 const outputDirName = './output';
 const textsFName = './text.txt';
+
 
 if( !fs.existsSync( bgimagesDirName )) {
     // @ts-expect-error TS(1108): A 'return' statement can only be used within a fun... Remove this comment to see the full error message
@@ -78,17 +79,22 @@ const bgImageBuffers: {[key: string]: Buffer } = {};
 
         //if( imagesFNames ) { throw new Error( 'Global test error.' ); }
 
-        let allImagesResults = await preProcessingAllImages( imagesFNames, settings );
+        const isOkResult = (
+            item: PromiseSettledResult<string>
+        ) => item.status == 'fulfilled';
 
-        const imagesOk = allImagesResults.filter( (item: any) => !!item.value );
+        const allImagesResults = await preProcessingAllImages( imagesFNames, settings );
+
+        const imagesOk = allImagesResults.filter( isOkResult );
         console.log(
             `Successed buffered background images: ${imagesOk.length}\n`
         );
         debug( allImagesResults, /*'\n', bgImageBuffers*/ );
 
-        let allTextsResults = await processingAllTexts( textsArr, settings );
+        const allTextsResults = await processingAllTexts( textsArr, settings );
 
-        const textsOk = allTextsResults.filter( (item: any) => !!item.value );
+        //const textResultFilter = (item: any) => !!item.value;
+        const textsOk = allTextsResults.filter( isOkResult );
         console.log(
             `Успешно наложено текстов на images: ${textsOk.length}`
         );
@@ -116,35 +122,41 @@ const bgImageBuffers: {[key: string]: Buffer } = {};
  *      value: string
  * }]}
  */
-async function preProcessingAllImages (fileNames: any, settings: any) {
+async function preProcessingAllImages (
+    fileNames: string[],
+    settings: GeneratorOptions
+) {
 
-    const cachingOneBackgroundImageTask = async (fname: any) => {
+    const cachingOneBackgroundImageTask = async (
+        fname: string
+    ): Promise<string> => {
         return new Promise( (resolve) => {
 
             resizedImageToBuffer(
                 path.resolve( bgimagesDirName, fname ),
                 settings
-            )
-            .then( (buffer: any) => {
+            ).
+            then( (buffer: Buffer) => {
                 bgImageBuffers[fname] = buffer;
                 //debug( buffer );
                 console.log( `${fname} added to background images cache.` );
                 resolve( fname );
-            })
-            .catch( (err: any) => {
+            })/*.
+            catch( (err: any) => {
                 debug( 'CATCH: cachingOneImageTask.', err.message );
                 throw err; // Обработка Этой ошибки теряется.
-            });
+            })*/;
         });
     };
 
-    return Promise.allSettled(
-        fileNames.map( cachingOneBackgroundImageTask )
-    )
-    .catch( (err: any) => {
-        debug( 'CATCH: preProcessingAllImages.', err.message );
+    try {
+        const allImagesTasks = fileNames.map( cachingOneBackgroundImageTask );
+        return Promise.allSettled( allImagesTasks );
+    }
+    catch (err) {
+        debug( 'CATCH: preProcessingAllImages.', err );
         throw err; // Обработка Этой ошибки теряется.
-    });
+    }
 }
 
 
@@ -160,14 +172,12 @@ async function preProcessingAllImages (fileNames: any, settings: any) {
 **/
 async function processingAllTexts (
     texts: string[],
-    settings: any
+    settings: GeneratorOptions
 ) {
-
     const overlayOneTextTask = async (
         text: string,
         index: number
-    ): Promise< string > => {
-
+    ): Promise<string> => {
         try {
             const imageIndex = index % Object.keys( bgImageBuffers ).length;
             //Если background картинок меньше, чем на выходе (строк текста)
@@ -185,11 +195,11 @@ async function processingAllTexts (
 
             //const { width, height } = await image.metadata();
             //debug( `output image : ${width} x ${height}`);
-            const info = await image
-                .jpeg({
+            const info = await image.
+                jpeg({
                     quality: settings.jpegQuality,
-                })
-                .toFile( newImagePath );
+                }).
+                toFile( newImagePath );
 
             console.log( `New file with text saved to ${index+key}` );
             debug( `output sharp info:\n`, info );
@@ -211,9 +221,8 @@ async function processingAllTexts (
 
     try {
         console.log(`output path: ${path.resolve( outputDirName )}`);
-        return Promise.allSettled(
-            texts.map( overlayOneTextTask )
-        );
+        const allTasks = texts.map( overlayOneTextTask );
+        return Promise.allSettled( allTasks );
     }
     catch (err) {
         debug( 'CATCH: processingAllTexts.', err );
@@ -234,7 +243,7 @@ async function processingAllTexts (
 async function createTextOnImage (
     text: string,
     bgImageBuffer: Buffer,
-    settings: any
+    settings: GeneratorOptions
 ): Promise<Buffer | undefined> {
 
     //debug( `typeof bgImageBuffer is ${typeof bgImageBuffer}` );
@@ -252,7 +261,7 @@ async function createTextOnImage (
         console.log( `Подобран размер шрифта ${newFontSize}px` );
         settings.outputFontSize = newFontSize;
 
-        let textCanvas = await printTextOnCanvas( text, bgCanvas, settings );
+        const textCanvas = await printTextOnCanvas( text, bgCanvas, settings );
         //debug( `typeof 'textCanvas' is ${typeof textCanvas}`);
         console.log( `Текст "${text}" наложен на картинку\n` );
 
@@ -264,15 +273,4 @@ async function createTextOnImage (
             throw err;
         }
     }
-}
-
-
-/**
- * Выводим ошибку в консоль и выход
- * @param text
- */
-function _errorAndExit (text: any){
-
-    console.log( `Error: ${text}` );
-    process.exit(1);
 }

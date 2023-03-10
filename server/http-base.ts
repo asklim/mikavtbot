@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-//import '.';
 
 import http from 'node:http';
+import { Duplex } from 'node:stream';
+
 import { showServerAppInfo } from './helpers/startup/';
 
 import {
@@ -47,30 +48,30 @@ const shutdownTheServer = async () => {
 };
 
 
+interface ExtendedError extends Error {
+    code?: string;
+}
+
 /**
  * Event listener for HTTP server "error" event.
  *
  */
-const handleOnError = (error: any) => {
+const handleOnError = (error: ExtendedError) => {
 
-    if( error.syscall !== 'listen' ) {
-        throw error;
-    }
-
-    let bind = typeof port === 'string'
+    const bind = typeof port === 'string'
         ? 'Pipe ' + port
         : 'Port ' + port;
 
     // handle specific listen errors with friendly messages
-    switch( error.code ) {
+    switch( error?.code ) {
 
         case 'EACCES':
-            console.error( bind + ' requires elevated privileges' );
+            console.error(`${bind} requires elevated privileges`);
             process.exit(1);
             break;
 
         case 'EADDRINUSE':
-            console.error( bind + ' is already in use' );
+            console.error(`${bind} is already in use`);
             process.exit(1);
             break;
 
@@ -98,7 +99,7 @@ server.on('error', handleOnError );
 
 server.on('listening', handleOnListening );
 
-server.on('clientError', (err: any, socket: any) => {
+server.on('clientError', (err: Error, socket: Duplex) => {
     socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
 });
 
@@ -178,12 +179,12 @@ process.once('SIGUSR2', async () => {
 /**
  * Normalize a port into a number, string, or false.
  */
-function normalizePort (val: any) : number | string | boolean {
-
-    let port = parseInt( val, 10 );
-
+function normalizePort (val: unknown)
+: number | string | boolean
+{
+    const port = parseInt( <string>val, 10 );
     return isNaN( port )
-        ? val       // named pipe
+        ? <string> val       // named pipe
         : port >= 0
             ? port  // port number
             : false

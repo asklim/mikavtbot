@@ -1,4 +1,3 @@
-/// <reference path="../../node_modules/mongoose/types/index.d.ts" />
 import mongoose, {
     version
 } from 'mongoose';
@@ -24,7 +23,7 @@ export default function (
         infoOfDBtoConsole( connection );
     });
 
-    connection.on('error', (err: any) => {
+    connection.on('error', (err: Error) => {
         log.error(`${title} - connection error:\n`, err );
     });
 
@@ -47,4 +46,4 @@ export default function (
     // };
 
     return connection;
-};
+}

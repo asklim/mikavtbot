@@ -23,5 +23,4 @@ export default async function ( router: Router ) {
 
     router.get( routeWithId, handlerGET );
     router.all( routeWithId, callbackError405 );
-};
-
+}

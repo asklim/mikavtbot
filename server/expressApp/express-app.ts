@@ -23,13 +23,6 @@ const debug = debugFactory('tbot:express');
 const defaultLogger = new Logger('[tbot:express]');
 
 
-interface ExpressApp extends Express {
-    logger: any;
-    startTimestamp: number | undefined;
-    getStartTime: () => number | undefined;
-    getStateHandler: (r: Response, l?: IConsoleLogger) => Function;
-}
-
 export type AppResponse = Response | Error;
 
 export type AppLogicResponse = {
@@ -38,7 +31,16 @@ export type AppLogicResponse = {
     response: AppResponse;
 }
 
-export type HandlerFn = (res: AppLogicResponse) => void;
+// eslint-disable-next-line no-unused-vars
+export type HandlerFn = (res:AppLogicResponse) => void;
+
+interface ExpressApp extends Express {
+    logger: unknown;
+    startTimestamp: number | undefined;
+    getStartTime: () => number | undefined;
+    // eslint-disable-next-line no-unused-vars
+    getStateHandler: (r: Response, l?: IConsoleLogger) => HandlerFn;
+}
 
 const app = <ExpressApp> express();
 

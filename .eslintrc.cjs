@@ -1,4 +1,10 @@
 module.exports = {
+    root: true,
+    ignorePatterns: [
+        "tsconfig.json",
+        "server/**/*.test.ts",
+        "src/frontend/generated/*"
+    ],
     env: {
         "shared-node-browser": true,
         browser: true,
@@ -8,21 +14,19 @@ module.exports = {
         jest: true,
         es2021: true,
     },
-    parser: "@babel/eslint-parser",
-    /* parser: "babel-eslint",
-    parserOptions: {
-        ecmaVersion: 2019,
-        sourceType: "module",
-        ecmaFeatures: {
-            jsx: true,
-        },
-    }, */
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        //"project": ["./tsconfig.json"]
+    },
+    // parser: "@babel/eslint-parser",
     plugins: [
+        '@typescript-eslint',
         //"eslint-plugin-react",
         //"eslint-plugin-react-hooks",
     ],
     extends: [
         "eslint:recommended",
+        'plugin:@typescript-eslint/recommended',
         //"plugin:react/recommended"
     ],
     settings: {
@@ -80,6 +84,7 @@ module.exports = {
                 maxEOF: 1,
             },
         ],
+        "@typescript-eslint/no-explicit-any": "warn"
         //"react/jsx-uses-react": "warn",
         //"react-hooks/rules-of-hooks": "error",
         //"react-hooks/exhaustive-deps": "warn",

@@ -12,7 +12,7 @@ const DEBUG_MESSAGE_COLOR = YELLOW_DARK;
 
 
 export default function createLogger (
-    ticker: string = ''
+    ticker = ''
 ) {
     // Замыкаем _ticker, но не _date, иначе
     // будет одно и то же время на момент вызова logger.<fn>()
@@ -40,24 +40,25 @@ export default function createLogger (
                `${DEBUG_MESSAGE_COLOR}${_ticker}${ESCAPE_END}`;
     }
 
-
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const debug = (...args: any[]) => log.debug(
         debugPrefix('DEBUG')+DEBUG_MESSAGE_COLOR,
         ...args,
         ESCAPE_END
     );
-
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const info = (...args: any[]) => log.info( logPrefix('INF'), ...args );
-
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const warn = (...args: any[]) => log.warn( logPrefix('WARN'), ...args );
-
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const error = (...args: any[]) => log.error( logPrefix('ERROR'), ...args );
 
     return ({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         trace: (...args: any[]) => log.trace( debugPrefix('TRACE'), ...args ),
         debug,
         info,
         warn,
         error,
     });
-};
+}
