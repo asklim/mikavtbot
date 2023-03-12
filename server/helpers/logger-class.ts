@@ -1,4 +1,5 @@
 import log from 'loglevel';
+import { IConsoleLogger } from './interfaces';
 
 const isHeroku = process.env.DYNO && (process.env.PWD === '/app');
 const isSystemdService = (process.stdout.isTTY == undefined);
@@ -10,14 +11,6 @@ const ESCAPE_END = '\u001B[0m';
 const DEBUG_SIGN_COLOR = YELLOW_BRIGHT;
 const DEBUG_MESSAGE_COLOR = YELLOW_DARK;
 
-
-export interface IConsoleLogger {
-    trace: log.LoggingMethod; // 0
-    debug: log.LoggingMethod; // 1
-    info: log.LoggingMethod;  // 2
-    warn: log.LoggingMethod;  // 3
-    error: log.LoggingMethod; // 4
-}
 
 export class Logger implements IConsoleLogger {
 

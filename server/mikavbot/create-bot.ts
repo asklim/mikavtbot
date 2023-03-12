@@ -21,8 +21,6 @@ export default async function createBot (
 {
     const bot = new MikaVTelegraf( authToken );
 
-    debug('sendPhoto url:', securifyToken( bot.getEndpointURL('sendPhoto'),42,13 ));
-
     bot.start( actions.handler_start );
 
 
@@ -50,6 +48,8 @@ export default async function createBot (
             log.error('catch-handler:use(default)\n', error );
         }
     });
+
+    debug('sendPhoto url:', securifyToken( bot.getEndpointURL('sendPhoto'),42,13 ));
 
     return bot;
 }

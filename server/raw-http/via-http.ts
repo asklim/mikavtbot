@@ -3,6 +3,8 @@ const debug = debugFactory('raw:via-http');
 
 import http from 'node:http';
 
+import { ApiResponse, Message } from 'typegram';
+type TgPhotoMessage = ApiResponse<Message.PhotoMessage>;
 
 export {
     getStreamImageFrom,
@@ -93,7 +95,7 @@ function postImageTo (options: any) {
         const response = await res.read();
         debug( 'http.request POST-response.read():\n', response );
 
-        const telegramRes = JSON.parse( response );
+        const telegramRes = <TgPhotoMessage> JSON.parse( response );
 
         if( telegramRes.ok ) {
 

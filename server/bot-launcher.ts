@@ -1,8 +1,8 @@
-// import {
+import {
 //     Logger,
-//     debugFactory
-// } from '<srv>/helpers/';
-// const debug = debugFactory('tbot:run');
+    debugFactory
+} from '<srv>/helpers/';
+const debug = debugFactory('tbot:launcher');
 // const log = new Logger('TBot:');
 
 import {
@@ -17,7 +17,7 @@ async function runBot (
 ) {
 
     if( process.env.BOT_MODE == 'OFF' ) {
-        return void 0;
+        return undefined;
     }
     if( mikavbot ) {
         return mikavbot;
@@ -28,6 +28,9 @@ async function runBot (
     //debug('runBot', mikavbot == launched ); // true
     //debug('runBot', mikavbot === launched );// true
     //debug('launched is', typeof launched ); // object
+
+    const dt = new Date( mikavbot.getStartTime() ?? 0);
+    debug('Bot started at', dt.toUTCString());
 
     return mikavbot;
 }

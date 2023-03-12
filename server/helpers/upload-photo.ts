@@ -1,11 +1,11 @@
 import path from 'node:path';
-import { AxiosHeaders } from 'axios';
 import {
     createReadStream,
     Dirent,
     ReadStream,
     readdirSync
 } from 'node:fs';
+
 import FormData from 'form-data';
 
 import {
@@ -13,13 +13,13 @@ import {
     debugFactory,
     Logger,
     securifyObjByList,
-    securifyToken
+    securifyToken,
+    TgUploadOptions
 } from '<srv>/helpers/';
 
 import { TELEGRAM_API_ROOT } from '<srv>/mikavbot/telegram-endpoints';
 
 import {
-    //NetworkError,
     getStreamImageFrom,
     postImageTo,
 } from '<srv>/raw-http/via-axios';
@@ -35,12 +35,6 @@ export {
     uploadTestPhoto,
 };
 
-type UploadOptions = {
-    token: string;
-    apiRoot?: string;
-    chat_id: number;
-};
-
 
 /**
  *  Загружает тестовое фото
@@ -49,11 +43,10 @@ type UploadOptions = {
  *  @param {number} chat_id - id чата/пользователя куда загрузить фото
  *  @return undefined | string (file_id) - если отправка прошла успешно.
 */
-function uploadTestPhoto (
-    {
-        token,
+async function uploadTestPhoto (
+    {   token,
         chat_id
-    }: UploadOptions
+    }: TgUploadOptions
 ) {
     const options = { token, apiRoot: TELEGRAM_API_ROOT, chat_id };
     const fname = getRandomTestFileName();
@@ -71,18 +64,14 @@ function uploadTestPhoto (
         );
     }
     catch (e) {
-        return log.error(
-            `uploadTestPhoto: error reading from file ${fname}.`
-        );
+        log.error(`uploadTestPhoto: error reading from file ${fname}.`);
+        return;
     }
 }
 
+
 function getRandomTestFileName () {
 
-    /*const TEST_FILE_NAMES = [
-        'test-greeting-hi.jpg',
-        'test-informer.png'
-    ];*/
     const testImagesFNames = readdirSync( TEST_IMAGES_DIR, { withFileTypes: true }).
         map( (item: Dirent) => item.isFile() && item.name ).
         filter( Boolean );
@@ -102,14 +91,11 @@ function getRandomTestFileName () {
  *  @return undefined | string (file_id) - если отправка прошла успешно.
 */
 async function uploadPhoto (
-    {   token,
-        apiRoot,
-        chat_id
-    }: UploadOptions,
+    options: TgUploadOptions,
     photoURL: string
 ) {
     try {
-        const options = { token, apiRoot, chat_id };
+        //const options = { token, apiRoot, chat_id };
         const imageReadable = await getStreamImageFrom( photoURL );
         //console.log('image stream ', imageReadable);  //IncomingMessage
 
@@ -143,11 +129,10 @@ async function uploadPhoto (
  *  @return { undefined | Promise< string >} (file_id) - если отправка прошла успешно.
 */
 function _uploadImageStream (
-    {
-        token,
+    {   token,
         apiRoot,
         chat_id
-    }: UploadOptions,
+    }: TgUploadOptions,
     stream: ReadStream
 ) {
     // Telegram требует POST with form-data(multipart)
@@ -160,17 +145,12 @@ function _uploadImageStream (
     //console.log('image stream ', stream);
     //IncomingMessage || ReadStream
 
-    const form = new FormData();
-    form.append('chat_id', chat_id );
-    form.append('photo', stream );
+    const formData = new FormData();
+    formData.append('chat_id', chat_id );
+    formData.append('photo', stream );
 
-    const postOptions = {
+    return postImageTo({
         url: apiSendPhotoUrl,
-        data: form,
-        headers: <AxiosHeaders> form.getHeaders(),
-    };
-
-    //debug( `POST headers '${JSON.stringify( postOptions.headers )}'` );
-
-    return postImageTo( postOptions );
+        formData,
+    });
 }

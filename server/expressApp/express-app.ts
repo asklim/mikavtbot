@@ -19,8 +19,8 @@ import {
     IConsoleLogger
 } from '<srv>/helpers/';
 
-const debug = debugFactory('tbot:express');
-const defaultLogger = new Logger('[tbot:express]');
+const debug = debugFactory('app:express');
+const defaultLogger = new Logger('[app:express]');
 
 
 export type AppResponse = Response | Error;
@@ -32,7 +32,7 @@ export type AppLogicResponse = {
 }
 
 // eslint-disable-next-line no-unused-vars
-export type HandlerFn = (res:AppLogicResponse) => void;
+export type HandlerFn = (res: AppLogicResponse) => void;
 
 interface ExpressApp extends Express {
     logger: unknown;
@@ -45,10 +45,9 @@ interface ExpressApp extends Express {
 const app = <ExpressApp> express();
 
 app.logger = defaultLogger;
-
-
 app.startTimestamp = Date.now();
 app.getStartTime = function () { return this.startTimestamp;};
+
 debug('app(define).getStartTime:', app.getStartTime() );
 //debug('app(define).logger is', ({}).hasOwnProperty.call( app, 'logger'));
 

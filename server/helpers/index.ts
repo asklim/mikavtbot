@@ -14,6 +14,7 @@ export { version as botVersion };
 export { default as env } from './env';
 export { default as debugFactory } from 'debug';
 export { default as httpResponseCodes } from './http-response-codes';
+export * from './interfaces';
 export * from './logger-class';
 export * from './http-responses';
 export * from './securitize';

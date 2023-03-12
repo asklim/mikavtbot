@@ -94,7 +94,7 @@ export default async function (
         }
     }
 
-    send400BadRequest( res, `parameter '${pingId}' is invalid.` );
+    send400BadRequest( res, `parameter '${pingId}' is invalid.`);
 }
 
 

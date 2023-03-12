@@ -1,7 +1,7 @@
 
 import http from 'node:http';
 import { AddressInfo } from 'node:net';
-//import colors from 'colors';
+import { env } from '<srv>/helpers/';
 
 /**
  * Выводит информацию о сервере и
@@ -16,13 +16,15 @@ export default function showServerAppInfo (
     appVersion: string,
     httpServer: http.Server
 ) {
-    const node_env = process.env.NODE_ENV ?? 'undefined';
+    //if( env.SHOW_STARTUP_INFO == 'NO') { return; }
+
+    //const node_env = process.env.NODE_ENV ?? 'undefined';
 
     const outputs: {[key: string]: ()=>void} = {
         full: () => console.log( 'Express server = ',  httpServer, '\n' ),
         addr: () => {
             console.log('\napp version', appVersion.cyan );
-            console.log('NODE Environment is', node_env.cyan );
+            console.log('NODE Environment is', env.NODE_ENV.cyan );
             console.log( getAddressInfo( httpServer ), '\n');
         },
         default: () => console.log( '\n' )

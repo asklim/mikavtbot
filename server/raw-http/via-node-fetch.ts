@@ -1,19 +1,24 @@
-import { default as debugFactory } from 'debug';
+import { Readable } from 'node:stream';
+import nodeFetch, {
+    Response,
+} from 'node-fetch';
+
+import {
+    debugFactory,
+    // Logger,
+    TPostOptions,
+    TgPhotoMessage
+} from '<srv>/helpers/';
+
 const debug = debugFactory('raw:via-node-fetch');
 
-import { Readable } from 'node:stream';
-import nodeFetch, { Response } from 'node-fetch';
-
-// class ZeroSizeError extends Error {}
 class NetworkError extends Error {}
 
 
 export {
-    NetworkError,
     getStreamImageFrom,
     postImageTo,
 };
-
 
 
 function getStreamImageFrom (
@@ -29,10 +34,10 @@ function getStreamImageFrom (
     };
     //debug( `streamImage: try get image-stream from ${url}`);
 
-    return nodeFetch( url, getOptions )
+    return nodeFetch( url, getOptions ).
 
-    //.then( response2console )
-    .then( async (response: Response) => {
+    //then( response2console ).
+    then( async (response: Response) => {
 
         //debug( `typeof .body : ${typeof response.body }`); //object
         //debug( `response : \n${JSON.stringify( response )}`);
@@ -56,30 +61,34 @@ function getStreamImageFrom (
 
             return stream;
         }
-    })
-    .then( response2console )
-    .catch( (error) => {
+    }).
+    then( response2console ).
+    catch( (error) => {
         debug( `catch: ERROR in 'getStreamImageFrom'\n`, error  );
     });
 }
 
 
-
 function postImageTo (
-    urlTo: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    options: any
+    {   url,
+        formData,
+    }: TPostOptions<never>
 ) {
-    return nodeFetch( urlTo, options )
+    const reqInit = {
+        method: 'POST',
+        body: formData,
+        headers: formData.getHeaders()
+    };
 
-    .then( checkStatus )
-    .then( (response: Response) => response.json())
-    .then( response2console )
+    return nodeFetch( url, reqInit ).
+    then( checkStatus ).
+    then( (response: Response) => response.json()).
+    then( response2console ).
     // response.json ЗАМЕНЯЕТ следующие 2 строки
     //.then( response => response.body.read() ) //<Buffer>
     //.then( telegramResponse => JSON.parse( telegramResponse ))
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .then( (tgRes: any) => {
+    then( (tgRes: TgPhotoMessage) => {
 
         if( tgRes.ok ) {
 
@@ -92,11 +101,10 @@ function postImageTo (
             console.log(`file_id: ${file_id}`);
         }
         else {
-
             debug(`uploading error, body:\n`, tgRes );
         }
-    })
-    .catch( (error) => {
+    }).
+    catch( (error) => {
 
         if( error instanceof NetworkError ) {
             console.log(`Network Error: ${error.message}`);
@@ -108,8 +116,6 @@ function postImageTo (
 }
 
 
-
-
 function response2console (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     response: any
@@ -118,7 +124,6 @@ function response2console (
     console.log( response );
     return response;
 }
-
 
 
 function checkStatus (

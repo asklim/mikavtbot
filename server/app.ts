@@ -10,41 +10,54 @@ import express, {
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 
-// import {
-//     Logger,
-//     //debugFactory
-// } from '<srv>/helpers/';
-// const debug = debugFactory('tbot:app');
-
 import { default as app } from '<srv>/expressApp/';
-
-
 import tbpiRouter from './api/tbpi-router';
 import indexRouter from './api/index-router';
 import usersRouter from './api/users-router';
 
-const { NODE_ENV } = process.env;
+import { MikaVTelegraf } from './mikavbot/';
+import {
+    env,
+    Logger,
+    debugFactory
+} from '<srv>/helpers/';
+const debug = debugFactory('app:app');
+const log = new Logger('App:');
 
-const isProduction = NODE_ENV == 'production';
+// const { NODE_ENV } = process.env;
+// const isProduction = NODE_ENV == 'production';
 
 // NODE_ENV может быть undefined в продакшене для выполнения debug()
 // 'development', 'test' - Для разработки + debug()
 // 'production' - production without debug()
 // 'undefined'  - production with debug()
-const BOT_ID_TOKEN = ( NODE_ENV == undefined || isProduction )
-    ? process.env.MIKAVBOT_TOKEN
-    : process.env.MIKAHOMEBOT_TOKEN;
+const BOT_ID_TOKEN = ( env.NODE_ENV == 'undefined' || env.isProduction ) ?
+    /*process.*/ env.MIKAVBOT_TOKEN
+    : /*process.*/ env.MIKAHOMEBOT_TOKEN;
 
-if( !BOT_ID_TOKEN ) {
-    throw new Error('No auth token for Telegram.');
-}
+// if( !BOT_ID_TOKEN ) {
+//     throw new Error('No auth token for Telegram.');
+// }
+
+let mikavbot: MikaVTelegraf | undefined;
 
 (async function () {
-    const bot = await import('./bot-launcher');
-    /*let mikavbot =*/ await bot.runBot( BOT_ID_TOKEN );
+    const botLauncher = await import('./bot-launcher');
+    mikavbot = await botLauncher.runBot( BOT_ID_TOKEN );
+    return botLauncher;
+})().
+then( (launcher) => {
+    console.log('bot === mikav:', launcher.getBot() === mikavbot );
+    if( mikavbot ) {
+        const dt = new Date( mikavbot.getStartTime() ?? 0);
+        debug('Bot started at', dt.toUTCString());
+    }
+    else {
+        log.info('Bot is OFF');
+    }
     //debug( 'mikavbot is', mikavbot ); // Telegraf
     //debug( 'mikavbot.getBot is', bot.getBot() ); // Telegraf
-})();
+});
 
 
 app.set('BOT_ID_TOKEN', BOT_ID_TOKEN );
@@ -84,7 +97,7 @@ app.use( function( err: HttpError, req: Request, res: Response, _next: unknown )
 
     // set locals, only providing error in development
     res.locals.message = err.message;
-    res.locals.error = req.app.get('env') === 'development' ? err : {};
+    res.locals.error = req.app.get('env') == 'development' ? err : {};
 
     // render the error page
     res.status( err.status || 500 ).end();

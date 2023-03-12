@@ -4,11 +4,15 @@ import util from 'node:util';
 import colors from 'colors';
 import { realpathSync, } from 'node:fs';
 
+import { env } from '<srv>/helpers/';
 import getProcessEnvWithout from './get-process-env-without';
 
 export default async function showStartSystemInfo (
     appVersion: string
-): Promise<void> {
+): Promise<void>
+{
+    if( env.SHOW_STARTUP_INFO == 'NO') { return; }
+
     const {
         PWD, USER, NAME, NODE_ENV
     } = process.env;

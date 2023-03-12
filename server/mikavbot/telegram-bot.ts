@@ -1,6 +1,6 @@
 import { Telegraf } from 'telegraf';
 import {
-    // debugFactory,
+    debugFactory,
     Logger,
     securifyToken
 } from '<srv>/helpers/';
@@ -10,7 +10,7 @@ import {
     TELEGRAM_API_ROOT,
 } from './telegram-endpoints';
 
-// const debug = debugFactory('tbot:mikav');
+const debug = debugFactory('tbot:mikav');
 const log = new Logger('mikaV:');
 
 export default class MikaVTelegraf extends Telegraf {
@@ -19,20 +19,22 @@ export default class MikaVTelegraf extends Telegraf {
 
     async launchBot () {
 
-        //debug( this.token );  // ok and equal
-        //debug( this.telegram.token );
+        debug('launchBot/1/, token:', securifyToken( this.telegram.token ));
         try {
             await this.launch();
-
             this.startTimestamp = Date.now();
-            let info;
-            info = await this.telegram.getWebhookInfo();
-            log.info('webhook Info: ', info );
 
-            info = await this.telegram.getMe();
-            log.info('Me: ', info );
+            const whInfo = await this.telegram.getWebhookInfo();
+            log.info('webhook Info: ', whInfo );
 
-            return Promise.resolve( this );
+            const meInfo = await this.telegram.getMe();
+            log.info('Me: ', meInfo );
+
+            debug('launchBot/2/, botInfo', this.botInfo );
+            const dt = new Date( this.startTimestamp );
+            debug('launchBot/3/, started at', dt.toUTCString());
+
+            return this;
         }
         catch (err) {
             log.error('telegram-bot.launchBot error:\n', err );
@@ -66,7 +68,7 @@ export default class MikaVTelegraf extends Telegraf {
 
             return ( !!apiRoot && !!token && !!action ?
                 `${apiRoot}/bot${token}${action}`
-                : void 0
+                : undefined
             );
         }
         catch (e) {

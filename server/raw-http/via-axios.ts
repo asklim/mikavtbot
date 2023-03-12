@@ -1,23 +1,23 @@
 import {
     default as axios,
     AxiosResponse,
-    AxiosHeaders
+    //AxiosHeaders
 } from 'axios';
-// import { Telegraf } from 'telegraf';
+
+//import FormData from 'form-data';
 
 import {
     debugFactory,
     Logger,
+    TPostOptions,
+    TgPhotoMessage
 } from '<srv>/helpers/';
 
 const debug = debugFactory('raw:via-axios');
 const log = new Logger('raw:axios');
 
-class NetworkError extends Error {}
-
 
 export {
-    NetworkError,
     getStreamImageFrom,
     postImageTo,
 };
@@ -57,47 +57,46 @@ async function getStreamImageFrom (
     }
 }
 
-type TPostOptions = {
-    url: string;
-    data: unknown;
-    headers: AxiosHeaders
-};
 
 async function postImageTo (
     {   url,
-        data,
-        headers
-    }: TPostOptions
+        formData,
+    }: TPostOptions<never>
 ) {
     try {
+        //const headers
         const res = await axios({
             method: 'POST',
-            url, data, headers
+            url,
+            data: formData,
+            headers: formData.getHeaders()
         });
         _checkStatus( res );
-        const telegramResponse = res?.data;  // from Telegram Server
+        const fromTelegram = <TgPhotoMessage> res?.data;
+        // from Telegram Server
 
-        debug('Telegram response:\n', telegramResponse );
+        debug('Telegram response:\n', fromTelegram );
 
         let  fileId: string | undefined;
 
-        if( telegramResponse.ok ) {
+        if( fromTelegram.ok ) {
 
+            // debug( fromTelegram.result?.photo );
             // data.result.date = 1588088067
-            const dt = telegramResponse.result.date * 1000; // to millisec
+            const dt = fromTelegram.result.date * 1000; // to millisec
             const isoDate = (new Date( dt )).toISOString();
 
             //Если сразу сделать dt = new Date( ... ), то получается
             //at 1970-01-19T09:08:08.067Z, Mon Jan 19 1970 12:08:08 GMT+0300
             //(Moscow Standard Time)
 
-            fileId = telegramResponse.result.photo[0].file_id;
+            fileId = fromTelegram.result.photo[0].file_id;
 
             log.info(`SUCCESS: image uploaded at ${isoDate}, ${dt}` );
             log.info(`file_id:`, fileId );
         }
         else {
-            debug(`uploading error, data:\n`, telegramResponse );
+            debug(`uploading error, data:\n`, fromTelegram );
         }
         return fileId;
     }
@@ -105,7 +104,6 @@ async function postImageTo (
         log.error(`CATCH: in 'postImageTo'\n`, err );
     }
 }
-
 
 
 async function _checkStatus(

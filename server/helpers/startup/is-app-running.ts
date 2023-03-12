@@ -1,5 +1,5 @@
 import { default as axios } from 'axios';
-import { IConsoleLogger } from '../logger-class';
+import { IConsoleLogger } from '../interfaces';
 
 
 export default async function isAppRunning (

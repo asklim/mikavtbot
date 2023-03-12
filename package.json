@@ -1,6 +1,6 @@
 {
     "name": "mikavtbot",
-    "version": "0.0.7",
+    "version": "0.1.0",
     "description": "Telegram bot for usage in rsis",
     "main": "./dist/server/",
     "_moduleAliases": {
@@ -17,10 +17,10 @@
         "compile": "npx tsc",
         "compile:clean": "rm -rf dist/ && npm run compile",
         "debug": "DEBUG=$DEBUG,helpers:*,raw:*,api:* npm run debug:tbot",
-        "debug:tbot": "DEBUG=$DEBUG,tbot*,actions:*,telegraf:main npm run start:ts",
+        "debug:tbot": "DEBUG=$DEBUG,tbot*,actions:*,telegraf:main npm run start",
         "debug:all": "DEBUG=* npm run start",
-        "debug:ts": "DEBUG=helpers:*,raw:*,api:*,tbot:*,actions:*,telegraf:main npm run start:ts",
-        "debug:tsc": "npm run compile && DEBUG=helpers:*,raw:*,api:*,tbot:*,actions:*,telegraf:main npm run start",
+        "debug:ts": "DEBUG=helpers:*,raw:*,api:*,app:*,tbot:*,actions:*,telegraf:main npm run start",
+        "debug:tsc": "npm run compile && npm run debug:ts",
         "lint": "npx eslint .",
         "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install",
         "test": "npm run test"
