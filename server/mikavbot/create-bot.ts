@@ -7,7 +7,7 @@ import {
     securifyToken
 } from '<srv>/helpers/';
 
-import { default as MikaVTelegraf } from './telegram-bot';
+import { default as MikaVTelegraf } from './mikavtelegraf';
 import * as actions from './actions/';
 
 const debug = debugFactory('tbot:createbot');
@@ -45,7 +45,7 @@ export default async function createBot (
             if( next ) { return next(); }
         }
         catch (error) {
-            log.error('catch-handler:use(default)\n', error );
+            log.error('catch-handler in bot.use(), (default)\n', error );
         }
     });
 

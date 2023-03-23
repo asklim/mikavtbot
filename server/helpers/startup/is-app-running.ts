@@ -3,7 +3,7 @@ import { IConsoleLogger } from '../interfaces';
 
 
 export default async function isAppRunning (
-    port: string,
+    port: string | number,
     logger: IConsoleLogger
 ) {
     try {
@@ -14,6 +14,7 @@ export default async function isAppRunning (
         return true;
     }
     catch (err) {
+        logger.info('============ start app ============');
         // ALL OK, app is NOT running
         // logger?.error('isAppRunning is false', err );
         return false;

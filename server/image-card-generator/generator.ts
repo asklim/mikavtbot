@@ -182,9 +182,13 @@ async function processingAllTexts (
             const imageIndex = index % Object.keys( bgImageBuffers ).length;
             //Если background картинок меньше, чем на выходе (строк текста)
             const key = Object.keys( bgImageBuffers )[ imageIndex ];
+            if( !key ) {
+                throw new Error('No background images found.');
+            }
+
             const newImagePath = path.resolve( outputDirName, index + key );
 
-            debug( `bgImages key is ${key}` , null && Object.keys( bgImageBuffers ));
+            debug(`bgImages key is ${key}` /*, Object.keys( bgImageBuffers )*/);
 
             const imageBuffer = await createTextOnImage(
                 text,
@@ -242,12 +246,16 @@ async function processingAllTexts (
  */
 async function createTextOnImage (
     text: string,
-    bgImageBuffer: Buffer,
+    bgImageBuffer: Buffer | undefined,
     settings: GeneratorOptions
 ): Promise<Buffer | undefined> {
 
     //debug( `typeof bgImageBuffer is ${typeof bgImageBuffer}` );
     try {
+        if( !bgImageBuffer ) {
+            throw new Error('No background images found.');
+        }
+
         const bgCanvas = await createImagedCanvas( bgImageBuffer, settings );
 
         //Подбираем размер шрифта, чтобы влезал по ширине
@@ -258,18 +266,18 @@ async function createTextOnImage (
                     `Есть очень длинное слово в '${text}'\n`
             );
         }
-        console.log( `Подобран размер шрифта ${newFontSize}px` );
+        console.log(`Подобран размер шрифта ${newFontSize}px`);
         settings.outputFontSize = newFontSize;
 
         const textCanvas = await printTextOnCanvas( text, bgCanvas, settings );
         //debug( `typeof 'textCanvas' is ${typeof textCanvas}`);
-        console.log( `Текст "${text}" наложен на картинку\n` );
+        console.log(`Текст "${text}" наложен на картинку\n`);
 
-        return textCanvas.toBuffer( 'image/png' );
+        return textCanvas.toBuffer('image/png');
     }
-    catch( err ) {
+    catch (err) {
         if( err ) {
-            debug( 'CATCH: createTextOnImage:', err );
+            debug('CATCH: createTextOnImage:', err );
             throw err;
         }
     }

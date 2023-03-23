@@ -51,41 +51,61 @@ app.getStartTime = function () { return this.startTimestamp;};
 debug('app(define).getStartTime:', app.getStartTime() );
 //debug('app(define).logger is', ({}).hasOwnProperty.call( app, 'logger'));
 
+// interface IStateHandler {
+//     [HTTP.OK]: HandlerFn;
+//     [HTTP.CREATED]: HandlerFn;
+//     [HTTP.NO_CONTENT]: HandlerFn;
+//     [HTTP.BAD_REQUEST]: HandlerFn;
+//     [HTTP.NOT_FOUND]: HandlerFn;
+//     [HTTP.INTERNAL_SERVER_ERROR]: HandlerFn;
+// }
 
 app.getStateHandler = function getStateHandler(
     res: Response,
     logger: IConsoleLogger = defaultLogger
 ) {
-    const STATE_HANDLERS: {[key:number]: HandlerFn} = {
+    const STATE_HANDLERS = new Map();
 
-        [HTTP.OK]: (result: AppLogicResponse) => {
+    STATE_HANDLERS.set(
+        HTTP.OK,
+        (result: AppLogicResponse) => {
             logger.info( result.logMessage );
             return send200Ok( res, result.response );
-        },
-
-        [HTTP.CREATED]: (result: AppLogicResponse) => {
+        }
+    );
+    STATE_HANDLERS.set(
+        HTTP.CREATED,
+        (result: AppLogicResponse) => {
             logger.info( result.logMessage );
             return send201Created( res, result.response );
-        },
-
-        [HTTP.NO_CONTENT]: (result: AppLogicResponse) => {
+        }
+    );
+    STATE_HANDLERS.set(
+        HTTP.NO_CONTENT,
+        (result: AppLogicResponse) => {
             logger.info( result.logMessage );
             //debug( '[h-DELETE]:', result.response );
             //TODO: Client не получает тело json-ответа
             return send204NoContent( res, result.response );
-        },
-
-        [HTTP.BAD_REQUEST]: (result: AppLogicResponse) => {
+        }
+    );
+    STATE_HANDLERS.set(
+        HTTP.BAD_REQUEST,
+        (result: AppLogicResponse) => {
             logger.warn( result.logMessage );
             return send400BadRequest( res, result.response );
-        },
-
-        [HTTP.NOT_FOUND]: (result: AppLogicResponse) => {
+        }
+    );
+    STATE_HANDLERS.set(
+        HTTP.NOT_FOUND,
+        (result: AppLogicResponse) => {
             logger.warn( result.logMessage );
             return send404NotFound( res, result.response );
-        },
-
-        [HTTP.INTERNAL_SERVER_ERROR]: (result: AppLogicResponse) => {
+        }
+    );
+    STATE_HANDLERS.set(
+        HTTP.INTERNAL_SERVER_ERROR,
+        (result: AppLogicResponse) => {
             const { logMessage, response } = result;
             // debug( 'typeof response is', typeof result.response );// 'object'
             // debug( Object.keys( result.response )); // []
@@ -100,19 +120,22 @@ app.getStateHandler = function getStateHandler(
             logger.debug( `err.stack (${len}):`, stack );
             return send500ServerError( res, response );
         }
-    };
+    );
 
-    function handler (appLogicResult: AppLogicResponse) {
+
+    function stateHandler (appLogicResult: AppLogicResponse) {
         // throw new Error( `Test ERROR in Handler.`);
         const { statusCode } = appLogicResult;
+        //const key = statusCode.toString();
 
-        if( statusCode in STATE_HANDLERS ) {
-            return STATE_HANDLERS[ statusCode ]( appLogicResult );
+        if( STATE_HANDLERS.has( statusCode )) {
+            const theHandler = STATE_HANDLERS.get( statusCode );
+            return theHandler( appLogicResult );
         }
         throw new Error( `Handler of ${statusCode} not implemented.`);
     }
 
-    return handler;
+    return stateHandler;
 };
 
 export default app;

@@ -15,48 +15,40 @@ import {
 import expressNodejs from './app';
 import { databasesShutdown } from './databases/';
 
-import * as botLauncher from './bot-launcher';
+import * as telegramBot from './telegram-bot';
 
 const debug = debugFactory('app:http');
 
-
-/*******************************************************
- * Get port from environment and store in Express.
- */
-
-// const PORT = normalizePort( env.PORT );
-const { PORT } = env;
-expressNodejs.set('port', PORT );
-expressNodejs.set('botVersion', botVersion );
 
 debug('express.settings', securifyObjByList(
     expressNodejs?.settings,
     ['BOT_ID_TOKEN']
 ));
 
-interface ExtendedError extends Error {
-    code?: string;
-}
-
 /**
  * Create HTTP server.
  */
 const server = http.createServer( expressNodejs );
-initSetupServer();
-initSetupProcess();
+initialSetupServer();
+initialSetupProcess();
 
 
 /**
  * Listen on provided port, on all network interfaces.
  */
 export function startServer () {
-    server.listen( PORT,  () => {
+    server.listen( env.PORT,  () => {
         showServerAppInfo('addr'/*'full'*/, botVersion, server );
     });
 }
 
+
 /***************************** **********************/
 
+
+interface ExtendedError extends Error {
+    code?: string;
+}
 
 async function shutdownTheServer () {
     return server.
@@ -66,7 +58,7 @@ async function shutdownTheServer () {
 }
 
 
-function initSetupServer () {
+function initialSetupServer () {
 
     /** Event listener for HTTP server "error" event.
      */
@@ -78,12 +70,12 @@ function initSetupServer () {
         switch( error?.code ) {
 
             case 'EACCES':
-                console.error(`Port ${PORT} requires elevated privileges`);
+                console.error(`Port ${env.PORT} requires elevated privileges`);
                 process.exit(1);
                 break;
 
             case 'EADDRINUSE':
-                console.error(`Port ${PORT} is already in use`);
+                console.error(`Port ${env.PORT} is already in use`);
                 process.exit(1);
                 break;
 
@@ -118,7 +110,7 @@ function initSetupServer () {
 }
 
 
-function initSetupProcess () {
+function initialSetupProcess () {
 
     // CAPTURE APP TERMINATION / RESTART EVENTS
     const OK_EXIT_CODE = 0;
@@ -128,7 +120,7 @@ function initSetupProcess () {
         console.log('\b\b\x20\x20');
         console.log('Got SIGINT signal (^C)!\n');
 
-        const mikavbot = botLauncher.getBot();
+        const mikavbot = telegramBot.getBot();
         //debug( 'typeof mikavbot is', typeof mikavbot ); // object
         mikavbot?.stop('SIGINT');
 
@@ -148,7 +140,7 @@ function initSetupProcess () {
     // For Heroku app termination
     process.on('SIGTERM', async () => {
 
-        const mikavbot = botLauncher.getBot();
+        const mikavbot = telegramBot.getBot();
         mikavbot?.stop('SIGTERM');
 
         await shutdownTheServer();
@@ -164,7 +156,7 @@ function initSetupProcess () {
     // For nodemon restarts
     process.once('SIGUSR2', async () => {
 
-        const mikavbot = botLauncher.getBot();
+        const mikavbot = telegramBot.getBot();
         mikavbot?.stop('SIGUSR2');
 
         await shutdownTheServer();
@@ -176,19 +168,3 @@ function initSetupProcess () {
         );
     });
 }
-
-
-// /**
-//  * Normalize a port into a number, string, or false.
-//  */
-// function normalizePort (val: unknown)
-// : number | string | boolean
-// {
-//     const port = parseInt( <string>val, 10 );
-//     return isNaN( port )
-//         ? <string> val       // named pipe
-//         : port >= 0
-//             ? port  // port number
-//             : false
-//     ;
-// }

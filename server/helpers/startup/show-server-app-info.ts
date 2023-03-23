@@ -20,16 +20,19 @@ export default function showServerAppInfo (
 
     //const node_env = process.env.NODE_ENV ?? 'undefined';
 
-    const outputs: {[key: string]: ()=>void} = {
+    const outputs: { [key: string]: ()=>void } = {
         full: () => console.log( 'Express server = ',  httpServer, '\n' ),
         addr: () => {
             console.log('\napp version', appVersion.cyan );
             console.log('NODE Environment is', env.NODE_ENV.cyan );
             console.log( getAddressInfo( httpServer ), '\n');
-        },
-        default: () => console.log( '\n' )
+        }
     };
-    (outputs[ outputMode.toLowerCase() ] ?? outputs['default'])();
+    const modeFn = outputs[ outputMode.toLowerCase() ];
+    const defaultFn = () => console.log('\n');
+
+    ( modeFn ?? defaultFn )();
+    //(outputs[ outputMode.toLowerCase() ] ?? outputs['default'])();
 }
 
 

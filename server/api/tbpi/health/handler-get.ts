@@ -75,6 +75,12 @@ export default async function (
 
     if( pingId === 'database' ) {
 
+        if( !dbTBot ) {
+            return send500ServerError( res,
+                'No connection to database.'
+            );
+        }
+
         let maindbCount;
         try {
             maindbCount = await totalDocumentsInDB( dbTBot );
@@ -96,8 +102,6 @@ export default async function (
 
     send400BadRequest( res, `parameter '${pingId}' is invalid.`);
 }
-
-
 
 
 /**

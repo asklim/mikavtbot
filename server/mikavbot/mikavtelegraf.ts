@@ -10,7 +10,7 @@ import {
     TELEGRAM_API_ROOT,
 } from './telegram-endpoints';
 
-const debug = debugFactory('tbot:mikav');
+const d = debugFactory('tbot:mikav');
 const log = new Logger('mikaV:');
 
 export default class MikaVTelegraf extends Telegraf {
@@ -19,9 +19,10 @@ export default class MikaVTelegraf extends Telegraf {
 
     async launchBot () {
 
-        debug('launchBot/1/, token:', securifyToken( this.telegram.token ));
+        d('launchBot/1/, token:', securifyToken( this.telegram.token ));
         try {
-            await this.launch();
+            /*** Make SURE that next line WITHOUT await keyword  */
+            this.launch();
             this.startTimestamp = Date.now();
 
             const whInfo = await this.telegram.getWebhookInfo();
@@ -30,9 +31,9 @@ export default class MikaVTelegraf extends Telegraf {
             const meInfo = await this.telegram.getMe();
             log.info('Me: ', meInfo );
 
-            debug('launchBot/2/, botInfo', this.botInfo );
-            const dt = new Date( this.startTimestamp );
-            debug('launchBot/3/, started at', dt.toUTCString());
+            // d('launchBot/2/, botInfo', this.botInfo );
+            // const dt = new Date( this.startTimestamp );
+            // d('launchBot/3/, started at', dt.toUTCString());
 
             return this;
         }

@@ -14,7 +14,7 @@ Logger.setLevel( env.isProduction );
 const initLog = new Logger('[prepare]:');
 
 (async () => {
-    if( await isAppRunning( env.PORT+'', initLog )) {
+    if( await isAppRunning( env.PORT, initLog )) {
         initLog.warn('App has already been launched.');
         process.exit( 1 );
     }

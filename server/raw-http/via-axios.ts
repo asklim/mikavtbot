@@ -90,7 +90,7 @@ async function postImageTo (
             //at 1970-01-19T09:08:08.067Z, Mon Jan 19 1970 12:08:08 GMT+0300
             //(Moscow Standard Time)
 
-            fileId = fromTelegram.result.photo[0].file_id;
+            fileId = fromTelegram.result.photo[0]?.file_id;
 
             log.info(`SUCCESS: image uploaded at ${isoDate}, ${dt}` );
             log.info(`file_id:`, fileId );
