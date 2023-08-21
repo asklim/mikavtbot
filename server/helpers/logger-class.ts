@@ -15,8 +15,8 @@ const DEBUG_MESSAGE_COLOR = YELLOW_DARK;
 export class Logger implements IConsoleLogger {
 
     static setLevel (isProduction: boolean): void {
-        log.setLevel( isProduction ?
-            log.levels.DEBUG
+
+        log.setLevel( isProduction ? log.levels.DEBUG
             : log.levels.TRACE
         );
     }
@@ -24,7 +24,7 @@ export class Logger implements IConsoleLogger {
     private _ticker: string;
 
     constructor (ticker = '') {
-        this._ticker = ticker == '' ? '' : ' ' + ticker;
+        this._ticker = ticker == '' ? '' : ` ${ticker}`;
     }
     // Замыкаем _ticker, но не _date, иначе
     // будет одно и то же время на момент вызова logger.<fn>()
@@ -58,11 +58,11 @@ export class Logger implements IConsoleLogger {
     );
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    public info = (...args: any[]) => log.info( this.logPrefix('INF'), ...args );
+    public info = (...args: any[]) => log.info( this.logPrefix('INFO'), ...args );
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public warn = (...args: any[]) => log.warn( this.logPrefix('WARN'), ...args );
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    public error = (...args: any[]) => log.error( this.logPrefix('ERROR'), ...args );
+    public error = (...args: any[]) => log.error( this.logPrefix('ERR!'), ...args );
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public trace = (...args: any[]) => log.trace( this.debugPrefix('TRACE'), ...args );
 

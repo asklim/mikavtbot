@@ -18,6 +18,3 @@ export * from './interfaces';
 export * from './logger-class';
 export * from './http-responses';
 export * from './securitize';
-
-//export { default as consoleLogger } from './logger';
-//export { default as getProcessEnvWithout } from './startup/get-process-env-without';

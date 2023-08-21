@@ -1,0 +1,48 @@
+@startuml Startup Flow Sequence
+scale 1.0
+' skinparam Handwritten true
+skinparam BackgroundColor lightcyan
+
+' !$colorA = "Red"
+' create L2
+main o-> L1 ++ #GreenYellow: import from **'helpers'**
+deactivate L1
+main <-- L1
+
+main o-> L1 ++ #GreenYellow: import from **'helpers/startup'**
+deactivate L1
+main <-- L1: export { isAppRunning() }
+
+[o<-[#Red]-o main: isAppRunning ? \n exit code 1
+
+main o-> L1 : import from **'http-base'**
+activate L1 #Gold
+    L1 o-> L2 ++ #Gold: import from **'app'**
+    deactivate L2
+    L1 <-- L2
+    L1 o-> L2 ++ #OrangeRed: import from **'databases'**
+    deactivate L2
+    L1 <-- L2
+    L1 o-> L2 ++ #orange: import from **'telegram-bot'**
+    deactivate L2
+    L1 <-- L2
+    L1 o-> L2 ++ #red : create SERVER
+    L1 o-> L2: invoke 'initialSetup SERVER ()'
+    L1 o-> L2: invoke 'initialSetup PROCESS ()'
+    L1 <-- L2 --
+deactivate L1
+main <-- L1: export { startServer() }
+
+main -> L1: invoke startServer()
+activate L1
+L1 o-> L2: server.listen()
+
+' group My own label [My own label 2]
+'     Alice -> Log : Log attack start
+'     loop 1000 times
+'         Alice -[#Red]->o Bob: DNS Attack
+'     end
+'     Alice -> Log : Log attack end
+' end
+
+@enduml

@@ -2,7 +2,7 @@ import { Response, Request } from 'express';
 import { default as HTTP } from './http-response-codes';
 
 
-type TMessage = object | string;
+type ResponseMessage = object | string;
 
 /**
  * Send content as 'object' ONLY.
@@ -13,7 +13,7 @@ type TMessage = object | string;
 export function sendJSONresponse (
     res: Response,
     status: number,
-    content: TMessage = 'response'
+    content: ResponseMessage = 'response'
 ) {
     const response = typeof content === 'object' ?
         content
@@ -24,42 +24,42 @@ export function sendJSONresponse (
 
 export function send200Ok (
     res: Response,
-    msg: TMessage = 'OK'
+    msg: ResponseMessage = 'OK'
 ) {
     sendJSONresponse( res, HTTP.OK, msg );
 }
 
 export function send201Created (
     res: Response,
-    msg: TMessage = 'CREATED'
+    msg: ResponseMessage = 'CREATED'
 ) {
     sendJSONresponse( res, HTTP.CREATED, msg );
 }
 
 export function send204NoContent (
     res: Response,
-    msg: TMessage = 'NO_CONTENT'
+    msg: ResponseMessage = 'NO_CONTENT'
 ) {
     sendJSONresponse( res, HTTP.NO_CONTENT, msg );
 }
 
 export function send400BadRequest (
     res: Response,
-    msg: TMessage = 'BAD_REQUEST (invalid syntax)'
+    msg: ResponseMessage = 'BAD_REQUEST (invalid syntax)'
 ) {
     sendJSONresponse( res, HTTP.BAD_REQUEST, msg );
 }
 
 export function send401UnAuthorized (
     res: Response,
-    msg: TMessage = 'UnAuthorized'
+    msg: ResponseMessage = 'UnAuthorized'
 ) {
     sendJSONresponse( res, HTTP.UNAUTHORIZED, msg );
 }
 
 export function send404NotFound (
     res: Response,
-    msg: TMessage = 'NOT_FOUND'
+    msg: ResponseMessage = 'NOT_FOUND'
 ) {
     sendJSONresponse( res, HTTP.NOT_FOUND, msg );
 }
@@ -67,28 +67,28 @@ export function send404NotFound (
 // Метод запроса не разрешен к использованию для данного URL
 export function send405MethodNotAllowed (
     res: Response,
-    msg: TMessage = 'METHOD_NOT_ALLOWED'
+    msg: ResponseMessage = 'METHOD_NOT_ALLOWED'
 ) {
     sendJSONresponse( res, HTTP.METHOD_NOT_ALLOWED, msg );
 }
 
 export function send409Conflict (
     res: Response,
-    msg: TMessage = 'CONFLICT'
+    msg: ResponseMessage = 'CONFLICT'
 ) {
     sendJSONresponse( res, HTTP.CONFLICT, msg );
 }
 
 export function send500ServerError (
     res: Response,
-    msg: TMessage = 'INTERNAL_SERVER_ERROR'
+    msg: ResponseMessage = 'INTERNAL_SERVER_ERROR'
 ) {
     sendJSONresponse( res, HTTP.INTERNAL_SERVER_ERROR, msg );
 }
 
 export function send503ServiceUnavailable (
     res: Response,
-    msg: TMessage = 'SERVICE_UNAVAILABLE'
+    msg: ResponseMessage = 'SERVICE_UNAVAILABLE'
 ) {
     sendJSONresponse( res, HTTP.SERVICE_UNAVAILABLE, msg );
 }

@@ -43,7 +43,7 @@ export function startServer () {
 }
 
 
-/***************************** **********************/
+/***************************************************/
 
 
 interface ExtendedError extends Error {
@@ -52,8 +52,12 @@ interface ExtendedError extends Error {
 
 async function shutdownTheServer () {
     return server.
-    close( () => {
-        console.log( 'http-server closed now.' );
+    close( (err) => {
+        if( err ) {
+            console.log('Error of closing server.\n', err );
+            return;
+        }
+        console.log('http-server closed now.');
     });
 }
 

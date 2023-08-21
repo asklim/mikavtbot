@@ -19,8 +19,8 @@ const initLog = new Logger('[prepare]:');
         process.exit( 1 );
     }
     await showStartSystemInfo( botVersion );
-    const base = await import('./http-base');
-    base.startServer();
+    const { startServer } = await import('./http-base');
+    startServer();
 
     initLog.info('=======================');
     initLog.info('End of prepare section.');
