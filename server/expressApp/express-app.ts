@@ -19,7 +19,7 @@ import {
     IConsoleLogger
 } from '<srv>/helpers/';
 
-const debug = debugFactory('app:express');
+const d = debugFactory('app:express');
 const defaultLogger = new Logger('[app:express]');
 
 
@@ -48,7 +48,7 @@ app.logger = defaultLogger;
 app.startTimestamp = Date.now();
 app.getStartTime = function () { return this.startTimestamp;};
 
-debug('app(define).getStartTime:', app.getStartTime() );
+d('app(define).getStartTime:', app.getStartTime() );
 //debug('app(define).logger is', ({}).hasOwnProperty.call( app, 'logger'));
 
 // interface IStateHandler {

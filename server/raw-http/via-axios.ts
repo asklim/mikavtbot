@@ -1,5 +1,4 @@
-import {
-    default as axios,
+import axios, {
     AxiosResponse,
     //AxiosHeaders
 } from 'axios';

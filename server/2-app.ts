@@ -16,7 +16,7 @@ import indexRouter from './api/index-router';
 import usersRouter from './api/users-router';
 
 // import { MikaVTelegraf } from './mikavbot/';
-import { startBot } from './telegram-bot';
+import { startBot } from './3-telegram-bot';
 
 import {
     env,
@@ -47,8 +47,10 @@ app.set('botVersion', botVersion );
 //app.set( 'view engine', 'ejs' );
 
 const morganTemplate = [
-    '[:date[web]]', ':status',
-    //':remote-addr', ':remote-user',
+    '[:date[web]]',
+    ':status',
+    // ':remote-addr',
+    // ':remote-user',
     ':method :url :response-time[0] ms - :res[content-length]'
 ].join(' ');
 app.use( morgan( morganTemplate ));

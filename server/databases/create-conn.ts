@@ -6,11 +6,11 @@ import { default as infoOfDBtoConsole } from './info-of-db';
 
 import { Logger } from '<srv>/helpers/';
 
-const log = new Logger('DB:');
+const log = new Logger('storage [CC]:');
 log.debug(`Mongoose version: ${version}`);
 
 
-export default function (
+export default function createMongooseConnToDB (
     uri: string,
     title: string
 ) {
@@ -39,11 +39,11 @@ export default function (
         log.info(`${title} connection closed.`);
     });
 
-    // connection.closeConn = () => {
-    //     return new Promise( (resolve) =>
-    //         connection.close( () => resolve( title ))
-    //     );
-    // };
+    // @ts-expect-error closeConn don`t defined in mongoose.Connection
+    connection.closeConn = async () => {
+        await connection.close();
+        return title;
+    };
 
     return connection;
 }

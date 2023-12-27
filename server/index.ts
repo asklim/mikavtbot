@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import {
     env,
     botVersion,
@@ -19,7 +21,7 @@ const initLog = new Logger('[prepare]:');
         process.exit( 1 );
     }
     await showStartSystemInfo( botVersion );
-    const { startServer } = await import('./http-base');
+    const { startServer } = await import('./1-http-base');
     startServer();
 
     initLog.info('=======================');

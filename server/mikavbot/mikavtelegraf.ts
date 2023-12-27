@@ -18,18 +18,14 @@ export default class MikaVTelegraf extends Telegraf {
     private startTimestamp: number | undefined;
 
     async launchBot () {
-
         d('launchBot/1/, token:', securifyToken( this.telegram.token ));
         try {
+            this.startTimestamp = Date.now();
             /*** Make SURE that next line WITHOUT await keyword  */
             this.launch();
-            this.startTimestamp = Date.now();
 
-            const whInfo = await this.telegram.getWebhookInfo();
-            log.info('webhook Info: ', whInfo );
-
-            const meInfo = await this.telegram.getMe();
-            log.info('Me: ', meInfo );
+            await this.showWebhookInfo();
+            await this.showMeInfo();
 
             // d('launchBot/2/, botInfo', this.botInfo );
             // const dt = new Date( this.startTimestamp );
@@ -38,22 +34,13 @@ export default class MikaVTelegraf extends Telegraf {
             return this;
         }
         catch (err) {
-            log.error('telegram-bot.launchBot error:\n', err );
+            log.error('MikaVTelegraf.launchBot error:\n', err );
         }
     }
 
     public getStartTime (): number | undefined {
         return this.startTimestamp;
     }
-
-    private getTgToken (): string {
-        return this.telegram?.token;
-    }
-
-    private getTgApiRoot (): string {
-        return this.telegram?.options?.apiRoot;
-    }
-
 
     public getEndpointURL (
         endPoint: string,
@@ -78,6 +65,34 @@ export default class MikaVTelegraf extends Telegraf {
                 '\ntoken', securifyToken( token ),
                 '\naction', action
             );
+        }
+    }
+
+    private getTgToken (): string {
+        return this.telegram?.token;
+    }
+
+    private getTgApiRoot (): string {
+        return this.telegram?.options?.apiRoot;
+    }
+
+    private async showWebhookInfo () {
+        try {
+            const whInfo = await this.telegram.getWebhookInfo();
+            log.info('webhook Info: ', whInfo );
+        }
+        catch (err) {
+            log.error('MikaVTelegraf.showWebhookInfo error:\n', err );
+        }
+    }
+
+    private async showMeInfo () {
+        try {
+            const meInfo = await this.telegram.getMe();
+            log.info('Me: ', meInfo );
+        }
+        catch (err) {
+            log.error('MikaVTelegraf.showMeInfo error:\n', err );
         }
     }
 }

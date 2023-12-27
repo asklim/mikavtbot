@@ -1,6 +1,9 @@
 module.exports = {
-    "notify": false,
-    "notifyMode": "always",
+    notify: false,
+    //notifyMode: "always",
+    verbose: false,
+    preset: 'ts-jest',
+    testEnvironment: 'node',
     roots: [
         "<rootDir>/."
     ],
@@ -14,10 +17,12 @@ module.exports = {
     testMatch: [
         //"<rootDir>/**/__tests__/**/*.{js,jsx,ts,tsx}",
         //"<rootDir>/**/*.{spec,test}.{js,jsx,ts,tsx}",
+        "<rootDir>/spec/**/?(*.)+(spec|test).[jt]s?(x)",
         "<rootDir>/**/__tests__/**/?(*.)+(spec|test).[jt]s?(x)"
     ],
     transform: {
-        "^.+\\.(js|jsx|ts|tsx)$": "<rootDir>/node_modules/babel-jest",
+        "^.+\\.ts(x)?$": 'ts-jest',
+        // "^.+\\.(js|jsx|ts|tsx)$": "<rootDir>/node_modules/babel-jest",
     },
     transformIgnorePatterns: [
         "[/\\\\]node_modules[/\\\\].+\\.(js|jsx|ts|tsx)$",

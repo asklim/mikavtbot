@@ -11,6 +11,8 @@ export default async function showStartSystemInfo (
     appVersion: string
 ): Promise<void>
 {
+    console.log( colors.gray('process pid:'), colors.cyan(''+process.pid ), '\n' );
+
     if( env.SHOW_STARTUP_INFO == 'NO') { return; }
 
     const {
@@ -36,5 +38,4 @@ export default async function showStartSystemInfo (
         ', hostname is'.gray, `${os.hostname()}`.cyan
     );
     console.log( colors.gray('User Info:'), userInfo.yellow );
-    console.log( colors.gray('process pid:'), colors.cyan(''+process.pid ), '\n' );
 }

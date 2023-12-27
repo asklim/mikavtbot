@@ -14,8 +14,6 @@ import { uploadTestPhoto } from '<srv>/helpers/upload-photo';
 import { Connection } from 'mongoose';
 
 const log = new Logger('api-health:');
-const dbTBot = getDB();
-
 
 /**
  * Return status of app or DBs
@@ -27,80 +25,93 @@ const dbTBot = getDB();
  * @returns send 200 {ok: true, [dbname] : 'nn'} - count of docs.
  * @returns send 500 {ok: false, [dbname] : undefined} - no Mongo
  **/
-export default async function (
+export default async function handler_tbpi_health_GET (
     req: Request,
     res: Response
 ) {
-    //params : {'app' | 'context' | 'database'}
-    log.info(
-        'handler-GET - params:', req.params,
-        ', count:', req.params && Object.keys( req.params ).length
-    );
+    //params: {} = { healthId: 'app' | 'context' | 'database'}
+    try {
+        log.info(
+            'hGET - req.params:', req?.params,
+            ', count:', Object.keys( req?.params ).length
+        );
 
-    if( !req.params ) {
-        return send400BadRequest( res, 'No .params in request.');
-    }
+        const { healthId } = req.params;
+        const id = healthId?.toLowerCase() ?? 'app';
 
-    const { pingId } = req.params;
-
-    if( !pingId ) {
-        return send200Ok( res, {
-            ok: true,
-            message: 'app'
-        });
-    }
-
-    const ticker = pingId.toLowerCase();
-
-    if( ticker == '' || ticker == 'app' ) {
-        return send200Ok( res, {
-            ok: true,
-            message: 'app'
-        });
-    }
-
-    if( ticker == 'context' ) {
-
-        const ctx = {
-            token: req.app.get('BOT_ID_TOKEN'),
-            //process.env.MIKAHOMEBOT_TOKEN, //mikavbot.token,
-            //apiRoot: mikavbot.telegram.options.apiRoot,
-            //apiRoot: 'https://api.telegram.org',
-            chat_id: chatsList.andreiklim.id
-        };
-        uploadTestPhoto( ctx );
-        return send200Ok( res, securifyObjByList( { ok: true, ...ctx } ));
-    }
-
-
-    if( pingId === 'database' ) {
-
-        if( !dbTBot ) {
-            return send500ServerError( res,
-                'No connection to database.'
-            );
-        }
-
-        let maindbCount;
-        try {
-            maindbCount = await totalDocumentsInDB( dbTBot );
-            return send200Ok( res,
+        if ( id === 'app' ) {
+            // throw "health-handler-test-error";
+            send200Ok( res,
                 {
                     ok: true,
-                    [dbTBot.name]: maindbCount,
+                    message: 'app'
                 }
             );
+            return;
         }
-        catch {
-            return send500ServerError( res,
+
+        if ( id === 'context' ) {
+
+            const ctx = {
+                token: req.app.get('BOT_ID_TOKEN'),
+                //process.env.MIKAHOMEBOT_TOKEN, //mikavbot.token,
+                //apiRoot: mikavbot.telegram.options.apiRoot,
+                //apiRoot: 'https://api.telegram.org',
+                chat_id: chatsList.andreiklim.id
+            };
+            uploadTestPhoto( ctx );
+            send200Ok( res, securifyObjByList(
                 {
-                    [dbTBot.name]: maindbCount,
+                    ok: true,
+                    ...ctx
                 }
-            );
+            ));
+            return;
         }
+
+        if ( id === 'database' ) {
+            const tbotDB = await getDB();
+            responseDatabaseHealth( tbotDB, res );
+            return;
+        }
+
+        send400BadRequest( res, `parameter '${healthId}' is invalid.`);
+    }
+    catch (err) {
+        log.error('catch in health-handler-GET');
+        log.trace( err );
+        send500ServerError( res, 'Error in health-handler-GET');
+    }
+}
+
+
+async function responseDatabaseHealth(
+    db: Connection | null | undefined,
+    res: Response
+) {
+    if ( !db ) {
+        send500ServerError( res, 'No connection to database.');
+        return;
     }
 
-    send400BadRequest( res, `parameter '${pingId}' is invalid.`);
+    let maindbCount;
+    try {
+        maindbCount = await totalDocumentsInDB( db );
+        send200Ok( res,
+            {
+                ok: true,
+                [db.name]: maindbCount,
+            }
+        );
+    }
+    catch {
+        send500ServerError( res,
+            {
+                ok: false,
+                [db.name]: maindbCount,
+            }
+        );
+    }
 }
 
 
@@ -111,8 +122,9 @@ export default async function (
 async function totalDocumentsInDB (mongodb: Connection) {
 
     let total = 0;
-    for( const name of mongodb.modelNames() ) {
-
+    for (
+        const name of mongodb.modelNames()
+    ) {
         const theModel = mongodb.model( name );
         const count = await theModel.estimatedDocumentCount();
         total += count;

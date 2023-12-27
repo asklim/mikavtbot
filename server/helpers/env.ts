@@ -1,17 +1,17 @@
 import 'module-alias/register';
-import * as dotenv from 'dotenv';
-// see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+// import * as dotenv from 'dotenv';
+// // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+// dotenv.config();
+
+import 'dotenv/config';
 import {
     cleanEnv,
     str,
     port
 } from 'envalid';
 
-dotenv.config();
-
 const defaultToken = '1234567890:defaultDEFAULTdefaultDEFAULTdefault';
-
-export default cleanEnv( process.env, {
+const specs = {
     NODE_ENV: str({default: 'undefined'}),
     PORT: port({ default: 3569 }),
     BOT_MODE: str({
@@ -29,4 +29,8 @@ export default cleanEnv( process.env, {
         choices: ['YES','NO'],
         default: 'YES'
     }),
-});
+};
+
+const env = cleanEnv( process.env, specs );
+
+export default env;

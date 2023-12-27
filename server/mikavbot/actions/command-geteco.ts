@@ -10,10 +10,10 @@ const log = new Logger('mikaV:cmd</geteco>');
 //const debug = debugFactory('actions:cmd:geteco');
 
 
-export default async (
+export default async function command_geteco (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ctx: any
-) => {
+) {
     try {
         log.info(`starting command processing to ${ctx.chat.id}...`);
 
@@ -28,10 +28,15 @@ export default async (
             { token, apiRoot, chat_id },
             imageURL
         );
-        log.info( file_id ? `uploaded as ${file_id}`
-            : `file not uploaded` );
+        if ( file_id ) {
+            log.info(`uploaded as ${file_id}`);
+        }
+        else {
+            log.info(`file not uploaded`);
+            ctx.replyWithHTML('Loading error. Try later ...');
+        }
     }
     catch (error) {
         log.error('catch-handler:cmd:geteco\n', error );
     }
-};
+}

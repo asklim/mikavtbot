@@ -1,5 +1,5 @@
 
-import { default as createConnectionTo } from './create-conn';
+import { default as createMongooseConnToDB } from './create-conn';
 
 import {
     dbNames,
@@ -21,7 +21,7 @@ const isProdMode = NODE_ENV == undefined || NODE_ENV == 'production';
 
 const uri = isProdMode ? prodDB : devDB;
 
-const db = createConnectionTo( `${uri}/${dbmain}`, title );
+const db = createMongooseConnToDB(`${uri}/${dbmain}`, title );
 
 
 // BRING IN YOUR SCHEMAS & MODELS

@@ -25,13 +25,15 @@ export default async function (
     debug(`Mongoose connection id: ${id}`);
 
     const title = `dbinfo: ${host}:${port}/${db.databaseName}`;
-    const log = new Logger( `${title}:` );
+    const log = new Logger(`${title}:`);
 
     async function * theModels(
         models: string[]
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ) : any {
-        for( const modelName of models ) {
+        for(
+            const modelName of models
+        ) {
             yield mongooseConnection.model( modelName );
         }
     }
