@@ -18,13 +18,14 @@ export default function showServerAppInfo (
 ) {
     //if( env.SHOW_STARTUP_INFO == 'NO') { return; }
 
-    //const node_env = process.env.NODE_ENV ?? 'undefined';
-
-    const outputs: { [key: string]: ()=>void } = {
-        full: () => console.log( 'Express server = ',  httpServer, '\n' ),
+    const outputs: {
+        [key: string]: () => void
+    } = {
+        full: () => console.log('Express server =', httpServer, '\n'),
         addr: () => {
             console.log('\napp version', appVersion.cyan );
-            console.log('NODE Environment is', env.NODE_ENV.cyan );
+            const mode = env.NODE_ENV ?? 'undefined';
+            console.log('NODE Environment is', mode.cyan );
             console.log( getAddressInfo( httpServer ), '\n');
         }
     };

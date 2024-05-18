@@ -1,8 +1,10 @@
 # dotenv environment variables file
 .env
 
-# microsoft office temporary documents
+# microsoft office documents
 ~$*.*
+*.xls
+*.xls*
 
 build/
 dist/

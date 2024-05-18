@@ -3,6 +3,12 @@ import {
     readFileSync,
 } from 'node:fs';
 
+import {
+    // http,
+    IConsoleLogger,
+    Logger,
+} from 'asklim';
+
 export const icwd = realpathSync( process.cwd() );
 
 // import { version } from '<root>/package.json';
@@ -10,11 +16,16 @@ export const icwd = realpathSync( process.cwd() );
 const packageJson = JSON.parse( readFileSync(`${icwd}/package.json`, 'utf-8'));
 const { version } = packageJson;
 
-export { version as botVersion };
 export { default as env } from './env';
 export { default as debugFactory } from 'debug';
 export { default as httpResponseCodes } from './http-response-codes';
 export * from './interfaces';
-export * from './logger-class';
+// export * from './logger-class';
 export * from './http-responses';
 export * from './securitize';
+
+export {
+    version as botVersion,
+    IConsoleLogger,
+    Logger,
+};

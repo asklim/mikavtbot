@@ -1,6 +1,6 @@
 import { default as debugFactory } from 'debug';
-const debug = debugFactory('main');
-debug( process.env.NODE_ENV );
+const d = debugFactory('main');
+d(`NODE_ENV is ${process.env.NODE_ENV}`);
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -89,7 +89,7 @@ const bgImageBuffers: {[key: string]: Buffer } = {};
         console.log(
             `Successed buffered background images: ${imagesOk.length}\n`
         );
-        debug( allImagesResults, /*'\n', bgImageBuffers*/ );
+        d( allImagesResults, /*'\n', bgImageBuffers*/ );
 
         const allTextsResults = await processingAllTexts( textsArr, settings );
 
@@ -98,7 +98,7 @@ const bgImageBuffers: {[key: string]: Buffer } = {};
         console.log(
             `Успешно наложено текстов на images: ${textsOk.length}`
         );
-        debug( allTextsResults );
+        d( allTextsResults );
 
         console.log( textsOk.length == textsArr.length
             ? `Все строки текста (${textsArr.length}) обработаны. Cпасибо :)`
@@ -154,7 +154,7 @@ async function preProcessingAllImages (
         return Promise.allSettled( allImagesTasks );
     }
     catch (err) {
-        debug( 'CATCH: preProcessingAllImages.', err );
+        d( 'CATCH: preProcessingAllImages.', err );
         throw err; // Обработка Этой ошибки теряется.
     }
 }
@@ -188,7 +188,7 @@ async function processingAllTexts (
 
             const newImagePath = path.resolve( outputDirName, index + key );
 
-            debug(`bgImages key is ${key}` /*, Object.keys( bgImageBuffers )*/);
+            d(`bgImages key is ${key}` /*, Object.keys( bgImageBuffers )*/);
 
             const imageBuffer = await createTextOnImage(
                 text,
@@ -206,7 +206,7 @@ async function processingAllTexts (
                 toFile( newImagePath );
 
             console.log( `New file with text saved to ${index+key}` );
-            debug( `output sharp info:\n`, info );
+            d( `output sharp info:\n`, info );
             return  newImagePath;
         }
         catch (err) {
@@ -215,7 +215,7 @@ async function processingAllTexts (
                     console.log( err.message );
                 }
                 else {
-                    debug( 'CATCH: overlayOneTextTask.', err );
+                    d( 'CATCH: overlayOneTextTask.', err );
                     //throw err;
                 }
             }
@@ -229,7 +229,7 @@ async function processingAllTexts (
         return Promise.allSettled( allTasks );
     }
     catch (err) {
-        debug( 'CATCH: processingAllTexts.', err );
+        d( 'CATCH: processingAllTexts.', err );
         throw err;
     }
 }
@@ -277,7 +277,7 @@ async function createTextOnImage (
     }
     catch (err) {
         if( err ) {
-            debug('CATCH: createTextOnImage:', err );
+            d('CATCH: createTextOnImage:', err );
             throw err;
         }
     }

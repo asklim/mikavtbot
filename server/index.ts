@@ -11,8 +11,12 @@ import {
     showStartSystemInfo
 } from './helpers/startup/';
 
-Logger.setLevel( env.isProduction );
-
+if ( env.LOG_LEVEL === undefined ) {
+    Logger.setLevel( env.isProduction );
+}
+else {
+    Logger.setLogLevel( env.LOG_LEVEL );
+}
 const initLog = new Logger('[prepare]:');
 
 (async () => {
@@ -20,6 +24,7 @@ const initLog = new Logger('[prepare]:');
         initLog.warn('App has already been launched.');
         process.exit( 1 );
     }
+    initLog.info('============ start mikavTBot app ============');
     await showStartSystemInfo( botVersion );
     const { startServer } = await import('./1-http-base');
     startServer();

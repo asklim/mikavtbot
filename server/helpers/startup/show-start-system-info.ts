@@ -9,8 +9,7 @@ import getProcessEnvWithout from './get-process-env-without';
 
 export default async function showStartSystemInfo (
     appVersion: string
-): Promise<void>
-{
+) {
     console.log( colors.gray('process pid:'), colors.cyan(''+process.pid ), '\n' );
 
     if( env.SHOW_STARTUP_INFO == 'NO') { return; }

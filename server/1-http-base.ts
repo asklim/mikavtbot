@@ -1,5 +1,6 @@
 import process from 'node:process';
 import http from 'node:http';
+import * as fs from 'node:fs';
 import { Duplex } from 'node:stream';
 
 import { showServerAppInfo } from './helpers/startup';
@@ -118,18 +119,26 @@ function initialSetupServer () {
     });
 }
 
+const OK_EXIT_CODE = 0;
+const ERROR_EXIT_CODE = 1;
 
 function initialSetupProcess () {
+    // CAPTURE APP TERMINATION / RESTART EVENTS
 
-    process.on('unhandledRejection', (reason, promise) => {
-        log.trace('Unhandled Rejection at:\n', promise, 'reason:\n', reason);
+    process.on('unhandledRejection', async (reason, promise) => {
+        log.trace('Unhandled Rejection at:\n', promise, 'reason:\n', reason );
         // Application specific logging, throwing an error, or other logic here
+        await processShutdown('unhandledRejection', ERROR_EXIT_CODE );
     });
 
-    // CAPTURE APP TERMINATION / RESTART EVENTS
-    let exitCode: number;
-    const OK_EXIT_CODE = 0;
-    const ERROR_EXIT_CODE = 1;
+    process.on('uncaughtException', async (err, origin) => {
+        fs.writeSync( process.stderr.fd,
+            `Caught exception: ${err}\n` +
+            `Exception origin: ${origin}`
+        );
+        // Application specific logging, throwing an error, or other logic here
+        await processShutdown('uncaughtException', ERROR_EXIT_CODE );
+    });
 
     const blankTwoChars = () => console.log('\b\b\x20\x20');
 
@@ -138,56 +147,59 @@ function initialSetupProcess () {
         blankTwoChars();
         log.info('Got SIGINT signal (^C)!\n');
 
-        try {
-            const mikavbot = telegramBot.getBot();
-            //debug( 'typeof mikavbot is', typeof mikavbot ); // object
-            mikavbot?.stop('SIGINT');
+        await processShutdown('SIGINT', OK_EXIT_CODE );
+        // try {
+        //     const mikavbot = telegramBot.getBot();
+        //     //debug( 'typeof mikavbot is', typeof mikavbot ); // object
+        //     mikavbot?.stop('SIGINT');
 
-            await shutdownTheServer();
-            exitCode = OK_EXIT_CODE;
-            await databasesShutdown(
-                'SIGINT, app termination',
-                () => {
-                    setTimeout( process.exit, 500, exitCode );
-                }
-            );
-        }
-        catch (err) {
-            log.error('error in SIGINT handler:\n', err );
-            exitCode = ERROR_EXIT_CODE;
-        }
-        finally {
-            log.info(`Process finished (pid:${process.pid}, exit code: ${exitCode}).`);
-            (exitCode !== OK_EXIT_CODE) && process.exit( exitCode );
-        }
+        //     await shutdownTheServer();
+        //     exitCode = OK_EXIT_CODE;
+        //     await databasesShutdown(
+        //         'SIGINT, app termination',
+        //         () => {
+        //             setTimeout( process.exit, 500, exitCode );
+        //         }
+        //     );
+        // }
+        // catch (err) {
+        //     log.error('error in SIGINT handler:\n', err );
+        //     exitCode = ERROR_EXIT_CODE;
+        // }
+        // finally {
+        //     log.info(`Process finished (pid:${process.pid}, exit code: ${exitCode}).`);
+        //     (exitCode !== OK_EXIT_CODE) && process.exit( exitCode );
+        // }
     });
 
 
     // For Heroku app termination
     process.on('SIGTERM', async () => {
-        try {
-            const mikavbot = telegramBot.getBot();
-            mikavbot?.stop('SIGTERM');
+        await processShutdown('SIGTERM', OK_EXIT_CODE );
+        // try {
+        //     const mikavbot = telegramBot.getBot();
+        //     mikavbot?.stop('SIGTERM');
 
-            await shutdownTheServer();
-            exitCode = OK_EXIT_CODE;
-            await databasesShutdown(
-                'SIGTERM, app termination',
-                () => {
-                    setTimeout( process.exit, 500, exitCode );
-                }
-            );
-        }
-        catch (err) {
-            log.error('error in SIGTERM handler:\n', err );
-            exitCode = ERROR_EXIT_CODE;
-        }
-        finally {
-            log.info(`Process finished (pid:${process.pid}, exit code: ${exitCode}).`);
-            (exitCode !== OK_EXIT_CODE) && process.exit( exitCode );
-        }
+        //     await shutdownTheServer();
+        //     exitCode = OK_EXIT_CODE;
+        //     await databasesShutdown(
+        //         'SIGTERM, app termination',
+        //         () => {
+        //             setTimeout( process.exit, 500, exitCode );
+        //         }
+        //     );
+        // }
+        // catch (err) {
+        //     log.error('error in SIGTERM handler:\n', err );
+        //     exitCode = ERROR_EXIT_CODE;
+        // }
+        // finally {
+        //     log.info(`Process finished (pid:${process.pid}, exit code: ${exitCode}).`);
+        //     (exitCode !== OK_EXIT_CODE) && process.exit( exitCode );
+        // }
     });
 
+    let exitCode: number;
 
     // For nodemon restarts
     process.once('SIGUSR2', async () => {
@@ -213,4 +225,32 @@ function initialSetupProcess () {
             process.exit( exitCode );
         }
     });
+}
+
+
+async function processShutdown (
+    reason: string,
+    exitCode: number
+) {
+    try {
+        const mikavbot = telegramBot.getBot();
+        //debug( 'typeof mikavbot is', typeof mikavbot ); // object
+        mikavbot?.stop(`${reason}`);
+
+        await shutdownTheServer();
+        await databasesShutdown(
+            `${reason}, app termination`,
+            () => {
+                setTimeout( process.exit, 500, exitCode );
+            }
+        );
+    }
+    catch (err) {
+        log.error(`error in ${reason} handler:\n`, err );
+        exitCode = ERROR_EXIT_CODE;
+    }
+    finally {
+        log.info(`Process finished (pid:${process.pid}, exit code: ${exitCode}).`);
+        (exitCode !== OK_EXIT_CODE) && process.exit( exitCode );
+    }
 }

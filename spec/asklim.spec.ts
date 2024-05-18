@@ -28,8 +28,10 @@ describe(
         test(`asklim.Logger is class (function), returns is object.`,
             () => {
                 const { Logger } = asklim;
-                const testLog = new Logger('test');
                 expect( typeof Logger ).toBe('function');
+                expect( Logger.setLogLevel ).toBeDefined();
+
+                const testLog = new Logger('test');
                 expect( typeof testLog ).toBe('object');
                 expect( testLog ).toBeInstanceOf( Logger );
             }

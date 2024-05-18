@@ -14,12 +14,12 @@ module.exports = {
     setupFiles: [
     ],
     setupFilesAfterEnv: [],
-    testMatch: [
-        //"<rootDir>/**/__tests__/**/*.{js,jsx,ts,tsx}",
-        //"<rootDir>/**/*.{spec,test}.{js,jsx,ts,tsx}",
-        "<rootDir>/spec/**/?(*.)+(spec|test).[jt]s?(x)",
-        "<rootDir>/**/__tests__/**/?(*.)+(spec|test).[jt]s?(x)"
-    ],
+    // testMatch: [
+    //     //"<rootDir>/**/__tests__/**/*.{js,jsx,ts,tsx}",
+    //     //"<rootDir>/**/*.{spec,test}.{js,jsx,ts,tsx}",
+    //     "<rootDir>/spec/**/?(*.)+(spec|test).[jt]s?(x)",
+    //     "<rootDir>/**/__tests__/**/?(*.)+(spec|test).[jt]s?(x)"
+    // ],
     transform: {
         "^.+\\.ts(x)?$": 'ts-jest',
         // "^.+\\.(js|jsx|ts|tsx)$": "<rootDir>/node_modules/babel-jest",
